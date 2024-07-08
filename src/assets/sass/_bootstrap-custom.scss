@@ -1,0 +1,108 @@
+// プロジェクト設定ファイル // styleResourcesにつきimportせずともOK
+//@import '_variables';
+
+/*p {
+  margin: 0 !important;
+}*/
+
+// bootstrapで設定されている基本色をプロジェクト設定で上書き
+$blue: $color_main;
+$red: $color_impact;
+//$green:$color_safety;
+
+// bootstrapで設定されているカラースキームを上書きしたカラーで上書き
+$primary: $blue;
+$danger: $red;
+$info: $color_main;
+$success: $color_safety;
+
+// bootstrapで設定されているnavbar の text-color-Type： dark or light をカスタマイズ
+$navbar-dark-color: rgba($color_invert, 1);
+.navbar-brand {
+  margin: 0;
+  padding: 0;
+}
+
+// bootstrapで設定されているmodal をカスタマイズ
+$modal-content-border-radius: $input-border-radius;
+
+.modal-header {
+  border: none !important;
+}
+.modal-footer {
+  border: none !important;
+}
+
+.dropdown-menu-right {
+  //right: 0 !important;
+  left: 0 !important;
+}
+
+// bootstrapで設定されているcustom-controlを上書き
+form {
+  .custom-control {
+    // radiobuttonやcheckbox全般（validとinvalidの設定を上書き）
+    .custom-control-label {
+      // 線の色
+      &::before {
+        border-color: $input-border-color !important;
+      }
+      color: black !important;
+    }
+    // 選択時
+    .custom-control-input:checked ~ .custom-control-label {
+      // 背景色
+      &::before {
+        background-color: $color_main !important;
+      }
+    }
+    /*NG（invalid）
+        .custom-control-input:checked:invalid ~ .custom-control-label, 
+        .custom-control-input:checked.is-invalid ~ .custom-control-label{
+            &::before {
+                background-color: $color_impact !important;
+            }
+        }*/
+  }
+}
+
+// bootstrapで設定されているボタンを上書き
+.btn {
+  &.btn-outline-primary {
+    color: black !important;
+    background-color: white !important;
+    border-color: black !important;
+    &:hover {
+      color: $color_invert !important;
+      background-color: $color_main !important;
+      border-color: $color_main !important;
+    }
+    &.disabled,
+    &:disabled {
+      color: $color_invert !important;
+      background-color: $color_disable !important;
+      border-color: $color_disable !important;
+    }
+  }
+  // 無効の時の色
+  &.btn-primary {
+    &.disabled,
+    &:disabled {
+      color: $color_invert !important;
+      background-color: $color_disable !important;
+      border-color: $color_disable !important;
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $color_disable !important;
+  }
+}
+
+input:disabled,
+input.disabled {
+  border-color: $color_disable !important;
+}
+
+// bootstrap // 最後に記述 => main.tsでimport
+// @import 'bootstrap/dist/css/bootstrap.min.css';

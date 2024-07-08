@@ -1,0 +1,51 @@
+// シャドウをつけるか否か
+@mixin shadow_canvas($bool) {
+  @if ($bool) {
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+//キーフレームを出力するミックスインの例
+@mixin keyframes($name, $webkit: true, $moz: true) {
+  @if $webkit {
+    @-webkit-keyframes #{$name} {
+      @content;
+    }
+  }
+  @if $moz {
+    @-moz-keyframes #{$name} {
+      @content;
+    }
+  }
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin totalWidth($aWidth, $num, $between) {
+  width: $aWidth * $num + $between * $aWidth * ($num - 1);
+}
+
+// max-size から引数分引いたサイズ
+@mixin maxsize-offset($value) {
+  max-width: $width_canvas - $value;
+}
+
+// 折り返し上限
+@mixin breakpoint-up($breakpoint) {
+  @media screen and (max-width: $breakpoint) {
+    @content;
+  }
+}
+@mixin breakpoint-down($breakpoint) {
+  @media screen and (min-width: $breakpoint) {
+    @content;
+  }
+}
+
+// 社長デザイン
+@mixin spacingDesign($bool) {
+  @if ($bool) {
+    @content;
+  }
+}
