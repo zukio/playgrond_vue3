@@ -2,16 +2,14 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ['main'] # mainブランチにpushされた時に実行
+    branches: ['main']
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 concurrency:
   group: 'pages'
   cancel-in-progress: false
@@ -24,18 +22,21 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '21' # Node.jsのバージョンを指定
+          node-version: '21'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run build:github
+
+      - name: List build output
+        run: ls -R dist
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist # Vue CLIのデフォルトビルド出力ディレクトリ
+          path: dist
 
   deploy:
     environment:
