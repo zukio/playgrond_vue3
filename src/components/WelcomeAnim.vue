@@ -1,3 +1,19 @@
+<template>
+  <div>
+    <h2 class="center">{{ msg }}</h2>
+    <PopupMenu
+      :menus="
+        [
+          { key: '01', src: '/' },
+          { key: '02', src: '/' },
+          { key: '03', src: '/' }
+        ] as any
+      "
+    />
+    <Canvas class="canvas-wrapper" bg-color=""></Canvas>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import Canvas from '@/components/canvases/CanvasContainer.vue'
@@ -24,22 +40,6 @@ onMounted(() => {
   fadeIn('h1', 3000, 100)
 })
 </script>
-
-<template>
-  <div>
-    <h2 class="center">{{ msg }}</h2>
-    <PopupMenu
-      :menus="
-        [
-          { key: '01', src: '/' },
-          { key: '02', src: '/' },
-          { key: '03', src: '/' }
-        ] as any
-      "
-    />
-    <Canvas class="canvas-wrapper"></Canvas>
-  </div>
-</template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">

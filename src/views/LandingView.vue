@@ -1,5 +1,5 @@
 <template>
-  <div class="lp">
+  <div class="lp p-0 m-0">
     <hero-section />
 
     <main>

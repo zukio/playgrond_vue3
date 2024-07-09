@@ -1,11 +1,11 @@
 <template>
-  <div class="canvas-fluid">
+  <div class="layer-on-canvas">
     <ParticleClass
       v-for="particle in particleArray"
       v-bind:key="particle.id"
       ref="particles"
       :mouse="mouse"
-      :canvas="canvas"
+      :canvas="canvasSize"
       :collision="collisionRect"
     >
     </ParticleClass>
@@ -23,7 +23,7 @@ const props = defineProps<{
 const provider = inject('provider') as { context: CanvasRenderingContext2D }
 
 const mouse = reactive({ x: undefined as number | undefined, y: undefined as number | undefined })
-const canvas = reactive({ width: window.innerWidth, height: window.innerHeight })
+const canvasSize = reactive({ width: window.innerWidth, height: window.innerHeight })
 const particleArray = ref<any[]>([])
 const numberOfParticles = 200
 let requestId: number | null = null
@@ -60,8 +60,8 @@ const init = () => {
   }
   nextTick(() => {
     for (let i = 0; i < numberOfParticles; i++) {
-      const x = Math.random() * canvas.width
-      const y = Math.random() * canvas.height
+      const x = Math.random() * canvasSize.width
+      const y = Math.random() * canvasSize.height
       particles.value[i].constructor(x, y)
     }
     nextTick(() => {
@@ -74,7 +74,7 @@ const animate = () => {
   if (ctx.value) {
     ctx.value.lineCap = 'round'
     ctx.value.fillStyle = `rgba(${props.contentBackgroud}, 0.01)`
-    ctx.value.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.value.fillRect(0, 0, canvasSize.width, canvasSize.height)
 
     particles.value.forEach((particle) => {
       particle.update()
@@ -106,31 +106,10 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.canvas-fluid {
+.layer-on-canvas {
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
-/*#title1 {
-  box-sizing: border-box;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  color: black;
-  font-size: 120px;
-  line-height: 110px;
-  white-space: nowrap;
-  border-top: 10px solid black;
-  font-family: 'Griffy', cursive;  
-    &:before {
-    content: 'HALLOWEEN';
-    position: absolute;
-    bottom: -2em;
-    left: 0;
-    font-size: 40px;
-    width: 100%;
-    text-align: center;
-  }
-}*/
 </style>

@@ -8,9 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, toRef, computed, onMounted, onUnmounted } from 'vue'
+import { ref, defineProps, computed } from 'vue'
 
-interface Canvas {
+interface CanvasSize {
   width: number
   height: number
 }
@@ -29,7 +29,9 @@ interface Acceleration {
 }
 
 const props = defineProps<{
-  canvas: Canvas
+  canvas: CanvasSize
+  rotation: Rotation
+  acceleration: Acceleration
   id: number
 }>()
 
@@ -39,11 +41,6 @@ const x = ref(Math.random() * props.canvas.width)
 const y = ref(0) // Start from the top
 const size = ref(Math.random() * 3 + 2) // Slightly larger particles
 const color = ref(`rgba(0, 100, 255, ${Math.random() * 0.5 + 0.25})`)
-
-// `Rotation` インターフェースを更新し、`absolute` プロパティを追加しました。
-const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
-// `Acceleration` インターフェースを追加し、デバイスの加速度を追跡します。
-const acceleration = ref<Acceleration>({ x: 0, y: 0, z: 0 })
 
 const gravity = 9.81 // m/s^2
 const friction = 0.99
@@ -62,17 +59,17 @@ const update = (particles: any[]) => {
   const vx = ref(0)
   const vy = ref(0)
   // 回転角度をラジアンに変換し、正弦関数を使って傾きの力を計算します
-  const alphaRad = (rotation.value.alpha * Math.PI) / 180
-  const betaRad = (rotation.value.beta * Math.PI) / 180
-  const gammaRad = (rotation.value.gamma * Math.PI) / 180
+  const alphaRad = (props.rotation.alpha * Math.PI) / 180
+  const betaRad = (props.rotation.beta * Math.PI) / 180
+  const gammaRad = (props.rotation.gamma * Math.PI) / 180
 
   // デバイスの向きに基づいて重力の成分を計算します：
   const gx = -gravity * Math.sin(betaRad) * Math.sin(gammaRad)
   const gy = -gravity * Math.sin(betaRad) * Math.cos(gammaRad)
 
   // 重力と加速度を速度に適用します
-  vx.value += (gx + acceleration.value.x) * tiltSensitivity
-  vy.value += (gy + acceleration.value.y) * tiltSensitivity
+  vx.value += (gx + props.acceleration.x) * tiltSensitivity * size.value
+  vy.value += (gy + props.acceleration.y) * tiltSensitivity * size.value
 
   // Apply friction
   vx.value *= friction
@@ -128,36 +125,6 @@ const draw = () => {
     particleRef.value.style.transform = `translate(${x.value}px, ${y.value}px)`
   }
 }
-
-// `handleOrientation` と `handleMotion` 関数を追加して、デバイスの向きと動きを追跡します。
-const handleOrientation = (event: DeviceOrientationEvent) => {
-  rotation.value = {
-    alpha: event.alpha || 0,
-    beta: event.beta || 0,
-    gamma: event.gamma || 0,
-    absolute: event.absolute || false
-  }
-}
-
-const handleMotion = (event: DeviceMotionEvent) => {
-  if (event.accelerationIncludingGravity) {
-    acceleration.value = {
-      x: event.accelerationIncludingGravity.x || 0,
-      y: event.accelerationIncludingGravity.y || 0,
-      z: event.accelerationIncludingGravity.z || 0
-    }
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('deviceorientation', handleOrientation)
-  window.addEventListener('devicemotion', handleMotion)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('deviceorientation', handleOrientation)
-  window.removeEventListener('devicemotion', handleMotion)
-})
 
 defineExpose({
   update,

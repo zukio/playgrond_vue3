@@ -1,5 +1,5 @@
 <template>
-  <div class="canvas-fluid position-absolute bg-danger">
+  <div class="layer-on-canvas">
     <ParticleClass
       v-for="(particle, index) in particleArray"
       v-bind:key="particle.id"
@@ -93,7 +93,8 @@ const init = () => {
 const animate = () => {
   if (ctx.value) {
     ctx.value.clearRect(0, 0, canvas.width, canvas.height)
-
+    // ctx.value.fillStyle = `rgba(${props.contentBackgroud}, 1)`
+    // ctx.value.fillRect(0, 0, canvas.width, canvas.height)
     particles.value.forEach((particle) => {
       if (particle.update) particle.update()
       if (particle.draw) particle.draw()
@@ -137,6 +138,11 @@ const thaw_snow = (index: number) => {
   particleArray.value.splice(index, 1)
 }
 
+const onResize = () => {
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  init()
+}
 onMounted(() => {
   window.addEventListener('mousemove', onMousemove)
   window.addEventListener('resize', onResize)
@@ -149,16 +155,12 @@ onUnmounted(() => {
   window.removeEventListener('mousemove', onMousemove)
   window.removeEventListener('resize', onResize)
 })
-
-const onResize = () => {
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  init()
-}
 </script>
 
 <style lang="scss" scoped>
-.canvas-fluid {
+.layer-on-canvas {
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }

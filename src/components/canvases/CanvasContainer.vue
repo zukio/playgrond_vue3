@@ -1,12 +1,17 @@
 <template>
-  <div class="canvas-wrapper">
-    <canvas ref="canvas1" id="canvas1"></canvas>
+  <div :style="props.bgColor ? { backgroundColor: props.bgColor } : ''">
+    <canvas
+      ref="canvas1"
+      id="canvas1"
+      :style="props.bgColor ? { backgroundColor: props.bgColor } : ''"
+    >
+    </canvas>
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted } from 'vue'
+import { ref, reactive, provide, onMounted, defineProps } from 'vue'
 
 interface Provider {
   canvas: HTMLCanvasElement | null
@@ -20,6 +25,9 @@ const provider = reactive<Provider>({
 
 provide('provider', provider)
 
+const props = defineProps<{
+  bgColor: string | undefined
+}>()
 const canvas1 = ref<HTMLCanvasElement | null>(null)
 
 onMounted(() => {
@@ -49,6 +57,7 @@ onMounted(() => {
 }*/
 
 canvas {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

@@ -1,5 +1,5 @@
 <template>
-  <div class="about">
+  <div class="m-0 p-0">
     <DrumMachine />
 
     <div class="listContainer">
@@ -77,16 +77,12 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.about {
-  height: 100%;
-
-  .listContainer {
-    position: absolute;
-    max-width: 640px;
-    margin: 0 5vw;
-    text-align: left;
-    bottom: 30px;
-    box-sizing: border-box;
-  }
+.listContainer {
+  position: absolute;
+  max-width: 640px;
+  margin: 0 5vw;
+  text-align: left;
+  bottom: 30px;
+  box-sizing: border-box;
 }
 </style>

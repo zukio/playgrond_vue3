@@ -22,6 +22,7 @@ import { RouterLink, RouterView } from 'vue-router'
 header {
   line-height: 1.5;
   max-height: 100vh;
+  padding: 10px;
 }
 
 .logo {
@@ -33,6 +34,7 @@ nav {
   width: 100%;
   font-size: 12px;
   text-align: center;
+  z-index: -1;
 }
 
 nav a.router-link-exact-active {
