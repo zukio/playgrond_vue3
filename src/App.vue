@@ -6,6 +6,7 @@
         <RouterLink to="/about">About</RouterLink>
         <RouterLink to="/canvas">Canvas</RouterLink>
         <RouterLink to="/gyro">Gyro</RouterLink>
+        <RouterLink to="/proto">Prototype</RouterLink>
         <RouterLink to="/landing">Landing Page</RouterLink>
       </nav>
     </div>

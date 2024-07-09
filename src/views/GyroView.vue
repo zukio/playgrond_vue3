@@ -8,12 +8,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useCounterStore } from '@/stores/counter'
+import { ref } from 'vue'
 import Canvas from '@/components/canvases/CanvasContainer.vue'
 import ParticleGyro from '@/components/canvases/particle_gyro.vue'
-
-const store = useCounterStore()
 
 const componentRef: any = ref(null)
 
@@ -23,32 +20,10 @@ const medialistactive = ref({
   text: 'デバイスのジャイロセンサを使用する例'
 })
 
-const recievedData = computed(() => store.demoData)
-
 const backgroundColor = (index: number) => {
   const colorList = ['211, 97, 21', 'darkorange']
   return colorList[index]
 }
-
-const recievedMedialistactive = (input: any) => {
-  medialistactive.value = input
-}
-
-watch(recievedData, (newValue) => {
-  if (newValue) {
-    medialistactive.value = newValue[1]
-  }
-})
-
-onMounted(() => {
-  if (recievedData.value) {
-    medialistactive.value = recievedData.value[1]
-  }
-})
-
-defineExpose({
-  recievedMedialistactive
-})
 </script>
 
 <style lang="scss" scoped>
