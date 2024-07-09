@@ -22,7 +22,7 @@ const props = defineProps<{
 
 const contentNo = ref(0)
 const backgroundColor = (index: number) => {
-  const array = ['211, 97, 21', 'darkorange']
+  const array = ['211, 97, 21', '211, 97, 21', '211, 97, 21']
   return array[index]
 }
 const getBackgroundColor = computed(() => {
@@ -46,6 +46,6 @@ h2 {
   width: 100%;
   height: 100%;
   background: top right / cover repeat-y;
-  z-index: -100;
+  z-index: -1;
 }
 </style>

@@ -5,7 +5,7 @@
       v-bind:key="particle.id"
       ref="particles"
       :mouse="mouse"
-      :canvas="canvas"
+      :canvas="canvasSize"
       @thaw="thaw_snow(index)"
       class="position-absolute"
     >
@@ -44,7 +44,7 @@ const provider = inject('provider') as {
   canvas: HTMLCanvasElement
 }
 
-const canvas = reactive({ width: window.innerWidth, height: window.innerHeight })
+const canvasSize = reactive({ width: window.innerWidth, height: window.innerHeight })
 const particleArray = ref<any[]>([])
 const numberOfParticles = 200
 let requestId: number | null = null
@@ -74,8 +74,8 @@ const init = () => {
   }
   nextTick(() => {
     particles.value = particleArray.value.map(() => {
-      let x = Math.random() * canvas.width
-      let y = Math.random() * canvas.height
+      let x = Math.random() * canvasSize.width
+      let y = Math.random() * canvasSize.height
       let size = Math.random() * 10 + 5
       let color = 'white'
       let weight = 1
@@ -92,9 +92,9 @@ const init = () => {
 
 const animate = () => {
   if (ctx.value) {
-    ctx.value.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.value.clearRect(0, 0, canvasSize.width, canvasSize.height)
     // ctx.value.fillStyle = `rgba(${props.contentBackgroud}, 1)`
-    // ctx.value.fillRect(0, 0, canvas.width, canvas.height)
+    // ctx.value.fillRect(0, 0, canvasSize.width, canvasSize.height)
     particles.value.forEach((particle) => {
       if (particle.update) particle.update()
       if (particle.draw) particle.draw()
@@ -139,13 +139,15 @@ const thaw_snow = (index: number) => {
 }
 
 const onResize = () => {
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
+  canvasSize.width = window.innerWidth
+  canvasSize.height = window.innerHeight
+
   init()
 }
 onMounted(() => {
   window.addEventListener('mousemove', onMousemove)
   window.addEventListener('resize', onResize)
+
   onResize()
   init()
 })
@@ -159,9 +161,6 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .layer-on-canvas {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  //
 }
 </style>
