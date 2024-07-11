@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, defineProps, onMounted } from 'vue'
+import { ref, inject, onMounted } from 'vue'
 
 interface Provider {
   context: CanvasRenderingContext2D | null

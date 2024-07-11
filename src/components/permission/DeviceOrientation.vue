@@ -20,7 +20,6 @@
 
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
-import { defineEmits } from 'vue'
 
 // Vueで親コンポーネントへクリックイベントをEmitする関数
 const emit = defineEmits(['click'])
@@ -84,35 +83,33 @@ const checkDeviceOrientationAvailability = async () => {
 // 一般的なデバイスオリエンテーションの可用性チェック
 const checkOrientation = () => {
   return new Promise<boolean>((resolve) => {
-    try {
-      if ('DeviceOrientationEvent' in window) {
-        const timeout = setTimeout(() => {
-          window.removeEventListener('deviceorientation', orientationListener)
-          console.warn('DeviceOrientation event not fired within timeout')
-          resolve(false)
-        }, 1000)
-
-        const orientationListener = (event: DeviceOrientationEvent) => {
-          clearTimeout(timeout)
-          window.removeEventListener('deviceorientation', orientationListener)
-
-          if (event.alpha !== null || event.beta !== null || event.gamma !== null) {
-            resolve(true)
-          } else {
-            console.warn('DeviceOrientation available but not providing data')
-            resolve(false)
-          }
-        }
-
-        window.addEventListener('deviceorientation', orientationListener, { once: true })
-      } else {
-        console.warn('DeviceOrientation not supported')
+    if ('DeviceOrientationEvent' in window) {
+      const timeout = setTimeout(() => {
+        window.removeEventListener('deviceorientation', orientationListener)
+        console.warn('DeviceOrientation event not fired within timeout')
         resolve(false)
+      }, 1000)
+
+      const orientationListener = (event: DeviceOrientationEvent) => {
+        clearTimeout(timeout)
+        window.removeEventListener('deviceorientation', orientationListener)
+
+        if (event.alpha !== null || event.beta !== null || event.gamma !== null) {
+          resolve(true)
+        } else {
+          console.warn('DeviceOrientation available but not providing data')
+          resolve(false)
+        }
       }
-    } catch (error) {
-      console.error('Error checking DeviceOrientation availability:', error)
+
+      window.addEventListener('deviceorientation', orientationListener, { once: true })
+    } else {
+      console.warn('DeviceOrientation not supported')
       resolve(false)
     }
+  }).catch((error) => {
+    console.error('Error checking DeviceOrientation availability:', error)
+    return false
   })
 }
 
@@ -209,7 +206,8 @@ defineExpose({
   fallbackOrientation,
   handleMotion,
   fallbackMotion,
-  requestPermission
+  requestPermission,
+  checkOrientation
 })
 </script>
 

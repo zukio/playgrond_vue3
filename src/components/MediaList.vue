@@ -1,22 +1,24 @@
 <!-- データリスト：親（呼び出し元）からセットされたデータをリスト表示 -->
 <template>
-  <div id="medialist-container" @mouseover="setTimmer(false)" @mouseout="setTimmer(true)">
+  <div
+    id="medialist-container"
+    @mouseover="setTimmer(false)"
+    @mouseout="setTimmer(true)"
+    data-bs-container="body"
+    data-bs-toggle="popover"
+    data-bs-placement="top"
+    data-bs-content="このリストの内容はGoogleスプレッドシートをデータベースAPIとして取得しています。"
+  >
     <div class="gradframe top"></div>
     <div class="gradframe bottom"></div>
     <ul class="list-unstyled fade-enter">
-      <b-media
-        tag="li"
-        v-for="(list, index) of listData"
-        :key="index"
-        @click="choose(index)"
-        class="p-2"
-      >
+      <li v-for="(list, index) of listData" :key="index" @click="choose(index)" class="p-2">
         <!--template #aside>
           <b-img blank blank-color="#abc" width="64" alt="placeholder"></b-img>
         </template-->
         <h4 class="mt-0 mb-1">{{ list.head }}</h4>
         <p class="mb-0">{{ list.text.substr(0, 100) }} ...</p>
-      </b-media>
+      </li>
     </ul>
   </div>
 </template>
@@ -33,7 +35,7 @@ const emit = defineEmits<{
   (e: 'PostMedialistactive', value: any): void
 }>()
 
-const listData = ref<any>(null)
+const listData = ref<Array<any>>([])
 const timmer = ref<number | null>(null)
 
 const container = computed(() => document.querySelector('#medialist-container ul') as HTMLElement)
@@ -85,7 +87,9 @@ const choose = (index: number) => {
 }
 
 const setTimmer = (bool: boolean) => {
-  clearInterval(timmer.value!)
+  if (timmer.value) {
+    clearInterval(timmer.value)
+  }
   if (bool) {
     timmer.value = setInterval(() => {
       flip('to-up', 1)

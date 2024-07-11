@@ -19,7 +19,7 @@ import { onMounted } from 'vue'
 import Canvas from '@/components/canvases/CanvasContainer.vue'
 import PopupMenu from '@/components/PopupMenu.vue'
 
-defineProps<{
+const props = defineProps<{
   msg: string
 }>()
 

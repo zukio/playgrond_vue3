@@ -95,7 +95,10 @@ const playSound = (buffer: AudioBuffer) => {
 
 const togglePlay = () => {
   if (isPlaying.value) {
-    if (intervalId) clearInterval(intervalId)
+    if (intervalId) {
+      clearInterval(intervalId)
+      intervalId = null
+    }
     isPlaying.value = false
   } else {
     const interval = ((60 / bpm.value) * 1000) / 2 // 16th notes

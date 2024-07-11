@@ -48,7 +48,7 @@ const sections = ref([
 ])
 </script>
 
-<style>
+<style scoped>
 .header {
   position: relative;
   background: url('/img/Header-Logo-bg.png') no-repeat top center/cover;

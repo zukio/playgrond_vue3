@@ -1,19 +1,10 @@
 <template>
   <div class="m-0 p-0">
     <DrumMachine />
-
+    <MediaList :interval="1000" adjustingColor="blue" ref="medialist" />
     <div class="listContainer">
       <h3>{{ medialistactive.head }}</h3>
       <p>{{ medialistactive.text }}</p>
-
-      <b-popover target="medialist-container" triggers="hover" placement="right">
-        <!--template #title>Popover Title</template-->
-        このリストの内容は<b-link
-          href="https://docs.google.com/spreadsheets/d/150KG8Hqy5tASWoV_jhFYy2DvS0MXldQ5p-jgXI9Md7s/edit?usp=sharing"
-          target="new"
-          >Googleスプレッドシート</b-link
-        >をデータベースAPIとして取得しています。
-      </b-popover>
     </div>
   </div>
 </template>
@@ -22,6 +13,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useCounterStore } from '@/stores/counter'
 import DrumMachine from '@/components/play/DrumMachine.vue'
+import MediaList from '@/components/MediaList.vue'
 
 const props = defineProps<{
   // show: boolean
@@ -37,14 +29,10 @@ const medialistactive = ref({
   text: 'このリストの内容はGoogleスプレッドシートをデータベースAPIとして取得しています。表示されない場合はネットワーク環境をご確認ください。'
 })
 
-const recievedData = computed(() => store.demoData)
-
-// const transitShow = computed(() => transitPatturnNo.value !== 0)
-
-//const backgroundColor = (index: number) => {
-//  const array = ['211, 97, 21', 'darkorange']
-//  return array[index]
-//}
+const recievedData = computed(() => {
+  //store.demoData
+  return null
+})
 
 const recievedMedialistactive = (input: any) => {
   medialistactive.value = input
@@ -62,13 +50,6 @@ onMounted(() => {
     medialist.value.setListData(recievedData.value)
     medialistactive.value = recievedData.value[1]
   }
-})
-
-onUnmounted(() => {
-  // medialist.value.clearListData()
-  window.addEventListener('unhandledrejection', function (event) {
-    console.error('Unhandled rejection (promise: ', event.promise, ', reason: ', event.reason, ')')
-  })
 })
 
 defineExpose({

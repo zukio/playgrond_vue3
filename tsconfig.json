@@ -9,7 +9,20 @@
     }
   ],
   "compilerOptions": {
+    "strict": true,
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types", "./types", "node_modules/ammojs-typed/ammo/ambient"],
+    "esModuleInterop": true,
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "preserve",
+    "importHelpers": true,
+    "resolveJsonModule": true,
+    "lib": ["esnext", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }

@@ -25,7 +25,7 @@ const subCatchphrase = 'ジャイロ機能を使ったラビリンスボール�
 const visualImage = '/img/Header-Logo-Cover.png'
 </script>
 
-<style>
+<style scoped>
 #hero {
   position: relative;
   width: 100%;

@@ -1,15 +1,16 @@
 <template>
   <div class="p-0 m-0">
-    <ProtoType ref="componentRef" />
+    <ProtoType ref="componentRef" :modelPath="modelPath" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 //import Canvas from '@/components/canvases/CanvasContainer.vue'
-import ProtoType from '@/components/play/proto.vue?raw'
+import ProtoType from '@/components/threejs/proto.vue'
 
 const componentRef: any = ref(null)
+const modelPath = '/models/labyrinth001.glb'
 </script>
 
 <style lang="scss" scoped>

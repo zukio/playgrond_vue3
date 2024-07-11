@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted, defineProps } from 'vue'
+import { ref, reactive, provide, onMounted } from 'vue'
 
 interface Provider {
   canvas: HTMLCanvasElement | null
