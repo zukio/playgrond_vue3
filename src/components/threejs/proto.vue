@@ -1,5 +1,3 @@
-以下は、Cannon.jsを使用するように変更したコードの翻訳です。
-
 <template>
   <div>
     <div ref="gameContainer" class="game-container"></div>
@@ -12,10 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   Scene,
-  PerspectiveCamera,
+  OrthographicCamera,
   WebGLRenderer,
   Object3D,
   Mesh,
@@ -23,10 +21,10 @@ import {
   SphereGeometry,
   AmbientLight,
   DirectionalLight,
-  MathUtils,
-  HemisphereLight
+  MathUtils
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 import * as CANNON from 'cannon-es'
 
@@ -39,15 +37,15 @@ const permissionGranted = ref(false)
 const permissionComponent = ref<any | null>(null)
 
 let scene: Scene
-let camera: PerspectiveCamera
+let camera: OrthographicCamera
 let renderer: WebGLRenderer
 let ball: Mesh
 let labyrinth: Object3D | null = null
+let orbitcontrols: OrbitControls
 
 // Cannon.js variables
 let world: CANNON.World
-let body: CANNON.Body
-let shape: CANNON.Shape
+let ballBody: CANNON.Body
 
 interface Rotation {
   alpha: number
@@ -59,14 +57,12 @@ const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
 
 const initPhysics = () => {
   world = new CANNON.World()
-  world.gravity.set(0, -9.8, 0)
+  world.gravity.set(0, 0, 0) // No gravity since we handle it with device orientation
 
   // Collision detection
-  // Solverの設定
   const solver = new CANNON.GSSolver()
   solver.iterations = 10
   world.solver = solver
-  // world.solver.equations = 10 // Worldのsolverオブジェクトのiterationsプロパティにアクセス
 
   // Broadphaseの設定
   world.broadphase = new CANNON.NaiveBroadphase()
@@ -74,76 +70,67 @@ const initPhysics = () => {
 
 const initScene = () => {
   scene = new Scene()
-  camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+  const aspect = window.innerWidth / window.innerHeight
+  const frustumSize = 10 // 値を大きくするとズームアウト、小さくするとズームイン
+  camera = new OrthographicCamera(
+    (frustumSize * aspect) / -2,
+    (frustumSize * aspect) / 2,
+    frustumSize / 2,
+    frustumSize / -2,
+    0.1,
+    1000
+  )
+
   renderer = new WebGLRenderer({ antialias: true })
   renderer.setSize(window.innerWidth, window.innerHeight)
   gameContainer.value?.appendChild(renderer.domElement)
 
-  setupLightDebug()
+  // OrbitControlsの初期化
+  orbitcontrols = new OrbitControls(camera, renderer.domElement)
+  orbitcontrols.enableDamping = true
+  orbitcontrols.dampingFactor = 0.25
+  orbitcontrols.screenSpacePanning = false
+  orbitcontrols.minDistance = 5
+  orbitcontrols.maxDistance = 50
+  orbitcontrols.maxPolarAngle = Math.PI / 2
+
+  setupLight()
 
   camera.position.set(0, 5, 10)
   camera.lookAt(0, 0, 0)
 }
 
 const setupLight = () => {
-  // 全体的な環境光を追加
+  renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
   const ambientLight = new AmbientLight(0xffffff, 0.5)
   scene.add(ambientLight)
 
-  // メインの指向性光源
   const directionalLight = new DirectionalLight(0xffffff, 0.5)
   directionalLight.position.set(10, 10, 10)
   scene.add(directionalLight)
 }
 
-const setupLightDebug = () => {
-  renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
-  // 半球光源を追加（空からの柔らかい光）
-  const hemiLight = new HemisphereLight(0xffffff, 0xffffff, 0.6)
-  hemiLight.color.setHSL(0.6, 1, 0.6)
-  hemiLight.groundColor.setHSL(0.095, 1, 0.75)
-  hemiLight.position.set(0, 50, 0)
-  scene.add(hemiLight)
-
-  // 全体的な環境光を追加
-  const ambientLight = new AmbientLight(0xffffff, 0.3)
-  scene.add(ambientLight)
-
-  // メインの指向性光源
-  const directionalLight = new DirectionalLight(0xffffff, 0.8)
-  directionalLight.position.set(5, 10, 7.5)
-  directionalLight.castShadow = true // 影を有効化
-  scene.add(directionalLight)
-
-  // 影の設定
-  renderer.shadowMap.enabled = true
-  directionalLight.shadow.mapSize.width = 2048
-  directionalLight.shadow.mapSize.height = 2048
-  directionalLight.shadow.camera.near = 1
-  directionalLight.shadow.camera.far = 50
-}
 const loadLabyrinth = async () => {
   const loader = new GLTFLoader()
   try {
     const gltf = await loader.loadAsync(props.modelPath)
     labyrinth = gltf.scene
     if (scene && labyrinth) {
-      labyrinth.scale.set(50, 1000, 50)
-      labyrinth.position.set(-10, 1, 0) // 中心に配置
+      labyrinth.scale.set(50, 1, 50)
+      labyrinth.position.set(0, 0, 0) // 中心に配置
       labyrinth.rotation.x = -Math.PI / 2 // ラビリンスを水平にする
 
-      // Add physics to labyrinth
       labyrinth.traverse((child) => {
         if (child instanceof Mesh) {
-          const childShape = new CANNON.Box(
+          const box = new CANNON.Box(
             new CANNON.Vec3(child.scale.x * 0.5, child.scale.y * 0.5, child.scale.z * 0.5)
           )
-          const childBody = new CANNON.Body({
+          const body = new CANNON.Body({
             mass: 0,
-            shape: childShape,
+            shape: box,
             position: new CANNON.Vec3(child.position.x, child.position.y, child.position.z)
           })
-          world.addBody(childBody)
+          world.addBody(body)
         }
       })
 
@@ -156,37 +143,22 @@ const loadLabyrinth = async () => {
 }
 
 const createBall = () => {
-  const ballGeometry = new SphereGeometry(0.05, 32, 32)
+  const ballGeometry = new SphereGeometry(0.5, 16, 16)
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
-  ball.position.set(0, 0.5, 0)
+  ball.scale.set(0.5, 0.5, 0.5)
+  ball.position.set(0, 0.5, 0) // ボールを迷路の中に配置
   scene.add(ball)
 
-  // Add physics to ball
-  shape = new CANNON.Sphere(0.05)
-  body = new CANNON.Body({
+  const shape = new CANNON.Sphere(0.5)
+  ballBody = new CANNON.Body({
     mass: 1,
     shape: shape,
-    position: new CANNON.Vec3(0, 0.5, 0)
+    position: new CANNON.Vec3(0, 0.5, 0), // Cannon.jsのボディの位置も同じに設定
+    linearDamping: 0.9, // 強めの減衰設定
+    angularDamping: 0.9 // 回転の減衰設定
   })
-  world.addBody(body)
-}
-
-const updatePhysics = () => {
-  // Update ball position
-  ball.position.copy(body.position)
-  ball.quaternion.copy(body.quaternion)
-
-  // Apply tilt force to the ball
-  const gravityStrength = 5 // Adjust this value to change the tilt sensitivity
-  const tiltX = MathUtils.degToRad(rotation.value.beta)
-  const tiltZ = MathUtils.degToRad(rotation.value.gamma)
-  const force = new CANNON.Vec3(
-    Math.sin(tiltZ) * gravityStrength,
-    -9.8, // Constant downward gravity
-    -Math.sin(tiltX) * gravityStrength
-  )
-  body.applyForce(force, body.position)
+  world.addBody(ballBody)
 }
 
 const animate = () => {
@@ -194,45 +166,55 @@ const animate = () => {
 
   const deltaTime = 1 / 60
   world.step(deltaTime)
-  // Update physics
-  updatePhysics()
 
+  updatePhysics()
+  orbitcontrols.update()
   renderer.render(scene, camera)
+}
+
+const updatePhysics = () => {
+  // ボールの位置と回転をThree.jsのメッシュに反映
+  ball.position.copy(ballBody.position)
+  ball.quaternion.copy(ballBody.quaternion)
+
+  // デバイスの傾きを力に変換
+  const gravityStrength = 0.5 // 力の適用強度を減少
+  const tiltX = MathUtils.degToRad(rotation.value.beta || 0)
+  const tiltZ = MathUtils.degToRad(rotation.value.gamma || 0)
+
+  // 適用する力を計算
+  const forceX = Math.sin(tiltZ) * gravityStrength
+  const forceZ = -Math.sin(tiltX) * gravityStrength
+
+  // ボールに力を適用
+  ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceZ), ballBody.position)
 }
 
 const handleOrientation = (event: DeviceOrientationEvent) => {
   if (permissionComponent.value && permissionComponent.value.handleOrientation) {
     permissionComponent.value.handleOrientation(event, rotation)
+  } else {
+    // 手動でrotation変数を更新
+    rotation.value.beta = event.beta || 0
+    rotation.value.gamma = event.gamma || 0
   }
 }
 
 const fallbackOrientation = (event: KeyboardEvent) => {
-  console.log('ssss', permissionComponent.value)
-  if (permissionComponent.value && permissionComponent.value.fallbackOrientation) {
-    permissionComponent.value.fallbackOrientation(event, rotation)
-    // キーボード入力で球体の力を直接設定する
-    const forceStrength = 5 // 力の強さを調整
-    let force = new CANNON.Vec3(0, 0, 0)
-    console.log('fff')
-    switch (event.key) {
-      case 'ArrowUp':
-        force.z = -forceStrength
-        break
-      case 'ArrowDown':
-        force.z = forceStrength
-        break
-      case 'ArrowLeft':
-        force.x = -forceStrength
-        break
-      case 'ArrowRight':
-        force.x = forceStrength
-        break
-    }
-
-    if (body) {
-      body.applyForce(force, body.position)
-      ball.position.copy(body.position as any)
-    }
+  const forceStrength = 0.5 // 力の強さを調整
+  switch (event.key) {
+    case 'ArrowUp':
+      rotation.value.beta -= forceStrength
+      break
+    case 'ArrowDown':
+      rotation.value.beta += forceStrength
+      break
+    case 'ArrowLeft':
+      rotation.value.gamma -= forceStrength
+      break
+    case 'ArrowRight':
+      rotation.value.gamma += forceStrength
+      break
   }
 }
 
@@ -240,7 +222,6 @@ const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
   if (isDeviceOrientationAvailable) {
     window.addEventListener('deviceorientation', handleOrientation)
   } else {
-    console.log('keydown top, bottom, left, right')
     window.addEventListener('keydown', fallbackOrientation)
   }
   permissionGranted.value = true
@@ -250,14 +231,19 @@ const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
 const initGame = async () => {
   initPhysics()
   initScene()
-  loadLabyrinth()
+  await loadLabyrinth()
   createBall()
   animate()
 }
 
 const handleResize = () => {
   if (camera && renderer) {
-    camera.aspect = window.innerWidth / window.innerHeight
+    const aspect = window.innerWidth / window.innerHeight
+    const frustumSize = 10 // 値を大きくするとズームアウト、小さくするとズームイン
+    camera.left = (frustumSize * aspect) / -2
+    camera.right = (frustumSize * aspect) / 2
+    camera.top = frustumSize / 2
+    camera.bottom = frustumSize / -2
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
   }
@@ -267,10 +253,7 @@ onMounted(async () => {
   if (permissionComponent.value) {
     try {
       const isAvailable = await permissionComponent.value.checkOrientation()
-      if (!isAvailable) {
-        console.log('Start with fallback orientation')
-        handlePermissionResponse(isAvailable)
-      }
+      handlePermissionResponse(isAvailable)
     } catch (error) {
       console.error('Error checking orientation availability:', error)
     }
