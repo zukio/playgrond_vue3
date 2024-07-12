@@ -6,11 +6,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-//import Canvas from '@/components/canvases/CanvasContainer.vue'
 import ProtoType from '@/components/threejs/prototype.vue'
 
+const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
+
 const componentRef: any = ref(null)
-const modelPath = '/models/labyrinth001.glb'
 </script>
 
 <style lang="scss" scoped>

@@ -6,7 +6,7 @@
     "composite": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
-    "baseUrl": ".",
+    "baseUrl": "/playgrond_vue3/",
     "paths": {
       "@/*": ["./src/*"]
     }
