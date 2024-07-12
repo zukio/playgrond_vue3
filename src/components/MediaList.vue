@@ -14,7 +14,7 @@
     <ul class="list-unstyled fade-enter">
       <li v-for="(list, index) of listData" :key="index" @click="choose(index)" class="p-2">
         <!--template #aside>
-          <b-img blank blank-color="#abc" width="64" alt="placeholder"></b-img>
+          <div class="img blank blank-color="#abc" width="64" alt="placeholder">img>
         </template-->
         <h4 class="mt-0 mb-1">{{ list.head }}</h4>
         <p class="mb-0">{{ list.text.substr(0, 100) }} ...</p>
@@ -102,17 +102,17 @@ const setTimmer = (bool: boolean) => {
 }
 
 const setVisual = () => {
-  const topGradFrame = document.querySelector('.gradframe.top') as HTMLElement
-  const bottomGradFrame = document.querySelector('.gradframe.bottom') as HTMLElement
-  if (topGradFrame) {
-    topGradFrame.style.background = `linear-gradient(to bottom, ${props.adjustingColor}, rgba(0, 0, 0, 0))`
-  }
-  if (bottomGradFrame) {
-    bottomGradFrame.style.background = `linear-gradient(to bottom, rgba(0, 0, 0, 0), ${props.adjustingColor})`
-  }
-  if (container.value) {
-    container.value.style.height = `${container.value.parentElement?.clientHeight}px`
-  }
+  //const topGradFrame = document.querySelector('.gradframe.top') as HTMLElement
+  //const bottomGradFrame = document.querySelector('.gradframe.bottom') as HTMLElement
+  //if (topGradFrame) {
+  //  topGradFrame.style.background = `linear-gradient(to bottom, ${props.adjustingColor}, rgba(0, 0, 0, 0))`
+  //}
+  //if (bottomGradFrame) {
+  //  bottomGradFrame.style.background = `linear-gradient(to bottom, rgba(0, 0, 0, 0), ${props.adjustingColor})`
+  //}
+  //if (container.value) {
+  //  container.value.style.height = `${container.value.parentElement?.clientHeight}px`
+  //}
 }
 
 onMounted(() => {

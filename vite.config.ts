@@ -36,6 +36,7 @@ export default defineConfig({
     include: ['three']
   },
   build: {
+    chunkSizeWarningLimit: 1000, // Some chunks are larger than 500 kB after minification.
     commonjsOptions: {
       include: [/three/, /node_modules/]
     },

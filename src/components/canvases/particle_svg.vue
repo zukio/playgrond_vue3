@@ -138,24 +138,14 @@ const thaw_snow = (index: number) => {
   particleArray.value.splice(index, 1)
 }
 
-const onResize = () => {
-  canvasSize.width = window.innerWidth
-  canvasSize.height = window.innerHeight
-
-  init()
-}
 onMounted(() => {
   window.addEventListener('mousemove', onMousemove)
-  window.addEventListener('resize', onResize)
-
-  onResize()
   init()
 })
 
 onUnmounted(() => {
   animateCancel()
   window.removeEventListener('mousemove', onMousemove)
-  window.removeEventListener('resize', onResize)
 })
 </script>
 

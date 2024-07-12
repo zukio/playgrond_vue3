@@ -29,6 +29,11 @@ const router = createRouter({
       component: () => import('../views/GyroView.vue')
     },
     {
+      path: '/three',
+      name: 'three',
+      component: () => import('../views/ThreeView.vue')
+    },
+    {
       path: '/proto',
       name: 'proto',
       component: () => import('../views/PrototypeView.vue')

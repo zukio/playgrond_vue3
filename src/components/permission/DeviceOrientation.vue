@@ -34,27 +34,6 @@ interface WindowWithDeviceOrientation extends Window {
 const isChecked = ref(false)
 const isDeviceOrientationAvailable = ref(false)
 const isDeviceMotionAvailable = ref(false)
-// 画面の向きを確認するための追加処理
-const isPortrait = computed((): boolean => {
-  return (
-    window.screen.orientation?.type.startsWith('portrait') || window.innerWidth < window.innerHeight
-  )
-})
-// `Rotation` インターフェースを追加し、デバイスの向きを追跡します。
-interface Rotation {
-  alpha: number
-  beta: number
-  gamma: number
-  absolute: boolean
-}
-// absolute が true の場合は、絶対座標系でのデバイスの向きが取得できる
-// absolute が false の場合は、前回の状態からの相対的な変化量が取得できる
-// `Acceleration` インターフェースを追加し、デバイスの加速度を追跡します。
-interface Acceleration {
-  x: number
-  y: number
-  z: number
-}
 
 // クリックイベントを受けてデバイスの許可をリクエスト
 async function requestPermission() {
@@ -121,102 +100,6 @@ const checkOrientation = () => {
   })
 }
 
-/* デバイスの向きとセンサーの値の関係
- * ポートレート
- * - XYの場合
- *   - alpha: デバイスの水平回転（画面の左右）
- *   - beta: デバイスの前後の傾き（2次元の場合無視できる）
- *   - gamma: デバイスの左右の傾き（画面の上下）
- * - XZの場合
- *   - alpha: デバイスの水平回転（画面の上下）
- *   - beta: デバイスの左右の傾き（2次元の場合無視できる）
- *   - gamma: デバイスの前後の傾き（画面の左右）
- * ランドスケープ
- * - XYの場合
- *   - alpha: デバイスの水平回転（画面の上下）
- *   - beta: デバイスの左右の傾き（2次元の場合無視できる）
- *   - gamma: デバイスの前後の傾き（画面の左右）
- * - XZの場合
- *   - alpha: デバイスの水平回転（画面の左右）
- *   - beta: デバイスの前後の傾き（2次元の場合無視できる）
- *   - gamma: デバイスの左右の傾き（画面の上下）
- * */
-const handleOrientation = (event: DeviceOrientationEvent, rotation: Ref<Rotation>) => {
-  let alpha, beta, gamma
-  if (isPortrait.value) {
-    // ポートレート
-    alpha = event.alpha || 0
-    beta = event.beta || 0
-    gamma = event.gamma || 0
-  } else {
-    // ランドスケープ
-    alpha = event.alpha || 0
-    beta = event.beta || 0
-    gamma = event.gamma || 0
-
-    // Adjust for landscape orientation
-    const temp = alpha
-    alpha = gamma
-    gamma = -temp
-  }
-
-  rotation.value = {
-    alpha,
-    beta,
-    gamma,
-    absolute: event.absolute || false
-  }
-}
-
-const fallbackOrientation = (event: KeyboardEvent, tiltAmount: number, rotation: Ref<Rotation>) => {
-  switch (event.key) {
-    case 'ArrowRight':
-      rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
-      break
-    case 'ArrowLeft':
-      rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
-      break
-    case 'ArrowUp':
-      rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
-      break
-    case 'ArrowDown':
-      rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
-      break
-  }
-}
-
-function handleMotion(event: DeviceMotionEvent, acceleration: Ref<Acceleration>) {
-  let x, y, z
-  if (isPortrait.value) {
-    // ポートレート
-    x = event.accelerationIncludingGravity?.x || 0
-    y = event.accelerationIncludingGravity?.y || 0
-    z = event.accelerationIncludingGravity?.z || 0
-  } else {
-    // ランドスケープ
-    x = event.accelerationIncludingGravity?.y || 0
-    y = -(event.accelerationIncludingGravity?.x || 0)
-    z = event.accelerationIncludingGravity?.z || 0
-  }
-
-  acceleration.value = {
-    x,
-    y,
-    z
-  }
-}
-
-const fallbackMotion = (event: MouseEvent, acceleration: Ref<Acceleration>) => {
-  // マウスの動きをシミュレートするなどのフォールバック処理
-
-  const sensitivity = 0.01
-  acceleration.value = {
-    x: event.movementX * sensitivity,
-    y: event.movementY * sensitivity,
-    z: 0
-  }
-}
-
 const checkDeviceMotionAvailability = async () => {
   // DeviceMotionEventが存在する
   if ('DeviceMotionEvent' in window) {
@@ -257,10 +140,6 @@ defineExpose({
   isChecked,
   isDeviceMotionAvailable,
   isDeviceOrientationAvailable,
-  handleOrientation,
-  fallbackOrientation,
-  handleMotion,
-  fallbackMotion,
   requestPermission,
   checkOrientation
 })

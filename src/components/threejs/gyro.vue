@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div ref="gameContainer" class="game-container"></div>
+  <div ref="container" class="layer-on-canvas">
+    <!--div ref="gameContainer" class="game-container"></div-->
     <Permission
       v-if="!permissionGranted"
       @click="handlePermissionResponse"
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import {
   Scene,
   PerspectiveCamera,
@@ -21,41 +21,47 @@ import {
   Mesh,
   AmbientLight,
   DirectionalLight,
-  MathUtils
+  MathUtils,
+  Camera
 } from 'three'
 import Permission from '@/components/permission/DeviceOrientation.vue' // パスは実際の場所に合わせて調整してください
+import { Rotation } from '@/types'
+import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
 
+const provider = inject('provider') as {
+  context: WebGL2RenderingContext
+  canvas: HTMLCanvasElement
+  camera: any
+  renderer: WebGLRenderer | null
+  controls: any | null
+  initProvider: () => void
+  setOrbitControls: (camera: any) => void
+}
 const gameContainer = ref<HTMLDivElement | null>(null)
-// const permissionComponent = ref<InstanceType<typeof Permission> | null>(null)
 const permissionComponent = ref<any | null>(null)
 const permissionGranted = ref(false)
 
 let scene: Scene
-let camera: PerspectiveCamera
 let renderer: WebGLRenderer
 let ball: Mesh
 
-// `Rotation` インターフェースを追加し、デバイスの向きを追跡します。
-interface Rotation {
-  alpha: number
-  beta: number
-  gamma: number
-  absolute: boolean
-}
 const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
 
 const initScene = () => {
   scene = new Scene()
-  camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  renderer = new WebGLRenderer({ antialias: true })
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  gameContainer.value?.appendChild(renderer.domElement)
+  provider.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 
-  const ambientLight = new AmbientLight(0xffffff, 0.5)
-  scene.add(ambientLight)
-  const directionalLight = new DirectionalLight(0xffffff, 0.5)
-  directionalLight.position.set(10, 10, 10)
-  scene.add(directionalLight)
+  // レンダラーの作成
+  if (provider.renderer) {
+    // provider.renderer.antialias = false
+    provider.renderer.setSize(window.innerWidth, window.innerHeight)
+    // 環境光を追加
+    provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
+    // 初期レンダリングを行う
+    provider.renderer.render(scene, provider.camera)
+  }
+
+  setupLight()
 
   // const geometry = new SphereGeometry(0.5, 32, 32)
   const geometry = new BoxGeometry(1, 1, 1)
@@ -63,7 +69,20 @@ const initScene = () => {
   ball = new Mesh(geometry, material)
   scene.add(ball)
 
-  camera.position.z = 5
+  provider.camera.position.z = 5
+  provider.setOrbitControls(provider.camera)
+  animate()
+}
+
+const setupLight = () => {
+  // 全体的な環境光を追加
+  const ambientLight = new AmbientLight(0xffffff, 0.5)
+  scene.add(ambientLight)
+
+  // メインの指向性光源
+  const directionalLight = new DirectionalLight(0xffffff, 0.5)
+  directionalLight.position.set(10, 10, 10)
+  scene.add(directionalLight)
 }
 
 const animate = () => {
@@ -73,34 +92,32 @@ const animate = () => {
   scene.rotation.x = MathUtils.degToRad(rotation.value.beta)
   scene.rotation.z = MathUtils.degToRad(rotation.value.gamma)
 
-  renderer.render(scene, camera)
+  if (provider.controls) {
+    provider.controls.update()
+  }
+  if (provider.renderer && provider.camera) {
+    provider.renderer.render(scene, provider.camera)
+  }
 }
 
-const handleResize = () => {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-}
-
-const handleOrientation = (event: DeviceOrientationEvent) => {
-  permissionComponent.value.handleOrientation(event, rotation)
+const localHandleOrientation = (event: DeviceOrientationEvent) => {
+  handleOrientation(event, rotation)
   // rotationX.value = event.beta ?? 0 // X軸周りの回転 (-180 to 180)
   // rotationZ.value = event.gamma ?? 0 // Z軸周りの回転 (-90 to 90)
 }
-const fallbackOrientation = (event: KeyboardEvent) => {
-  permissionComponent.value.fallbackOrientation(event, 5, rotation)
+const localFallbackOrientation = (event: KeyboardEvent) => {
+  fallbackOrientation(event, 5, rotation)
 }
 
 // デバイス許可の申請結果によって処理を変更
 const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
   if (isDeviceOrientationAvailable) {
     permissionGranted.value = true
-    window.addEventListener('deviceorientation', handleOrientation)
+    window.addEventListener('deviceorientation', localHandleOrientation)
   } else {
-    window.addEventListener('keydown', fallbackOrientation)
+    window.addEventListener('keydown', localFallbackOrientation)
   }
   initScene()
-  animate()
 }
 
 onMounted(async () => {
@@ -110,12 +127,11 @@ onMounted(async () => {
       handlePermissionResponse(true)
     }
   }
-  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('deviceorientation', handleOrientation)
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('deviceorientation', localHandleOrientation)
+  window.removeEventListener('keydown', localFallbackOrientation)
   renderer?.dispose()
 })
 </script>

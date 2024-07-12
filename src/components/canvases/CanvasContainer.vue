@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted } from 'vue'
+import { ref, reactive, provide, onMounted, onUnmounted } from 'vue'
 
 interface Provider {
   canvas: HTMLCanvasElement | null
@@ -25,13 +25,8 @@ const provider = reactive<Provider>({
 
 provide('provider', provider)
 
-const props = defineProps<{
-  bgColor: string | undefined
-}>()
-const canvas1 = ref<HTMLCanvasElement | null>(null)
-
-onMounted(() => {
-  if (canvas1.value) {
+const initProvider = () => {
+  if (canvas1.value && (!provider.context || !provider.canvas)) {
     provider.canvas = canvas1.value
     provider.context = canvas1.value.getContext('2d')
 
@@ -41,19 +36,31 @@ onMounted(() => {
       canvas1.value.height = parentElement.clientHeight
     }
   }
+}
+
+const props = defineProps<{
+  bgColor: string | undefined
+}>()
+const canvas1 = ref<HTMLCanvasElement | null>(null)
+const onResize = () => {
+  if (provider.canvas) {
+    provider.canvas.width = window.innerWidth
+    provider.canvas.height = window.innerHeight
+  }
+}
+onMounted(() => {
+  window.addEventListener('resize', onResize)
+  onResize()
+  initProvider()
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
 })
 </script>
 
 <style lang="scss" scoped>
-/* 背景色は親（呼び出し元）で指定
+/* 親（呼び出し元）で指定
 .canvas-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: top right / cover repeat-y #d36015;
-  z-index: -100;
 }*/
 
 canvas {
@@ -63,7 +70,5 @@ canvas {
   width: 100%;
   height: 100%;
   z-index: -10;
-  /*background:linear-gradient(#25364f, #4d71a5, #9bc4ff);*/
-  /*background: black;*/
 }
 </style>

@@ -2,15 +2,15 @@
 <template>
   <div>
     <transition name="bounce">
-      <b-container v-if="show">
-        <b-row class="circle_container">
-          <b-col v-for="(menu, index) in menus" :key="index" class="circle"
-            ><p :id="'circle' + index">
+      <div class="container" v-if="show">
+        <div class="row circle_container">
+          <div class="col circle" v-for="(menu, index) in menus" :key="index">
+            <p :id="'circle' + index">
               <span>{{ menu.key }}</span>
-            </p></b-col
-          >
-        </b-row>
-      </b-container>
+            </p>
+          </div>
+        </div>
+      </div>
     </transition>
   </div>
 </template>

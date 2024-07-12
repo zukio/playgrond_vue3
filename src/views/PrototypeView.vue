@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 //import Canvas from '@/components/canvases/CanvasContainer.vue'
-import ProtoType from '@/components/threejs/proto.vue'
+import ProtoType from '@/components/threejs/prototype.vue'
 
 const componentRef: any = ref(null)
 const modelPath = '/models/labyrinth001.glb'

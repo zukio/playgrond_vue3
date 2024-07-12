@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div ref="gameContainer" class="game-container"></div>
+  <div ref="container" class="layer-on-canvas">
+    <!--div ref="gameContainer" class="game-container"></div-->
     <Permission
       v-if="!permissionGranted"
       @click="handlePermissionResponse"
@@ -17,7 +17,7 @@
 4. 衝突が検出された場合、ボールの速度を壁の法線方向に反射させ、めり込みを解消します。
 5. `animate` 関数内で `checkCollision` を呼び出し、毎フレーム衝突判定を行います。
 */
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import {
   Scene,
   PerspectiveCamera,
@@ -36,39 +36,42 @@ import {
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Permission from '@/components/permission/DeviceOrientation.vue'
+import { Rotation } from '@/types'
+import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
 
 const props = defineProps<{
   modelPath: string
 }>()
-const ballRadius = 0.05 // ボールの半径を定数として定義
-const boundaryRadius = 2 // 全体的な境界の半径
 
-interface Rotation {
-  alpha: number
-  beta: number
-  gamma: number
-  absolute: boolean
+const provider = inject('provider') as {
+  context: WebGL2RenderingContext
+  canvas: HTMLCanvasElement
+  camera: any
+  renderer: WebGLRenderer | null
+  controls: any | null
+  initProvider: () => void
+  setOrbitControls: (camera: any) => void
 }
-const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
-
-const permissionGranted = ref(false)
-const permissionComponent = ref<any | null>(null)
-const gameContainer = ref<HTMLDivElement | null>(null)
-
 let scene: Scene
-let camera: PerspectiveCamera
-let renderer: WebGLRenderer
 let ball: Mesh
 let labyrinth: Object3D | null = null
 
+const ballRadius = 0.05 // ボールの半径を定数として定義
+const boundaryRadius = 2 // 全体的な境界の半径
 const gravity = new Vector3(0, -9.8, 0)
 const ballVelocity = new Vector3()
+
+const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
+const permissionGranted = ref(false)
+const permissionComponent = ref<any | null>(null)
+const gameContainer = ref<HTMLDivElement | null>(null)
 
 // コライダー
 let walls: Mesh[] = []
 const raycaster = new Raycaster()
 
 const initGame = () => {
+  initProvider()
   initScene()
   loadLabyrinthAsync()
   createBall()
@@ -76,17 +79,33 @@ const initGame = () => {
   animate()
 }
 
+// プロバイダーの初期化チェック
+const initProvider = () => {
+  if (!provider.context || !provider.canvas) {
+    const canvasElement = document.querySelector('canvas') as HTMLCanvasElement
+    if (canvasElement) {
+      provider.canvas = canvasElement
+      provider.context = canvasElement.getContext('webgl2') as WebGL2RenderingContext
+    }
+  }
+}
+
 const initScene = () => {
   scene = new Scene()
-  camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  renderer = new WebGLRenderer()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  setupLightDebug()
-  if (gameContainer.value) {
-    gameContainer.value.appendChild(renderer.domElement)
+  provider.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+
+  setupLight()
+
+  // レンダラーの作成
+  if (provider.renderer) {
+    // provider.renderer.antialias = false
+    provider.renderer.setSize(window.innerWidth, window.innerHeight)
+    // 環境光を追加
+    provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
     // 初期レンダリングを行う
-    renderer.render(scene, camera)
+    provider.renderer.render(scene, provider.camera)
   }
+  provider.setOrbitControls(provider.camera)
 }
 
 const setupLight = () => {
@@ -98,33 +117,6 @@ const setupLight = () => {
   const directionalLight = new DirectionalLight(0xffffff, 0.5)
   directionalLight.position.set(10, 10, 10)
   scene.add(directionalLight)
-}
-
-const setupLightDebug = () => {
-  renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
-  // 半球光源を追加（空からの柔らかい光）
-  const hemiLight = new HemisphereLight(0xffffff, 0xffffff, 0.6)
-  hemiLight.color.setHSL(0.6, 1, 0.6)
-  hemiLight.groundColor.setHSL(0.095, 1, 0.75)
-  hemiLight.position.set(0, 50, 0)
-  scene.add(hemiLight)
-
-  // 全体的な環境光を追加
-  const ambientLight = new AmbientLight(0xffffff, 0.3)
-  scene.add(ambientLight)
-
-  // メインの指向性光源
-  const directionalLight = new DirectionalLight(0xffffff, 0.8)
-  directionalLight.position.set(5, 10, 7.5)
-  directionalLight.castShadow = true // 影を有効化
-  scene.add(directionalLight)
-
-  // 影の設定
-  renderer.shadowMap.enabled = true
-  directionalLight.shadow.mapSize.width = 2048
-  directionalLight.shadow.mapSize.height = 2048
-  directionalLight.shadow.camera.near = 1
-  directionalLight.shadow.camera.far = 50
 }
 
 const loadLabyrinthAsync = async () => {
@@ -159,36 +151,6 @@ const loadLabyrinthAsync = async () => {
   } catch (error) {
     console.error('ラビリンスモデルの読み込み中にエラーが発生しました:', error)
   }
-}
-
-const loadLabyrinth = () => {
-  const loader = new GLTFLoader()
-  loader.load(
-    props.modelPath, // GLTFファイルへのパスを指定
-    (gltf) => {
-      labyrinth = gltf.scene
-      labyrinth.scale.set(0.5, 0.5, 0.5) // モデルのスケールを調整
-      labyrinth.traverse((child) => {
-        if (child instanceof Mesh) {
-          child.castShadow = true
-          child.receiveShadow = true
-        }
-      })
-      scene.add(labyrinth)
-    },
-    (xhr) => {
-      console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-    },
-    (error: Error | any) => {
-      console.error('An error happened', error)
-      console.log('Error type:', error.constructor.name)
-      console.log('Error message:', error.message)
-      // エラーレスポンスの内容を表示
-      if (error.target && error.target.response) {
-        console.log('Error response:', error.target.response)
-      }
-    }
-  )
 }
 
 const createBall = () => {
@@ -241,13 +203,13 @@ const checkCollisionWithWalls = () => {
 }
 
 const setupCamera = () => {
-  if (camera && scene) {
-    camera.position.set(-5, -5, 8) // カメラ位置を調整
+  if (provider.camera && scene) {
+    provider.camera.position.set(-5, -5, 8) // カメラ位置を調整
     // camera.lookAt(scene.position)
     // camera.lookAt(new Vector3(0, 0, 0))
     // camera.lookAt(new Vector3(0, 0, 0))
     // カメラを真下向きにする
-    camera.up.set(0, -1, 0)
+    provider.camera.up.set(0, -1, 0)
   }
 }
 
@@ -271,60 +233,31 @@ const animate = () => {
     checkCollisionSimple()
   }
 
-  renderer.render(scene, camera)
-}
-//const animate = () => {
-//  requestAnimationFrame(animate)
-
-//  if (ball && labyrinth) {
-//    const gravityStrength = 9.8
-//    const tiltX = MathUtils.degToRad(rotation.value.beta)
-//    const tiltZ = MathUtils.degToRad(rotation.value.gamma)
-//    gravity.set(
-//      -Math.sin(tiltZ) * gravityStrength,
-//      -Math.cos(tiltX) * gravityStrength,
-//      Math.sin(tiltX) * gravityStrength
-//    )
-
-//    ballVelocity.add(gravity.clone().multiplyScalar(0.016))
-//    ball.position.add(ballVelocity.clone().multiplyScalar(0.016))
-
-//    checkCollisionSimple()
-//    checkCollisionWithWalls()
-//  }
-
-//  renderer.render(scene, camera)
-//}
-
-const handleOrientation = (event: DeviceOrientationEvent) => {
-  if (permissionComponent.value && permissionComponent.value.handleOrientation) {
-    permissionComponent.value.handleOrientation(event, rotation)
+  if (provider.controls) {
+    provider.controls.update()
+  }
+  if (provider.renderer && provider.camera) {
+    provider.renderer.render(scene, provider.camera)
   }
 }
 
-const fallbackOrientation = (event: KeyboardEvent) => {
-  if (permissionComponent.value && permissionComponent.value.fallbackOrientation) {
-    permissionComponent.value.fallbackOrientation(event, 5, rotation)
-  }
+const localHandleOrientation = (event: DeviceOrientationEvent) => {
+  handleOrientation(event, rotation)
+}
+
+const localFallbackOrientation = (event: KeyboardEvent) => {
+  fallbackOrientation(event, 5, rotation)
 }
 
 // デバイス許可の申請結果によって処理を変更
 const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
   if (isDeviceOrientationAvailable) {
     permissionGranted.value = true
-    window.addEventListener('deviceorientation', handleOrientation)
+    window.addEventListener('deviceorientation', localHandleOrientation)
   } else {
-    window.addEventListener('keydown', fallbackOrientation)
+    window.addEventListener('keydown', localFallbackOrientation)
   }
   initGame()
-}
-
-const handleResize = () => {
-  if (camera && renderer) {
-    camera.aspect = window.innerWidth / window.innerHeight
-    camera.updateProjectionMatrix()
-    renderer.setSize(window.innerWidth, window.innerHeight)
-  }
 }
 
 onMounted(async () => {
@@ -334,15 +267,13 @@ onMounted(async () => {
       handlePermissionResponse(true)
     }
   }
-  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('deviceorientation', handleOrientation)
-  window.removeEventListener('keydown', fallbackOrientation)
-  window.removeEventListener('resize', handleResize)
-  if (renderer) {
-    renderer.dispose()
+  window.removeEventListener('deviceorientation', localHandleOrientation)
+  window.removeEventListener('keydown', localFallbackOrientation)
+  if (provider.renderer) {
+    provider.renderer.dispose()
   }
 })
 </script>

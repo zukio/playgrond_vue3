@@ -8,17 +8,6 @@
         <li></li>
         <li></li>
       </ul>
-      <!--div class="trans-container">
-        <div id="mask" class="layer01"></div>
-        <div class="layer02 bg-secondary"></div>
-      </div-->
-      <!--b-container fluid class="trans-container">
-        <b-row align-v="stretch" class="h-100 w-100">
-          <b-col class="bg-dark">1 of 3<slot></slot></b-col>
-          <b-col class="bg-light">2 of 3</b-col>
-          <b-col>3 of 3</b-col>
-        </b-row>
-      </b-container-->
     </div>
   </transition>
 </template>
@@ -39,7 +28,7 @@ export default {
   methods: {
     setShowState(state, delay) {
       const vueApp = this
-      setTimeout(function() {
+      setTimeout(function () {
         vueApp.showState = state
       }, delay)
     }
@@ -48,7 +37,7 @@ export default {
     show: {
       immediate: true, // trueの場合、初期読み込み時にも呼び出します
       //immediateのコールバック
-      handler: function(newValue) {
+      handler: function (newValue) {
         //console.warn(newValue)
         if (!newValue) {
           //reset
@@ -59,7 +48,7 @@ export default {
         }
       }
     },
-    showState: function(newValue) {
+    showState: function (newValue) {
       switch (newValue) {
         case 1:
           $('.trans-container').css({ transform: 'rotate(45deg)' })
@@ -83,7 +72,7 @@ export default {
       }
     }
   },
-  mounted: function() {
+  mounted: function () {
     //this.setShowState(1, 1000)
   }
 }
@@ -183,13 +172,17 @@ ul.circles {
     &:nth-child(1) {
       background: black;
       border: white solid 200px;
-      transition: transform ease-out 0.5s 0.5s, border-width ease-out 0.5s 0.5s,
+      transition:
+        transform ease-out 0.5s 0.5s,
+        border-width ease-out 0.5s 0.5s,
         opacity linear 0.1s 1s;
       z-index: 106;
     }
     &:nth-child(2) {
       background: $dark;
-      transition: transform ease-out 0.75s 0.75s, opacity linear 0.25s 1.25s;
+      transition:
+        transform ease-out 0.75s 0.75s,
+        opacity linear 0.25s 1.25s;
       z-index: 107;
     }
     &:nth-child(3) {
@@ -199,7 +192,9 @@ ul.circles {
     }
     &:nth-child(4) {
       border: green solid 100vh;
-      transition: transform ease-out 0.5s 1s, border-width ease-out 1s 1s;
+      transition:
+        transform ease-out 0.5s 1s,
+        border-width ease-out 1s 1s;
       z-index: 108;
     }
   }
