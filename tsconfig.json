@@ -12,7 +12,7 @@
     "strict": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "typeRoots": ["./node_modules/@types", "./types"],
+    "typeRoots": ["./node_modules/@types", "./types", "src/types"],
     "esModuleInterop": true,
     "target": "esnext",
     "module": "esnext",
@@ -20,7 +20,7 @@
     "importHelpers": true,
     "resolveJsonModule": true,
     "lib": ["esnext", "dom"],
-    "baseUrl": ".",
+    "baseUrl": "/playgrond_vue3/",
     "paths": {
       "@/*": ["src/*"]
     }

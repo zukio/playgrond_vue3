@@ -97,27 +97,28 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* styles.css */
+.game-container {
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+  /*position: absolute;
+    top: 0;
+    left: 0;*/
+}
 @media screen and (max-width: 600px) {
   .game-container {
-    width: 100%;
-    height: 100vh;
     background-color: pink;
   }
 }
 
 @media screen and (min-width: 601px) and (max-width: 1200px) {
   .game-container {
-    width: 100%;
-    height: 100vh;
     background-color: khaki;
   }
 }
 
 @media screen and (min-width: 1201px) {
   .game-container {
-    width: 100%;
-    height: 100vh;
     border-color: aquamarine;
   }
 }

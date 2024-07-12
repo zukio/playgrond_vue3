@@ -131,15 +131,22 @@ const loadLabyrinthAsync = async () => {
 
           // メッシュがインデックス化されているかどうかを確認
           if (child.geometry.index) {
-            // 頂点情報を取得
-            vertices = child.geometry.attributes.position.array
-            indices = child.geometry.index.array
+            // インデックスの数が3の倍数かどうかを確認
+            if (child.geometry.index.count % 3 === 0) {
+              // 頂点情報を取得
+              vertices = child.geometry.attributes.position.array
+              indices = child.geometry.index.array
+            } else {
+              // メッシュを三角形に変換
+              const geometry = child.geometry.toNonIndexed()
+              // 頂点情報を取得
+              vertices = geometry.attributes.position.array
+              indices = Object.keys(vertices).map((index) => parseInt(index, 10))
+              //indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
+            }
           } else {
-            // メッシュを三角形に変換
-            const geometry = child.geometry.toNonIndexed()
-            // 頂点情報を取得
-            vertices = geometry.attributes.position.array
-            //indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
+            // 既に非インデックス化されたジオメトリの場合
+            vertices = child.geometry.attributes.position.array
             indices = Object.keys(vertices).map((index) => parseInt(index, 10))
           }
 
@@ -337,7 +344,7 @@ const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
 const initGame = async () => {
   initPhysics()
   initScene()
-  await loadLabyrinthAsync()
+  loadLabyrinth()
   createBall()
   animate()
 }
