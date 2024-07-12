@@ -230,7 +230,7 @@ const handleOrientation = (event: DeviceOrientationEvent) => {
 
 const fallbackOrientation = (event: KeyboardEvent) => {
   if (permissionComponent.value && permissionComponent.value.fallbackOrientation) {
-    permissionComponent.value.fallbackOrientation(event, rotation)
+    permissionComponent.value.fallbackOrientation(event, 5, rotation)
   }
 }
 

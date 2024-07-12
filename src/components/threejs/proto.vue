@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import {
   Scene,
   OrthographicCamera,
@@ -54,7 +54,12 @@ interface Rotation {
   absolute: boolean
 }
 const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
-
+// 画面の向きを確認するための追加処理
+const isPortrait = computed((): boolean => {
+  return (
+    window.screen.orientation?.type.startsWith('portrait') || window.innerWidth < window.innerHeight
+  )
+})
 const initPhysics = () => {
   world = new CANNON.World()
   world.gravity.set(0, 0, 0) // No gravity since we handle it with device orientation
@@ -117,7 +122,7 @@ const loadLabyrinth = async () => {
     labyrinth = gltf.scene
     if (scene && labyrinth) {
       labyrinth.scale.set(50, 1, 50)
-      labyrinth.position.set(0, 0, 0) // 中心に配置
+      labyrinth.position.set(-10, 10, 0) // 中心に配置
       labyrinth.rotation.x = -Math.PI / 2 // ラビリンスを水平にする
 
       labyrinth.traverse((child) => {
@@ -179,15 +184,17 @@ const updatePhysics = () => {
 
   // デバイスの傾きを力に変換
   const gravityStrength = 0.5 // 力の適用強度を減少
+
   const tiltX = MathUtils.degToRad(rotation.value.beta || 0)
   const tiltZ = MathUtils.degToRad(rotation.value.gamma || 0)
 
-  // 適用する力を計算
   const forceX = Math.sin(tiltZ) * gravityStrength
-  const forceZ = -Math.sin(tiltX) * gravityStrength
+  const forceY = -Math.sin(tiltX) * gravityStrength
 
-  // ボールに力を適用
-  ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceZ), ballBody.position)
+  // XZ平面での力の適用を確認
+  ballBody.applyForce(new CANNON.Vec3(forceX, forceY, 0), ballBody.position)
+  // これだとY軸方向に力を加えてしまう
+  // ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceY), ballBody.position)
 }
 
 const handleOrientation = (event: DeviceOrientationEvent) => {
@@ -196,25 +203,58 @@ const handleOrientation = (event: DeviceOrientationEvent) => {
   } else {
     // 手動でrotation変数を更新
     rotation.value.beta = event.beta || 0
-    rotation.value.gamma = event.gamma || 0
+    rotation.value.gamma = event.alpha || 0
+  }
+
+  // XZ平面での値の入れ替え
+  if (isPortrait.value) {
+    // ポートレート
+    const temp = rotation.value.beta
+    rotation.value.beta = rotation.value.gamma
+    rotation.value.gamma = temp
+  } else {
+    // ランドスケープ
+    const temp = rotation.value.alpha
+    rotation.value.alpha = rotation.value.gamma
+    rotation.value.gamma = temp
   }
 }
 
 const fallbackOrientation = (event: KeyboardEvent) => {
-  const forceStrength = 0.5 // 力の強さを調整
-  switch (event.key) {
-    case 'ArrowUp':
-      rotation.value.beta -= forceStrength
-      break
-    case 'ArrowDown':
-      rotation.value.beta += forceStrength
-      break
-    case 'ArrowLeft':
-      rotation.value.gamma -= forceStrength
-      break
-    case 'ArrowRight':
-      rotation.value.gamma += forceStrength
-      break
+  const tiltAmount = 5
+  if (permissionComponent.value && permissionComponent.value.handleOrientation) {
+    permissionComponent.value.fallbackOrientation(event, tiltAmount, rotation)
+  } else {
+    // キーボード入力で傾きをシミュレートする
+    switch (event.key) {
+      case 'ArrowRight':
+        rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
+        break
+      case 'ArrowLeft':
+        rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
+        break
+      case 'ArrowUp':
+        rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
+        break
+      case 'ArrowDown':
+        rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
+        break
+    }
+  }
+
+  // XZ平面での値の入れ替え
+  if (isPortrait.value) {
+    console.log('portrait2')
+    // ポートレート
+    const temp = rotation.value.beta
+    rotation.value.beta = rotation.value.gamma
+    rotation.value.gamma = temp
+  } else {
+    console.log('landscape2')
+    // ランドスケープ
+    const temp = rotation.value.alpha
+    rotation.value.alpha = rotation.value.gamma
+    rotation.value.gamma = temp
   }
 }
 

@@ -70,7 +70,7 @@ async function responcedPermission(
     )
   } else {
     window.addEventListener('keydown', (event) =>
-      gyroDevice.value.fallbackOrientation(event, rotation)
+      gyroDevice.value.fallbackOrientation(event, 5, rotation)
     )
   }
   if (isDeviceMotionAvailable) {
@@ -163,7 +163,7 @@ onUnmounted(() => {
         )
       } else {
         window.removeEventListener('keydown', (event) =>
-          gyroDevice.value.fallbackOrientation(event, rotation)
+          gyroDevice.value.fallbackOrientation(event, 5, rotation)
         )
       }
     }

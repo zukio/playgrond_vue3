@@ -88,7 +88,7 @@ const handleOrientation = (event: DeviceOrientationEvent) => {
   // rotationZ.value = event.gamma ?? 0 // Z軸周りの回転 (-90 to 90)
 }
 const fallbackOrientation = (event: KeyboardEvent) => {
-  permissionComponent.value.fallbackOrientation(event, rotation)
+  permissionComponent.value.fallbackOrientation(event, 5, rotation)
 }
 
 // デバイス許可の申請結果によって処理を変更

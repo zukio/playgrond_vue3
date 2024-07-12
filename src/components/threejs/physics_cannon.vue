@@ -207,25 +207,9 @@ const handleOrientation = (event: DeviceOrientationEvent) => {
 }
 
 const fallbackOrientation = (event: KeyboardEvent) => {
+  // キーボード入力で球体の力を直接設定する
   if (permissionComponent.value && permissionComponent.value.fallbackOrientation) {
-    permissionComponent.value.fallbackOrientation(event, rotation)
-    // キーボード入力で球体の力を直接設定する
-    const forceStrength = 5 // 力の強さを調整
-    let force = new CANNON.Vec3(0, 0, 0)
-    switch (event.key) {
-      case 'ArrowUp':
-        force.z = -forceStrength
-        break
-      case 'ArrowDown':
-        force.z = forceStrength
-        break
-      case 'ArrowLeft':
-        force.x = -forceStrength
-        break
-      case 'ArrowRight':
-        force.x = forceStrength
-        break
-    }
+    permissionComponent.value.fallbackOrientation(event, 5, rotation)
   }
 }
 
