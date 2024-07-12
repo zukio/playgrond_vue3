@@ -26,7 +26,7 @@ import {
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Permission from '@/components/permission/DeviceOrientation.vue'
-import { Rotation } from '@/types'
+import type { Rotation } from '@/types/index'
 import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
 
 const props = defineProps<{

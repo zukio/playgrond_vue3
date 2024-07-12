@@ -29,7 +29,7 @@ export default defineConfig({
   server: {
     headers: {
       'Content-Security-Policy':
-        "default-src 'self'; script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:  data:; img-src 'self' data:; object-src 'none';"
+        "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:  data:; img-src 'self' data:; object-src 'none';"
     }
   },
   optimizeDeps: {

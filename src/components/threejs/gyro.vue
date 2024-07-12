@@ -25,7 +25,7 @@ import {
   Camera
 } from 'three'
 import Permission from '@/components/permission/DeviceOrientation.vue' // パスは実際の場所に合わせて調整してください
-import { Rotation } from '@/types'
+import type { Rotation } from '@/types/index'
 import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
 
 const provider = inject('provider') as {

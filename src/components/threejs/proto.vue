@@ -26,7 +26,7 @@ import {
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
-import { Rotation } from '@/types'
+import type { Rotation } from '@/types/index'
 import { isPortrait, handleOrientation, fallbackOrientation } from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
@@ -127,19 +127,20 @@ const loadLabyrinthAsync = async () => {
           const worldScale = new Vector3()
           child.getWorldScale(worldScale)
 
-          let vertices: Float32Array, indices: Uint16Array | Uint32Array
+          let vertices: number[], indices: number[]
 
           // メッシュがインデックス化されているかどうかを確認
           if (child.geometry.index) {
             // 頂点情報を取得
-            vertices = child.geometry.attributes.position.array as Float32Array
-            indices = child.geometry.index.array as Uint16Array | Uint32Array
+            vertices = child.geometry.attributes.position.array
+            indices = child.geometry.index.array
           } else {
             // メッシュを三角形に変換
             const geometry = child.geometry.toNonIndexed()
             // 頂点情報を取得
-            vertices = geometry.attributes.position.array as Float32Array
-            indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
+            vertices = geometry.attributes.position.array
+            //indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
+            indices = Object.keys(vertices).map((index) => parseInt(index, 10))
           }
 
           // 頂点情報のスケールを適用
