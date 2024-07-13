@@ -151,6 +151,8 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .layer-on-canvas {
-  //
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

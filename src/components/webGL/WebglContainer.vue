@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div :style="flexStyle">
     <canvas ref="canvas" class="game-container"></canvas>
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, provide, onMounted, onUnmounted, type CSSProperties } from 'vue'
 import { OrthographicCamera, PerspectiveCamera, WebGLRenderer } from 'three'
 
 const canvas = ref<HTMLCanvasElement | null>(null)
@@ -20,7 +20,6 @@ interface Provider {
   initProvider: () => void
   setOrbitControls: (camera: OrthographicCamera | PerspectiveCamera) => void
 }
-
 const provider = reactive<Provider>({
   canvas: null,
   context: null,
@@ -30,9 +29,7 @@ const provider = reactive<Provider>({
   initProvider: () => {},
   setOrbitControls: () => {}
 })
-
 provide('provider', provider)
-
 provider.initProvider = () => {
   if (canvas.value) {
     provider.canvas = canvas.value
@@ -47,7 +44,6 @@ provider.initProvider = () => {
     provider.renderer.setSize(window.innerWidth, window.innerHeight)
   }
 }
-
 provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera) => {
   import('three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
     if (!camera || !provider.renderer) return
@@ -60,6 +56,10 @@ provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera) => 
     provider.controls.maxPolarAngle = Math.PI / 2
   })
 }
+
+const props = defineProps<{
+  flexStyle: CSSProperties | undefined
+}>()
 
 const handleResize = () => {
   if (canvas.value) {
@@ -96,14 +96,14 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .game-container {
+  // position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100vh;
-  z-index: -1;
-  /*position: absolute;
-    top: 0;
-    left: 0;*/
+  height: 100%;
+  z-index: -10;
 }
 @media screen and (max-width: 600px) {
   .game-container {

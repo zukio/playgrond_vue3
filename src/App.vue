@@ -5,7 +5,6 @@
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
         <RouterLink to="/canvas">Canvas</RouterLink>
-        <RouterLink to="/gyro">Gyro</RouterLink>
         <RouterLink to="/three">Three</RouterLink>
         <RouterLink to="/proto">Prototype</RouterLink>
         <RouterLink to="/landing">Landing Page</RouterLink>
@@ -21,6 +20,10 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <style scoped>
+#app {
+  position: relative;
+  min-height: 100vh;
+}
 header {
   line-height: 1.5;
   max-height: 100vh;

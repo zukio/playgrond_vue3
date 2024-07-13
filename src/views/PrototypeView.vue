@@ -1,29 +1,36 @@
 <template>
   <div class="p-0 m-0">
-    <ProtoType ref="componentRef" :modelPath="modelPath" />
+    <h2>Prototype</h2>
+    <Canvas :flexStyle="activeContainerStyle">
+      <ProtoType ref="componentRef" :modelPath="modelPath" />
+    </Canvas>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import ProtoType from '@/components/threejs/prototype.vue'
+import { computed, ref, type CSSProperties } from 'vue'
+import Canvas from '@/components/webGL/WebglContainer.vue'
+import ProtoType from '@/components/webGL/proto.vue'
 
 const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
 const componentRef: any = ref(null)
+const activeContainerStyle = computed(() => {
+  let flexStyle: CSSProperties = {
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: -1
+  }
+  return flexStyle
+})
 </script>
 
 <style lang="scss" scoped>
 h2 {
   margin: 30px 0 0;
-}
-.canvas-wrapper {
-  // position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: top right / cover repeat-y;
-  z-index: -1;
+  position: absolute;
+  color: #000;
 }
 </style>

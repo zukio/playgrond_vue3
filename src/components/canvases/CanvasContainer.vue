@@ -1,9 +1,13 @@
 <template>
-  <div :style="props.bgColor ? { backgroundColor: props.bgColor } : ''">
+  <div :style="flexStyle">
     <canvas
       ref="canvas1"
       id="canvas1"
-      :style="props.bgColor ? { backgroundColor: props.bgColor } : ''"
+      :style="
+        props.flexStyle?.backgroundColor
+          ? { backgroundColor: props.flexStyle?.backgroundColor }
+          : ''
+      "
     >
     </canvas>
     <slot></slot>
@@ -11,20 +15,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, provide, onMounted, onUnmounted, type CSSProperties } from 'vue'
 
 interface Provider {
   canvas: HTMLCanvasElement | null
   context: CanvasRenderingContext2D | null
 }
-
 const provider = reactive<Provider>({
   canvas: null,
   context: null
 })
-
 provide('provider', provider)
-
 const initProvider = () => {
   if (canvas1.value && (!provider.context || !provider.canvas)) {
     provider.canvas = canvas1.value
@@ -39,8 +40,9 @@ const initProvider = () => {
 }
 
 const props = defineProps<{
-  bgColor: string | undefined
+  flexStyle: CSSProperties | undefined
 }>()
+
 const canvas1 = ref<HTMLCanvasElement | null>(null)
 const onResize = () => {
   if (provider.canvas) {
@@ -64,7 +66,6 @@ onUnmounted(() => {
 }*/
 
 canvas {
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;

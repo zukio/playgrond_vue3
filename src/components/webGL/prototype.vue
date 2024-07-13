@@ -373,9 +373,10 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.game-container {
+<style lang="scss" scoped>
+.layer-on-canvas {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

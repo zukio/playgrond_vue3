@@ -101,7 +101,7 @@ const initScene = () => {
     // provider.renderer.antialias = false
     provider.renderer.setSize(window.innerWidth, window.innerHeight)
     // 環境光を追加
-    provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
+    // provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
     // 初期レンダリングを行う
     provider.renderer.render(scene, provider.camera)
   }
@@ -277,3 +277,10 @@ onUnmounted(() => {
   }
 })
 </script>
+<style lang="scss" scoped>
+.layer-on-canvas {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+</style>

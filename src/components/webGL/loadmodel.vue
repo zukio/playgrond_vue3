@@ -71,6 +71,7 @@ const initScene = () => {
   if (provider.renderer) {
     provider.renderer.setSize(window.innerWidth, window.innerHeight)
     provider.renderer.render(scene, provider.camera)
+    // provider.renderer.setClearColor(0xf0f0f0)
   }
   provider.setOrbitControls(provider.camera)
 }
@@ -85,10 +86,6 @@ const setupLight = () => {
 }
 
 const setupLightDebug = () => {
-  if (!provider.renderer) {
-    return
-  }
-  provider.renderer.setClearColor(0xf0f0f0)
   const hemiLight = new HemisphereLight(0xffffff, 0xffffff, 0.6)
   hemiLight.color.setHSL(0.6, 1, 0.6)
   hemiLight.groundColor.setHSL(0.095, 1, 0.75)
@@ -218,9 +215,10 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .layer-on-canvas {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  overflow: hidden;
 }
 </style>

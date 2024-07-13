@@ -21,6 +21,12 @@
 import { ref, reactive, computed, onMounted, onUnmounted, nextTick, inject } from 'vue'
 import ParticleClass from '@/components/canvases/classes/particles_gyro.vue'
 import Permission from '@/components/permission/DeviceOrientation.vue'
+import {
+  handleOrientation,
+  fallbackOrientation,
+  handleMotion,
+  fallbackMotion
+} from '@/utils/orientation'
 
 const props = defineProps<{
   contentBackgroud: string
@@ -65,22 +71,14 @@ async function responcedPermission(
   isDeviceMotionAvailable: boolean
 ) {
   if (isDeviceOrientationAvailable) {
-    window.addEventListener('deviceorientation', (event) =>
-      gyroDevice.value.handleOrientation(event, rotation)
-    )
+    window.addEventListener('deviceorientation', (event) => handleOrientation(event, rotation))
   } else {
-    window.addEventListener('keydown', (event) =>
-      gyroDevice.value.fallbackOrientation(event, 5, rotation)
-    )
+    window.addEventListener('keydown', (event) => fallbackOrientation(event, 5, rotation))
   }
   if (isDeviceMotionAvailable) {
-    window.addEventListener('devicemotion', (event) =>
-      gyroDevice.value.handleMotion(event, acceleration)
-    )
+    window.addEventListener('devicemotion', (event) => handleMotion(event, acceleration))
   } else {
-    window.addEventListener('mousemove', (event) =>
-      gyroDevice.value.fallbackMotion(event, acceleration)
-    )
+    window.addEventListener('mousemove', (event) => fallbackMotion(event, acceleration))
     acceleration.value.y = -50
   }
   init()
@@ -147,24 +145,18 @@ onUnmounted(() => {
   function cleanupGyroEvents() {
     if (gyroDevice.value) {
       if (gyroDevice.value.isDeviceMotionAvailable.value) {
-        window.removeEventListener('devicemotion', (event) =>
-          gyroDevice.value.handleMotion(event, acceleration)
-        )
+        window.removeEventListener('devicemotion', (event) => handleMotion(event, acceleration))
       } else {
-        window.removeEventListener('mousemove', (event) =>
-          gyroDevice.value.fallbackMotion(event, acceleration)
-        )
+        window.removeEventListener('mousemove', (event) => fallbackMotion(event, acceleration))
       }
     }
     if (gyroDevice.value) {
       if (gyroDevice.value.isDeviceOrientationAvailable.value) {
         window.removeEventListener('deviceorientation', (event) =>
-          gyroDevice.value.handleOrientation(event, rotation)
+          handleOrientation(event, rotation)
         )
       } else {
-        window.removeEventListener('keydown', (event) =>
-          gyroDevice.value.fallbackOrientation(event, 5, rotation)
-        )
+        window.removeEventListener('keydown', (event) => fallbackOrientation(event, 5, rotation))
       }
     }
   }
@@ -177,14 +169,9 @@ defineExpose({
 
 <style lang="scss" scoped>
 .layer-on-canvas {
-  top: 0;
   width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 0;
-  // pointer-events: none;
   overflow: hidden;
-  z-index: -1;
 }
 .debug-info {
   position: absolute;

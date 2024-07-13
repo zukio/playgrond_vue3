@@ -50,10 +50,9 @@ const init = () => {
 
   // レンダラーの作成
   if (provider.renderer) {
-    // provider.renderer.antialias = false
     provider.renderer.setSize(window.innerWidth, window.innerHeight)
     // 環境光を追加
-    provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
+    // provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
   }
   provider.setOrbitControls(provider.camera)
 
