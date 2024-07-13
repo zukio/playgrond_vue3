@@ -22,7 +22,7 @@ const props = defineProps<{
   // modelPath: string
 }>()
 const contentNo = ref(4)
-const modelPath = '/models/labyrinth001.glb'
+const modelPath = `${import.meta.env.BASE_URL}models/labyrinth001.glb`
 
 const activeComponent = computed(() => {
   const components = [Basic, Loadmodel, GyroTest, CollisionTest, Labyrinth]
