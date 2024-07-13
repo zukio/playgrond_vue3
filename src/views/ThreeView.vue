@@ -3,7 +3,6 @@
     <Canvas :flexStyle="activeContainerStyle">
       <component :is="activeComponent" :modelPath="modelPath"></component>
     </Canvas>
-    <slot></slot>
   </div>
 </template>
 
@@ -29,11 +28,21 @@ const activeComponent = computed(() => {
   return components[contentNo.value] || null
 })
 const activeContainerStyle = computed(() => {
+  let innerWidth = '100%'
+  let innerHeight = '100%'
+  const headeElem: HTMLElement | null = document.getElementsByTagName('header')[0]
+  if (headeElem) {
+    // canvasのpositionを固定するとカメラオービットが効かないのでヘッダーを固定
+    // headeElem.style.position = 'absolute'
+    if (headeElem.clientWidth < headeElem.clientHeight) {
+      innerWidth = window.innerWidth - headeElem.clientWidth + 'px'
+    } else {
+      innerHeight = window.innerHeight - headeElem.clientHeight + 'px'
+    }
+  }
   let flexStyle: CSSProperties = {
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
+    width: innerWidth,
+    height: innerHeight,
     overflow: 'hidden',
     zIndex: -1
   }
@@ -45,8 +54,8 @@ const activeContainerStyle = computed(() => {
 })
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-h2 {
-  margin: 30px 0 0;
+<style lang="scss">
+.canvas-wrapper {
+  position: relative;
 }
 </style>

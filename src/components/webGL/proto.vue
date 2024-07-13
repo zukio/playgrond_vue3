@@ -106,90 +106,18 @@ const setupLight = () => {
   scene.add(directionalLight)
 }
 
-const loadLabyrinthAsync = async () => {
-  const loader = new GLTFLoader()
-  try {
-    const gltf = await loader.loadAsync(props.modelPath)
-    labyrinth = gltf.scene
-    if (scene && labyrinth) {
-      labyrinth.scale.set(10, 10, 10)
-      labyrinth.position.set(0, 0, 5) // 中心に配置
-      labyrinth.rotation.x = 0 // 水平に配置
-
-      labyrinth.traverse((child) => {
-        if (child instanceof Mesh) {
-          // メッシュを非表示にする
-          child.visible = true
-          // 子オブジェクトのスケールと位置を親オブジェクトのスケールと位置に合わせる
-          child.updateMatrixWorld(true)
-          const worldPosition = new Vector3()
-          child.getWorldPosition(worldPosition)
-          const worldScale = new Vector3()
-          child.getWorldScale(worldScale)
-
-          let vertices: number[], indices: number[]
-
-          // メッシュがインデックス化されているかどうかを確認
-          if (child.geometry.index) {
-            // インデックスの数が3の倍数かどうかを確認
-            if (child.geometry.index.count % 3 === 0) {
-              // 頂点情報を取得
-              vertices = child.geometry.attributes.position.array
-              indices = child.geometry.index.array
-            } else {
-              // メッシュを三角形に変換
-              const geometry = child.geometry.toNonIndexed()
-              // 頂点情報を取得
-              vertices = geometry.attributes.position.array
-              indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-              //indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
-            }
-          } else {
-            // 既に非インデックス化されたジオメトリの場合
-            vertices = child.geometry.attributes.position.array
-            indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-          }
-
-          // 頂点情報のスケールを適用
-          for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i] *= worldScale.x
-            vertices[i + 1] *= worldScale.y
-            vertices[i + 2] *= worldScale.z
-          }
-
-          // 三角形メッシュの形状を作成
-          const trimeshShape = new CANNON.Trimesh(vertices, indices)
-          const body = new CANNON.Body({
-            mass: 0,
-            shape: trimeshShape,
-            position: new CANNON.Vec3(worldPosition.x, worldPosition.y, worldPosition.z)
-          })
-          world.addBody(body)
-        }
-      })
-
-      scene.add(labyrinth)
-      console.log('Labyrinth added to scene and physics world')
-    }
-  } catch (error) {
-    console.error('ラビリンスモデルの読み込み中にエラーが発生しました:', error)
-  }
-}
-
 const loadLabyrinth = async () => {
   const loader = new GLTFLoader()
   try {
     const gltf = await loader.loadAsync(props.modelPath)
     labyrinth = gltf.scene
     if (scene && labyrinth) {
-      labyrinth.scale.set(10, 10, 10)
+      labyrinth.scale.set(100, 100, 100)
       labyrinth.position.set(0, 0, 5) // 中心に配置
       labyrinth.rotation.x = 0 // 水平に配置
 
       labyrinth.traverse((child) => {
         if (child instanceof Mesh) {
-          // メッシュを非表示にする
-          child.visible = true
           // 子オブジェクトのスケールと位置を親オブジェクトのスケールと位置に合わせる
           child.updateMatrixWorld(true)
           const worldPosition = new Vector3()
@@ -197,26 +125,11 @@ const loadLabyrinth = async () => {
           const worldScale = new Vector3()
           child.getWorldScale(worldScale)
 
-          let vertices, indices
-          // メッシュがインデックス化されているかどうかを確認
-          if (child.geometry.index) {
-            // インデックスの数が3の倍数かどうかを確認
-            if (child.geometry.index.count % 3 === 0) {
-              // 頂点情報を取得
-              vertices = child.geometry.attributes.position.array
-              indices = child.geometry.index.array
-            } else {
-              // メッシュを三角形に変換
-              const geometry = child.geometry.toNonIndexed()
-              // 頂点情報を取得
-              vertices = geometry.attributes.position.array
-              indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-            }
-          } else {
-            // 既に非インデックス化されたジオメトリの場合
-            vertices = child.geometry.attributes.position.array
-            indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-          }
+          const geometry = child.geometry.clone()
+          geometry.applyMatrix4(child.matrixWorld) // ワールド変換行列を適用
+
+          let vertices = geometry.attributes.position.array
+          let indices = geometry.index ? geometry.index.array : []
 
           // 頂点情報のスケールを適用
           for (let i = 0; i < vertices.length; i += 3) {
@@ -248,38 +161,18 @@ const createBall = () => {
   const ballGeometry = new SphereGeometry(0.5, 16, 16)
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
-  ball.scale.set(1, 1, 1)
   ball.position.set(0, 0.5, 0) // ボールを迷路の中に配置
   scene.add(ball)
 
-  // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
   const shape = new CANNON.Sphere(0.5)
   ballBody = new CANNON.Body({
-    mass: 1, // ボールの質量を小さくする
+    mass: 1,
     shape: shape,
-    position: new CANNON.Vec3(0, 0.5, 0),
+    position: new CANNON.Vec3(0, 0.5, 0), // Cannon.jsのボディの位置も同じに設定
     linearDamping: 0.9, // 強めの減衰設定
     angularDamping: 0.9 // 回転の減衰設定
   })
-  // ボールとコライダーの間で衝突の反発係数（リスティチューション）を設定し、衝突後にボールが跳ね返るようにします。
-  ballBody.material = new CANNON.Material()
-  ballBody.material.restitution = 0.7 // 反発係数を設定
   world.addBody(ballBody)
-}
-
-const animate = () => {
-  animationFrameId = requestAnimationFrame(animate)
-
-  const deltaTime = 1 / 60
-  world.step(deltaTime, 1 / 60, 10)
-
-  updatePhysics()
-  if (provider.controls) {
-    provider.controls.update()
-  }
-  if (provider.renderer && provider.camera) {
-    provider.renderer.render(scene, provider.camera)
-  }
 }
 
 const updatePhysics = () => {
@@ -298,8 +191,21 @@ const updatePhysics = () => {
 
   // XZ平面での力の適用を確認
   ballBody.applyForce(new CANNON.Vec3(forceX, forceY, 0), ballBody.position)
-  // これだとY軸方向に力を加えてしまう
-  // ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceY), ballBody.position)
+}
+
+const animate = () => {
+  animationFrameId = requestAnimationFrame(animate)
+
+  const deltaTime = 1 / 60
+  world.step(deltaTime, 1 / 60, 10)
+
+  updatePhysics()
+  if (provider.controls) {
+    provider.controls.update()
+  }
+  if (provider.renderer && provider.camera) {
+    provider.renderer.render(scene, provider.camera)
+  }
 }
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
@@ -375,6 +281,9 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .layer-on-canvas {
+  /* position: absolute; カメラコントロールが効かなくなる*/
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;

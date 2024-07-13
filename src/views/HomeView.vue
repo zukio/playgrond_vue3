@@ -6,5 +6,8 @@
 
 <script setup lang="ts">
 import TheWelcome from '../components/WelcomeAnim.vue'
+const props = defineProps<{
+  //
+}>()
 const message = import.meta.env.BASE_URL
 </script>

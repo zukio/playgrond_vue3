@@ -194,7 +194,7 @@ const updatePhysics = () => {
   ball.quaternion.copy(ballBody.quaternion)
 
   // デバイスの傾きを力に変換
-  const gravityStrength = 0.5 // 力の適用強度を減少
+  const gravityStrength = 5 // 力の適用強度を減少
 
   const tiltX = MathUtils.degToRad(rotation.value.beta || 0)
   const tiltZ = MathUtils.degToRad(rotation.value.gamma || 0)
@@ -281,6 +281,9 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .layer-on-canvas {
+  /* position: absolute; カメラコントロールが効かなくなる*/
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;

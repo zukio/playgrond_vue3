@@ -11,19 +11,15 @@
       </nav>
     </div>
   </header>
-
   <RouterView />
 </template>
 
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { ref } from 'vue'
 </script>
 
 <style scoped>
-#app {
-  position: relative;
-  min-height: 100vh;
-}
 header {
   line-height: 1.5;
   max-height: 100vh;

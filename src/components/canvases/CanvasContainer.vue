@@ -1,5 +1,5 @@
 <template>
-  <div :style="flexStyle">
+  <div :style="props.flexStyle">
     <canvas
       ref="canvas1"
       id="canvas1"
@@ -33,8 +33,12 @@ const initProvider = () => {
 
     const parentElement = canvas1.value.parentElement
     if (parentElement) {
+      // 解像度
       canvas1.value.width = parentElement.clientWidth
       canvas1.value.height = parentElement.clientHeight
+      // 表示サイズ
+      canvas1.value.style.width = `${parentElement.clientWidth}px`
+      canvas1.value.style.height = `${parentElement.clientHeight}px`
     }
   }
 }
@@ -63,13 +67,12 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 /* 親（呼び出し元）で指定
 .canvas-wrapper {
-}*/
-
+  position: relative;
+}
+親サイズいっぱいに依存 */
 canvas {
-  top: 0;
-  left: 0;
+  display: block; /* This removes the default inline-block behavior */
   width: 100%;
   height: 100%;
-  z-index: -10;
 }
 </style>

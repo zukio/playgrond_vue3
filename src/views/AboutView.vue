@@ -16,7 +16,7 @@ import DrumMachine from '@/components/play/DrumMachine.vue'
 import MediaList from '@/components/MediaList.vue'
 
 const props = defineProps<{
-  // show: boolean
+  //
 }>()
 
 const store = useCounterStore()

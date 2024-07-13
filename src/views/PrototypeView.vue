@@ -12,6 +12,9 @@ import { computed, ref, type CSSProperties } from 'vue'
 import Canvas from '@/components/webGL/WebglContainer.vue'
 import ProtoType from '@/components/webGL/proto.vue'
 
+const props = defineProps<{
+  //
+}>()
 const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
 const componentRef: any = ref(null)

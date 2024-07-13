@@ -1,13 +1,12 @@
 <template>
   <div class="p-0 m-0">
     <h2>{{ contentNo }}</h2>
-    <Canvas :flexStyle="activeContainerStyle">
+    <Canvas class="p-0 m-0" :flexStyle="activeContainerStyle">
       <component
         :is="activeComponent"
         :contentBackgroud="activeContainerStyle.backgroundColor ?? ''"
       ></component>
     </Canvas>
-    <slot></slot>
   </div>
 </template>
 
@@ -20,7 +19,8 @@ import ParticleGyro from '@/components/canvases/particle_gyro.vue'
 
 const props = defineProps<{
   // contentNo: number
-  // contentBackgroud: string
+  // modelPath: string
+  //
 }>()
 
 const contentNo = ref(0)

@@ -29,7 +29,9 @@ import BookIntroduction from '@/components/lp/BookIntroduction.vue'
 //import FaqSection from '@/components/lp/FaqSection.vue'
 //import ContactForm from '@/components/lp/ContactForm.vue'
 import FooterSection from '@/components/lp/FooterSection.vue'
-
+const props = defineProps<{
+  //
+}>()
 //const sections = [
 //  { id: 'hero', name: 'ホーム' },
 //  { id: 'book-intro', name: '作品紹介' },

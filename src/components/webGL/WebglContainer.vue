@@ -1,6 +1,6 @@
 <template>
-  <div :style="flexStyle">
-    <canvas ref="canvas" class="game-container"></canvas>
+  <div :style="props.flexStyle">
+    <canvas ref="canvas"></canvas>
     <slot></slot>
   </div>
 </template>
@@ -55,56 +55,68 @@ provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera) => 
     provider.controls.maxDistance = 50
     provider.controls.maxPolarAngle = Math.PI / 2
   })
+  onResize()
 }
 
 const props = defineProps<{
   flexStyle: CSSProperties | undefined
 }>()
 
-const handleResize = () => {
+const onResize = () => {
   if (canvas.value) {
-    canvas.value.width = window.innerWidth
-    canvas.value.height = window.innerHeight
-  }
-  if (provider.camera && provider.renderer) {
-    const aspect = window.innerWidth / window.innerHeight
-    const frustumSize = 10
-    if (provider.camera instanceof OrthographicCamera) {
-      provider.camera.left = (frustumSize * aspect) / -2
-      provider.camera.right = (frustumSize * aspect) / 2
-      provider.camera.top = frustumSize / 2
-      provider.camera.bottom = frustumSize / -2
-    } else if (provider.camera instanceof PerspectiveCamera) {
-      provider.camera.aspect = aspect
+    const parentElement = canvas.value.parentElement
+
+    if (parentElement) {
+      // 解像度
+      canvas.value.width = parentElement.clientWidth
+      canvas.value.height = parentElement.clientHeight
+      // 表示サイズ
+      canvas.value.style.width = `${parentElement.clientWidth}px`
+      canvas.value.style.height = `${parentElement.clientHeight}px`
     }
-    provider.camera.updateProjectionMatrix()
-    provider.renderer.setSize(window.innerWidth, window.innerHeight)
+
+    if (provider.camera && provider.renderer) {
+      const aspect = canvas.value ? canvas.value.clientWidth / canvas.value.clientHeight : 1
+      const frustumSize = 10
+      if (provider.camera instanceof OrthographicCamera) {
+        provider.camera.left = (frustumSize * aspect) / -2
+        provider.camera.right = (frustumSize * aspect) / 2
+        provider.camera.top = frustumSize / 2
+        provider.camera.bottom = frustumSize / -2
+      } else if (provider.camera instanceof PerspectiveCamera) {
+        provider.camera.aspect = aspect
+      }
+      provider.camera.updateProjectionMatrix()
+      provider.renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight)
+    }
   }
 }
 
 onMounted(() => {
   provider.initProvider()
-  handleResize()
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', onResize)
 })
 
 onUnmounted(() => {
   if (provider.renderer) {
     provider.renderer.dispose()
   }
-  window.removeEventListener('resize', handleResize)
+  window.removeEventListener('resize', onResize)
 })
 </script>
 
 <style lang="scss" scoped>
-.game-container {
-  // position: fixed;
-  top: 0;
-  left: 0;
+// 親（呼び出し元）で指定
+.canvas-wrapper {
+  position: relative;
+}
+// 親サイズいっぱいに依存
+canvas {
+  display: block; /* This removes the default inline-block behavior */
   width: 100%;
   height: 100%;
-  z-index: -10;
 }
+
 @media screen and (max-width: 600px) {
   .game-container {
     background-color: pink;
