@@ -106,90 +106,18 @@ const setupLight = () => {
   scene.add(directionalLight)
 }
 
-const loadLabyrinthAsync = async () => {
-  const loader = new GLTFLoader()
-  try {
-    const gltf = await loader.loadAsync(props.modelPath)
-    labyrinth = gltf.scene
-    if (scene && labyrinth) {
-      labyrinth.scale.set(10, 10, 10)
-      labyrinth.position.set(0, 0, 5) // 中心に配置
-      labyrinth.rotation.x = 0 // 水平に配置
-
-      labyrinth.traverse((child) => {
-        if (child instanceof Mesh) {
-          // メッシュを非表示にする
-          child.visible = true
-          // 子オブジェクトのスケールと位置を親オブジェクトのスケールと位置に合わせる
-          child.updateMatrixWorld(true)
-          const worldPosition = new Vector3()
-          child.getWorldPosition(worldPosition)
-          const worldScale = new Vector3()
-          child.getWorldScale(worldScale)
-
-          let vertices: number[], indices: number[]
-
-          // メッシュがインデックス化されているかどうかを確認
-          if (child.geometry.index) {
-            // インデックスの数が3の倍数かどうかを確認
-            if (child.geometry.index.count % 3 === 0) {
-              // 頂点情報を取得
-              vertices = child.geometry.attributes.position.array
-              indices = child.geometry.index.array
-            } else {
-              // メッシュを三角形に変換
-              const geometry = child.geometry.toNonIndexed()
-              // 頂点情報を取得
-              vertices = geometry.attributes.position.array
-              indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-              //indices = new Uint32Array(vertices.length / 3).map((_, index) => index)
-            }
-          } else {
-            // 既に非インデックス化されたジオメトリの場合
-            vertices = child.geometry.attributes.position.array
-            indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-          }
-
-          // 頂点情報のスケールを適用
-          for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i] *= worldScale.x
-            vertices[i + 1] *= worldScale.y
-            vertices[i + 2] *= worldScale.z
-          }
-
-          // 三角形メッシュの形状を作成
-          const trimeshShape = new CANNON.Trimesh(vertices, indices)
-          const body = new CANNON.Body({
-            mass: 0,
-            shape: trimeshShape,
-            position: new CANNON.Vec3(worldPosition.x, worldPosition.y, worldPosition.z)
-          })
-          world.addBody(body)
-        }
-      })
-
-      scene.add(labyrinth)
-      console.log('Labyrinth added to scene and physics world')
-    }
-  } catch (error) {
-    console.error('ラビリンスモデルの読み込み中にエラーが発生しました:', error)
-  }
-}
-
 const loadLabyrinth = async () => {
   const loader = new GLTFLoader()
   try {
     const gltf = await loader.loadAsync(props.modelPath)
     labyrinth = gltf.scene
     if (scene && labyrinth) {
-      labyrinth.scale.set(10, 10, 10)
+      labyrinth.scale.set(100, 100, 100)
       labyrinth.position.set(0, 0, 5) // 中心に配置
       labyrinth.rotation.x = 0 // 水平に配置
 
       labyrinth.traverse((child) => {
         if (child instanceof Mesh) {
-          // メッシュを非表示にする
-          child.visible = true
           // 子オブジェクトのスケールと位置を親オブジェクトのスケールと位置に合わせる
           child.updateMatrixWorld(true)
           const worldPosition = new Vector3()
@@ -197,33 +125,11 @@ const loadLabyrinth = async () => {
           const worldScale = new Vector3()
           child.getWorldScale(worldScale)
 
-          let vertices, indices
-          // メッシュがインデックス化されているかどうかを確認
-          if (child.geometry.index) {
-            // インデックスの数が3の倍数かどうかを確認
-            if (child.geometry.index.count % 3 === 0) {
-              // 頂点情報を取得
-              vertices = child.geometry.attributes.position.array
-              indices = child.geometry.index.array
-            } else {
-              // メッシュを三角形に変換
-              const geometry = child.geometry.toNonIndexed()
-              // 頂点情報を取得
-              vertices = geometry.attributes.position.array
-              indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-            }
-          } else {
-            // 既に非インデックス化されたジオメトリの場合
-            vertices = child.geometry.attributes.position.array
-            indices = Object.keys(vertices).map((index) => parseInt(index, 10))
-          }
+          const geometry = child.geometry.clone()
+          geometry.applyMatrix4(child.matrixWorld) // ワールド変換行列を適用
 
-          // 頂点情報のスケールを適用
-          for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i] *= worldScale.x
-            vertices[i + 1] *= worldScale.y
-            vertices[i + 2] *= worldScale.z
-          }
+          let vertices = geometry.attributes.position.array
+          let indices = geometry.index ? geometry.index.array : []
 
           // 三角形メッシュの形状を作成
           const trimeshShape = new CANNON.Trimesh(vertices, indices)
