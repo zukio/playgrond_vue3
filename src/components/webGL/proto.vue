@@ -31,7 +31,7 @@ import {
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
 import type { Rotation } from '@/types/index'
-import { isPortrait, handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
 const props = defineProps<{
@@ -61,7 +61,7 @@ let ballBody: CANNON.Body
 
 const modelImagePath = new URL('@/assets/images/DigitalBook_maze_01_0708.png', import.meta.url).href
 const fixRatio = true // 縦横比を画面サイズに合わせて調整するか
-const useOrbit = true // カメラコントロールを使用するか
+const useOrbit = false // カメラコントロールを使用するか
 
 const model = ref<GLTF | null>(null)
 const modelBoundingBox = ref<Box3 | null>(null)
@@ -306,25 +306,25 @@ const updatePhysics = () => {
   // 画面の向きに応じて重力ベクトルを調整
   switch (window.screen.orientation.angle) {
     case 0:
-      // ポートレート
+      console.log('ポートレート')
       downX = 0
       downZ = -constantGravity
       break
     case 90:
-      // ランドスケープ（右向き）
-      downX = constantGravity
+      console.log('ランドスケープ（右向き）')
+      downX = -constantGravity
       downZ = 0
       break
     case -90:
     case 270:
-      // ランドスケープ（左向き）
+      console.log('ランドスケープ（左向き）')
       downX = -constantGravity
       downZ = 0
       break
     case 180:
-      // ポートレート（逆さま）
+      console.log('ポートレート（逆さま）')
       downX = 0
-      downZ = constantGravity
+      downZ = -constantGravity
       break
   }
 
