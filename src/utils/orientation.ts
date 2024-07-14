@@ -12,7 +12,7 @@ export const defaultOrientationSign = (): number => {
     // ポートレイトモード
     if (window.screen.orientation.angle === 0) {
       // 画面が上を向いている場合
-      // return 1
+      return 1
     } else if (window.screen.orientation.angle === 180) {
       // 逆さま
       return -1
@@ -21,7 +21,7 @@ export const defaultOrientationSign = (): number => {
     // ランドスケープモード
     if (window.screen.orientation.angle === 90) {
       // 画面が右を向いている場合
-      // return 1
+      return 1
     } else if (window.screen.orientation.angle === -90 || window.screen.orientation.angle === 270) {
       // 画面が左を向いている場合
       return -1
@@ -84,7 +84,7 @@ export const handleOrientation = (event: DeviceOrientationEvent, rotation: Ref<a
     absolute: event.absolute || false
   }
 
-  console.log('Orientation:', { alpha, beta, gamma }) // デバッグ用出力
+  // console.log('Orientation:', { alpha, beta, gamma }) // デバッグ用出力
 }
 
 export const handleMotion = (event: DeviceMotionEvent, acceleration: Ref<any>) => {
@@ -156,7 +156,7 @@ export const fallbackOrientation = (
 
   rotation.value = { alpha, beta, gamma, absolute: rotation.value.absolute }
 
-  console.log('Fallback Orientation:', { alpha, beta, gamma })
+  // console.log('Fallback Orientation:', { alpha, beta, gamma })
 }
 
 export const fallbackMotion = (event: MouseEvent, acceleration: Ref<any>) => {

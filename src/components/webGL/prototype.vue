@@ -198,7 +198,7 @@ const updatePhysics = () => {
   // デバイスの傾きを力に変換
   const gravityStrength = 5 // 力の適用強度を減少
 
-  const tiltX = MathUtils.degToRad(rotation.value.beta || 0)
+  const tiltX = MathUtils.degToRad(rotation.value.alpha || 0)
   const tiltZ = MathUtils.degToRad(rotation.value.gamma || 0)
 
   const forceX = Math.sin(tiltZ) * gravityStrength
@@ -212,31 +212,53 @@ const updatePhysics = () => {
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
   handleOrientation(event, rotation)
-
-  if (isPortrait()) {
-    const temp = rotation.value.beta
-    rotation.value.beta = rotation.value.gamma
-    rotation.value.gamma = temp
-  } else {
-    const temp = rotation.value.alpha
-    rotation.value.alpha = rotation.value.gamma
-    rotation.value.gamma = temp
-  }
+  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
+  //if (isPortrait()) {
+  //  const temp = rotation.value.beta
+  //  rotation.value.beta = rotation.value.gamma
+  //  rotation.value.gamma = temp
+  //} else {
+  //  const temp = rotation.value.alpha
+  //  rotation.value.alpha = rotation.value.gamma
+  //  rotation.value.gamma = temp
+  //}
 }
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  const tiltAmount = 5
-  fallbackOrientation(event, tiltAmount, rotation)
+  // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
+  // fallbackOrientation(event, 5, rotation)
 
-  if (isPortrait()) {
-    const temp = rotation.value.beta
-    rotation.value.beta = rotation.value.gamma
-    rotation.value.gamma = temp
-  } else {
-    const temp = rotation.value.alpha
-    rotation.value.alpha = rotation.value.gamma
-    rotation.value.gamma = temp
+  // 現在の回転状態を取得
+  let { alpha, beta, gamma } = rotation.value
+
+  switch (event.key) {
+    case 'ArrowUp':
+      alpha = 270
+      beta = 0
+      gamma = 0
+      break
+    case 'ArrowDown':
+      alpha = 90
+      beta = 0
+      gamma = 0
+      break
+    case 'ArrowLeft':
+      alpha = 180
+      beta = 0
+      gamma = -90 // 左に傾ける
+      break
+    case 'ArrowRight':
+      alpha = 0
+      beta = 0
+      gamma = 90 // 右に傾ける
+      break
   }
+
+  // 回転値を更新
+  rotation.value = { alpha, beta, gamma, absolute: rotation.value.absolute }
+
+  // デバッグ用出力
+  // console.log('Fallback Orientation:', { alpha, beta, gamma })
 }
 
 const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {

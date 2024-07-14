@@ -31,7 +31,12 @@ import {
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
 import type { Rotation } from '@/types/index'
-import { defaultOrientationSign, handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import {
+  defaultOrientationSign,
+  handleOrientation,
+  fallbackOrientation,
+  isPortrait
+} from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
 const props = defineProps<{
@@ -62,6 +67,7 @@ let ballBody: CANNON.Body
 const modelImagePath = new URL('@/assets/images/DigitalBook_maze_01_0708.png', import.meta.url).href
 const fixRatio = true // 縦横比を画面サイズに合わせて調整するか
 const useOrbit = false // カメラコントロールを使用するか
+const isDebug = false // デバッグモード
 
 const model = ref<GLTF | null>(null)
 const modelBoundingBox = ref<Box3 | null>(null)
@@ -162,7 +168,7 @@ const loadLabyrinthAsync = () => {
           labyrinth.traverse((child) => {
             if (child instanceof Mesh) {
               // メッシュを非表示にする
-              child.visible = false
+              child.visible = isDebug
               // 子オブジェクトのスケールと位置を親オブジェクトのスケールと位置に合わせる
               child.updateMatrixWorld(true)
               const worldPosition = new Vector3()
@@ -306,30 +312,31 @@ const updatePhysics = () => {
   // 画面の向きに応じて重力ベクトルを調整
   switch (window.screen.orientation.angle) {
     case 0:
-      console.log('ポートレート')
+      // console.log('上向き')
       downX = 0
       downZ = -constantGravity
       break
     case 90:
-      console.log('ランドスケープ（右向き）')
+      // console.log('右向き')
       downX = constantGravity
       downZ = 0
       break
     case -90:
     case 270:
-      console.log('ランドスケープ（左向き）')
+      // console.log('左向き')
       downX = -constantGravity
       downZ = 0
       break
     case 180:
-      console.log('ポートレート（逆さま）')
+      // console.log('逆さま')
       downX = 0
       downZ = constantGravity
       break
   }
-
-  downX *= defaultOrientationSign()
-  downZ *= defaultOrientationSign()
+  //orientationSign() をキャッシュして、downX と downZ にそれぞれ適用
+  const orientationSign = defaultOrientationSign()
+  downX *= orientationSign
+  downZ *= orientationSign
 
   // デバッグ用出力
   // console.log('Forces:', { forceX, forceZ, downX, downZ })
@@ -433,11 +440,41 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
   // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
   handleOrientation(event, rotation)
 }
-
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  const tiltAmount = 45
-  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
-  fallbackOrientation(event, tiltAmount, rotation)
+  // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
+  // fallbackOrientation(event, 5, rotation)
+
+  // 現在の回転状態を取得
+  let { alpha, beta, gamma } = rotation.value
+
+  switch (event.key) {
+    case 'ArrowUp':
+      alpha = 270
+      beta = 0
+      gamma = 0
+      break
+    case 'ArrowDown':
+      alpha = 90
+      beta = 0
+      gamma = 0
+      break
+    case 'ArrowLeft':
+      alpha = 180
+      beta = 0
+      gamma = -90 // 左に傾ける
+      break
+    case 'ArrowRight':
+      alpha = 0
+      beta = 0
+      gamma = 90 // 右に傾ける
+      break
+  }
+
+  // 回転値を更新
+  rotation.value = { alpha, beta, gamma, absolute: rotation.value.absolute }
+
+  // デバッグ用出力
+  // console.log('Fallback Orientation:', { alpha, beta, gamma })
 }
 
 const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
