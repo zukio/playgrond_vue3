@@ -403,9 +403,9 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
   handleOrientation(event, rotation)
 
   if (isPortrait()) {
-    const temp = rotation.value.beta
-    rotation.value.beta = rotation.value.gamma * -1
-    rotation.value.gamma = temp
+    //const temp = rotation.value.beta
+    //rotation.value.beta = rotation.value.gamma
+    //rotation.value.gamma = temp
   } else {
     const temp = rotation.value.alpha
     rotation.value.alpha = rotation.value.gamma
