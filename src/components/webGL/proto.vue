@@ -61,7 +61,7 @@ let ballBody: CANNON.Body
 
 const modelImagePath = new URL('@/assets/images/DigitalBook_maze_01_0708.png', import.meta.url).href
 const fixRatio = true // 縦横比を画面サイズに合わせて調整するか
-const useOrbit = false // カメラコントロールを使用するか
+const useOrbit = true // カメラコントロールを使用するか
 
 const model = ref<GLTF | null>(null)
 const modelBoundingBox = ref<Box3 | null>(null)
@@ -303,6 +303,30 @@ const updatePhysics = () => {
   // デバイスの下方向に基づく重力の計算
   let downX = 0
   let downZ = -constantGravity // 上から見下ろしているのでZ軸が下方向
+  // 画面の向きに応じて重力ベクトルを調整
+  switch (window.screen.orientation.angle) {
+    case 0:
+      // ポートレート
+      downX = 0
+      downZ = -constantGravity
+      break
+    case 90:
+      // ランドスケープ（右向き）
+      downX = constantGravity
+      downZ = 0
+      break
+    case -90:
+    case 270:
+      // ランドスケープ（左向き）
+      downX = -constantGravity
+      downZ = 0
+      break
+    case 180:
+      // ポートレート（逆さま）
+      downX = 0
+      downZ = constantGravity
+      break
+  }
 
   // デバッグ用出力
   // console.log('Forces:', { forceX, forceZ, downX, downZ })
@@ -310,7 +334,7 @@ const updatePhysics = () => {
   // XZ平面での力の適用を確認
   ballBody.applyForce(new CANNON.Vec3(forceX + downX, forceZ + downZ, 0), ballBody.position) // デバイスの傾きに基づく力
   // 以下だとY軸方向に力を加えてしまう
-  // ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceY), ballBody.position)
+  // ballBody.applyForce(new CANNON.Vec3(forceX + downX, 0, forceZ + downZ), ballBody.position)
 
   // ゴールに到達したかどうかのチェック
   checkGoal()
@@ -403,13 +427,13 @@ const animate = () => {
 }
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
+  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
   handleOrientation(event, rotation)
-  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われ、
-  // 常にボールのX軸とZ軸の傾きを取得するようになっている
 }
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  const tiltAmount = 1
+  const tiltAmount = 45
+  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
   fallbackOrientation(event, tiltAmount, rotation)
 }
 
