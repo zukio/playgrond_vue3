@@ -6,6 +6,30 @@ export const isPortrait = (): boolean => {
   )
 }
 
+export const defaultOrientationSign = (): number => {
+  // デバイスの向きに基づいて変換
+  if (isPortrait()) {
+    // ポートレイトモード
+    if (window.screen.orientation.angle === 0) {
+      // 画面が上を向いている場合
+      // return 1
+    } else if (window.screen.orientation.angle === 180) {
+      // 逆さま
+      return -1
+    }
+  } else {
+    // ランドスケープモード
+    if (window.screen.orientation.angle === 90) {
+      // 画面が右を向いている場合
+      // return 1
+    } else if (window.screen.orientation.angle === -90 || window.screen.orientation.angle === 270) {
+      // 画面が左を向いている場合
+      return -1
+    }
+  }
+  return 1
+}
+
 /* デバイスの向きとセンサーの値の関係
  * ポートレート
  * - XYの場合
