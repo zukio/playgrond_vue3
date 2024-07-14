@@ -51,6 +51,8 @@ export const handleOrientation = (event: DeviceOrientationEvent, rotation: Ref<a
     gamma,
     absolute: event.absolute || false
   }
+
+  console.log('Orientation:', { alpha, beta, gamma }) // デバッグ用出力
 }
 
 export const handleMotion = (event: DeviceMotionEvent, acceleration: Ref<any>) => {
@@ -82,44 +84,68 @@ export const fallbackOrientation = (
   if (isPortrait()) {
     switch (event.key) {
       case 'ArrowUp':
-        rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
+        if (event.ctrlKey) {
+          // 前後回転 (beta)
+          rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
+        } else {
+          // 縦回転 (gamma)
+          rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
+        }
         break
       case 'ArrowDown':
-        rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
+        if (event.ctrlKey) {
+          // 前後回転 (beta)
+          rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
+        } else {
+          // 縦回転 (gamma)
+          rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
+        }
         break
       case 'ArrowLeft':
-        rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
+        // 横回転 (alpha)
+        rotation.value.alpha = (rotation.value.alpha - tiltAmount) % 360
+        if (rotation.value.alpha < 0) rotation.value.alpha += 360
         break
       case 'ArrowRight':
-        rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
+        // 横回転 (alpha)
+        rotation.value.alpha = (rotation.value.alpha + tiltAmount) % 360
         break
     }
   } else {
     switch (event.key) {
       case 'ArrowUp':
-        rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
+        if (event.ctrlKey) {
+          // 前後回転 (beta)
+          rotation.value.beta = Math.max(-90, rotation.value.beta - tiltAmount)
+        } else {
+          // 縦回転 (gamma)
+          rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
+        }
         break
       case 'ArrowDown':
-        rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
+        if (event.ctrlKey) {
+          // 前後回転 (beta)
+          rotation.value.beta = Math.min(90, rotation.value.beta + tiltAmount)
+        } else {
+          // 縦回転 (gamma)
+          rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
+        }
         break
       case 'ArrowLeft':
-        rotation.value.gamma = Math.max(-90, rotation.value.gamma - tiltAmount)
+        // 横回転 (alpha)
+        rotation.value.alpha = (rotation.value.alpha - tiltAmount) % 360
+        if (rotation.value.alpha < 0) rotation.value.alpha += 360
         break
       case 'ArrowRight':
-        rotation.value.gamma = Math.min(90, rotation.value.gamma + tiltAmount)
+        // 横回転 (alpha)
+        rotation.value.alpha = (rotation.value.alpha + tiltAmount) % 360
         break
     }
   }
 
-  if (isPortrait()) {
-    const temp = rotation.value.beta
-    rotation.value.beta = rotation.value.gamma
-    rotation.value.gamma = temp
-  } else {
-    const temp = rotation.value.alpha
-    rotation.value.alpha = rotation.value.gamma
-    rotation.value.gamma = temp
-  }
+  //alpha: デバイスの水平回転（デバイスが自身の垂直軸を中心に回転ドアのように回転する）
+  //beta: デバイスの前後の傾き（腰軸を中心にフリップする）
+  //gamma: デバイスの左右の傾き
 }
 
 export const fallbackMotion = (event: MouseEvent, acceleration: Ref<any>) => {

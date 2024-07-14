@@ -154,7 +154,7 @@ const loadLabyrinthAsync = () => {
       .then((gltf) => {
         labyrinth = gltf.scene
         if (scene && labyrinth) {
-          const scalefactor = 5
+          const scalefactor = 5.4
           labyrinth.scale.set(scalefactor, scalefactor, scalefactor)
           labyrinth.position.set(0, 0, 0) // 中心に配置
           labyrinth.rotation.x = 0 // 水平に配置
@@ -220,7 +220,7 @@ const createBall = () => {
     mass: 1, // ボールの質量を小さくする
     shape: shape,
     position: new CANNON.Vec3(0, 0.5, 0),
-    linearDamping: 0.9, // 強めの減衰設定
+    linearDamping: 0.1, // 強めの減衰設定
     angularDamping: 0.3 // 回転の減衰設定
   })
   // ボールとコライダーの間で衝突の反発係数（リスティチューション）を設定し、衝突後にボールが跳ね返るようにします。
@@ -273,15 +273,11 @@ const addImageToScene = (imagePath: string) => {
     const material = new MeshBasicMaterial({ map: texture, transparent: true })
     const plane = new Mesh(geometry, material)
 
-    if (model.value) {
-      // 画像の位置とスケールを設定
-      const boundingBox = new Box3().setFromObject(model.value.scene)
-      const size = boundingBox.getSize(new Vector3())
-      const scaleX = window.innerWidth / size.x
-      const scaleY = fixRatio ? window.innerWidth / size.x : window.innerHeight / size.y
-      const scale = Math.min(scaleX, scaleY)
-      const scalefactor = 1 / 76
-      plane.scale.set(size.x * scale * scalefactor, size.y * scale * scalefactor, 1)
+    if (modelBoundingBox.value) {
+      // モデル全体のバウンディングボックスを取得
+      const size = modelBoundingBox.value.getSize(new Vector3())
+      const scale = 1
+      plane.scale.set(size.x * scale, size.y * scale, 1)
     }
     plane.position.set(0.2, -0.1, -0.1) // モデルの背後に配置
 
@@ -290,22 +286,30 @@ const addImageToScene = (imagePath: string) => {
 }
 
 const updatePhysics = () => {
-  // ボールの位置と回転をjsのメッシュに反映
+  // ボールの位置と回転をThree.jsのメッシュに反映
   ball.position.copy(ballBody.position)
   ball.quaternion.copy(ballBody.quaternion)
 
   // デバイスの傾きを力に変換
-  const gravityStrength = 5 // 力の適用強度を減少
+  const gravityStrength = 5 // デバイスの傾きに基づく力の適用強度
+  const constantGravity = 1 // 常に存在する重力の強さ (m/s^2)
 
-  const tiltX = MathUtils.degToRad(rotation.value.beta || 0)
+  const tiltX = MathUtils.degToRad(rotation.value.alpha || 0)
   const tiltZ = MathUtils.degToRad(rotation.value.gamma || 0)
 
   const forceX = Math.sin(tiltZ) * gravityStrength
-  const forceY = -Math.sin(tiltX) * gravityStrength
+  const forceZ = -Math.sin(tiltX) * gravityStrength
+
+  // デバイスの下方向に基づく重力の計算
+  let downX = 0
+  let downZ = -constantGravity // 上から見下ろしているのでZ軸が下方向
+
+  // デバッグ用出力
+  // console.log('Forces:', { forceX, forceZ, downX, downZ })
 
   // XZ平面での力の適用を確認
-  ballBody.applyForce(new CANNON.Vec3(forceX, forceY, 0), ballBody.position)
-  // これだとY軸方向に力を加えてしまう
+  ballBody.applyForce(new CANNON.Vec3(forceX + downX, forceZ + downZ, 0), ballBody.position) // デバイスの傾きに基づく力
+  // 以下だとY軸方向に力を加えてしまう
   // ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceY), ballBody.position)
 
   // ゴールに到達したかどうかのチェック
@@ -363,7 +367,6 @@ const updateCameraPosition = () => {
       newY = Math.max(minBound.y, Math.min(maxBound.y, newY))
     } else {
       newY = currentY
-      console.log('newY', newY)
     }
     provider.camera.position.set(newX, newY, provider.camera.position.z)
     if (inBoxX && inBoxY) {
@@ -401,31 +404,13 @@ const animate = () => {
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
   handleOrientation(event, rotation)
-
-  if (isPortrait()) {
-    //const temp = rotation.value.beta
-    //rotation.value.beta = rotation.value.gamma
-    //rotation.value.gamma = temp
-  } else {
-    const temp = rotation.value.alpha
-    rotation.value.alpha = rotation.value.gamma
-    rotation.value.gamma = temp
-  }
+  // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われ、
+  // 常にボールのX軸とZ軸の傾きを取得するようになっている
 }
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  const tiltAmount = 5
+  const tiltAmount = 1
   fallbackOrientation(event, tiltAmount, rotation)
-
-  if (isPortrait()) {
-    const temp = rotation.value.beta
-    rotation.value.beta = rotation.value.gamma
-    rotation.value.gamma = temp
-  } else {
-    const temp = rotation.value.alpha
-    rotation.value.alpha = rotation.value.gamma
-    rotation.value.gamma = temp
-  }
 }
 
 const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {

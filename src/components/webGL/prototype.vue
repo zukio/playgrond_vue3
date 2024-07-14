@@ -182,7 +182,6 @@ const animate = () => {
   world.step(deltaTime, 1 / 60, 10)
 
   updatePhysics()
-
   if (provider.controls) {
     provider.controls.update()
   }
