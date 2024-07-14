@@ -21,14 +21,14 @@ export const useCounterStore = defineStore('counter', () => {
     const payload = {
       message: ''
     }
-    return await fetch(
-      'https://script.google.com/macros/s/AKfycbxI0fzQA1HSjfkkbpbLyFXUKpT9T6zw0TyeooIydzdjWjoSsgDYcxjE/exec' /*,
+    /*return await fetch(
+      'https://script.google.com/macros/s/AKfycbxI0fzQA1HSjfkkbpbLyFXUKpT9T6zw0TyeooIydzdjWjoSsgDYcxjE/exec' ,
 			{
 				method: 'GET',
 				headers: new Headers({
 					'content-type': 'application/json'
 				})
-			}*/
+			}
     )
       .then((response) => {
         return response.json()
@@ -44,6 +44,10 @@ export const useCounterStore = defineStore('counter', () => {
           return false
         }
       )
+      .catch((error) => {
+        console.log('error' + error)
+        return false
+      })*/
   }
 
   return { count, doubleCount, increment, fetchDemoData, demoData, getDemoData }

@@ -14,17 +14,18 @@ import Loadmodel from '@/components/webGL/loadmodel.vue'
 import GyroTest from '@/components/webGL/gyro.vue'
 import CollisionTest from '@/components/webGL/collision.vue'
 import Labyrinth from '@/components/webGL/prototype.vue'
+import Labyrinth2 from '@/components/webGL/modelSyncImage.vue'
 
 const props = defineProps<{
   // contentNo: number
   // modelPath: string
 }>()
-const contentNo = ref(4)
-const modelPath = `${import.meta.env.BASE_URL}models/labyrinth001.glb`
+const contentNo = ref(5)
+const modelPath = `${import.meta.env.BASE_URL}models/DigitalBook_maze_01_0708.glb`
 // const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
 const activeComponent = computed(() => {
-  const components = [Basic, Loadmodel, GyroTest, CollisionTest, Labyrinth]
+  const components = [Basic, Loadmodel, GyroTest, CollisionTest, Labyrinth, Labyrinth2]
   return components[contentNo.value] || null
 })
 const activeContainerStyle = computed(() => {

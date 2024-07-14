@@ -59,14 +59,12 @@ let animationFrameId: number | null = null
 let world: CANNON.World
 let ballBody: CANNON.Body
 
-const modelImagePath = new URL('@/assets/images/DigitalBook_maze_01_0708.png', import.meta.url).href
-const fixRatio = true // 縦横比を画面サイズに合わせて調整するか
-const useOrbit = false // カメラコントロールを使用するか
-
 const model = ref<GLTF | null>(null)
 const modelBoundingBox = ref<Box3 | null>(null)
 const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false })
-const goalReached = ref(false)
+const modelImagePath = new URL('@/assets/images/DigitalBook_maze_01_0708.png', import.meta.url).href
+const fixRatio = true // 縦横比を画面サイズに合わせて調整するか
+const useOrbit = false // カメラコントロールを使用するか
 
 const initPhysics = () => {
   world = new CANNON.World()
@@ -206,13 +204,8 @@ const createBall = () => {
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
   ball.scale.set(1, 1, 1)
-  ball.position.set(0, 0, -0.5) // ボールを迷路の中に配置
+  ball.position.set(0, 0.5, 0) // ボールを迷路の中に配置
   scene.add(ball)
-
-  //const debugball = new Mesh(ballGeometry, ballMaterial)
-  //debugball.scale.set(3, 3, 3)
-  //debugball.position.set(8, -0.5, 0) // ボールを迷路の中に配置
-  //scene.add(debugball)
 
   // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
   const shape = new CANNON.Sphere(0.5)
@@ -227,43 +220,6 @@ const createBall = () => {
   ballBody.material = new CANNON.Material()
   ballBody.material.restitution = 0.7 // 反発係数を設定
   world.addBody(ballBody)
-}
-
-// ゴールに到達したかどうかのチェック
-const checkGoal = () => {
-  const goalThreshold = 2 // ゴールとボールの距離のしきい値
-  const goalPosition = new Vector3(8, -0.5, 0) // ゴールの位置
-
-  if (!goalReached.value) {
-    if (ball.position.distanceTo(goalPosition) < goalThreshold) {
-      goalReached.value = true
-      cancelAnimationFrame(animationFrameId!)
-      showFanfare()
-    }
-  }
-}
-const showFanfare = () => {
-  const fanfareElement = document.createElement('div')
-  fanfareElement.innerHTML = `
-    <div class="fanfare">
-      <p>ゴールしました！</p>
-      <button id="nextButton">次へ</button>
-    </div>
-  `
-  document.body.appendChild(fanfareElement)
-
-  const nextButton = document.getElementById('nextButton')
-  if (nextButton) {
-    nextButton.addEventListener('click', () => {
-      // 次のページへの遷移
-      window.location.href = '/next-page' // 適切なURLに変更してください
-    })
-  }
-
-  setTimeout(() => {
-    // 自動で次のページに遷移
-    window.location.href = '/next-page' // 適切なURLに変更してください
-  }, 5000) // 5秒後に自動遷移
 }
 
 const addImageToScene = (imagePath: string) => {
@@ -289,6 +245,25 @@ const addImageToScene = (imagePath: string) => {
   })
 }
 
+const animate = () => {
+  animationFrameId = requestAnimationFrame(animate)
+
+  const deltaTime = 1 / 60
+  world.step(deltaTime, 1 / 60, 10)
+
+  updatePhysics()
+
+  if (useOrbit) {
+    provider.controls?.update()
+  } else {
+    updateCameraPosition() // カメラの位置を更新
+  }
+
+  if (provider.renderer && provider.camera) {
+    provider.renderer.render(scene, provider.camera)
+  }
+}
+
 const updatePhysics = () => {
   // ボールの位置と回転をjsのメッシュに反映
   ball.position.copy(ballBody.position)
@@ -307,9 +282,6 @@ const updatePhysics = () => {
   ballBody.applyForce(new CANNON.Vec3(forceX, forceY, 0), ballBody.position)
   // これだとY軸方向に力を加えてしまう
   // ballBody.applyForce(new CANNON.Vec3(forceX, 0, forceY), ballBody.position)
-
-  // ゴールに到達したかどうかのチェック
-  checkGoal()
 }
 
 const updateCameraPosition = () => {
@@ -378,25 +350,6 @@ const initGame = async () => {
   // ウィンドウサイズ変更時にモデルのサイズを調整
   window.addEventListener('resize', setupCamera)
   animate()
-}
-
-const animate = () => {
-  if (goalReached.value) return
-  animationFrameId = requestAnimationFrame(animate)
-
-  const deltaTime = 1 / 60
-  world.step(deltaTime, 1 / 60, 10)
-
-  updatePhysics()
-
-  if (useOrbit) {
-    provider.controls?.update()
-  } else {
-    updateCameraPosition() // カメラの位置を更新
-  }
-  if (provider.renderer && provider.camera) {
-    provider.renderer.render(scene, provider.camera)
-  }
 }
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
@@ -482,26 +435,5 @@ onUnmounted(() => {
   transform: translate(-50%, -50%);
   // z-index: -1;
   pointer-events: none; /* 画像がマウスイベントを受け取らないように */
-}
-.fanfare {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 2em;
-  z-index: 1000;
-}
-.fanfare button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
 }
 </style>

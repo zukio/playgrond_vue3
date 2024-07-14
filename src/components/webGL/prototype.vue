@@ -41,7 +41,7 @@ const provider = inject('provider') as {
   renderer: WebGLRenderer | null
   controls: any | null
   initProvider: () => void
-  setOrbitControls: (camera: OrthographicCamera) => void
+  setOrbitControls: (camera: OrthographicCamera | null) => void
 }
 // const gameContainer = ref<HTMLDivElement | null>(null)
 const permissionGranted = ref(false)
@@ -101,8 +101,9 @@ const setupLight = () => {
   const ambientLight = new AmbientLight(0xffffff, 0.5)
   scene.add(ambientLight)
 
+  const scalefactor = 5
   const directionalLight = new DirectionalLight(0xffffff, 0.5)
-  directionalLight.position.set(10, 10, 10)
+  directionalLight.position.set(5, 5, 5)
   scene.add(directionalLight)
 }
 
@@ -112,8 +113,9 @@ const loadLabyrinth = async () => {
     const gltf = await loader.loadAsync(props.modelPath)
     labyrinth = gltf.scene
     if (scene && labyrinth) {
-      labyrinth.scale.set(100, 100, 100)
-      labyrinth.position.set(0, 0, 5) // 中心に配置
+      const scalefactor = 5
+      labyrinth.scale.set(scalefactor, scalefactor, scalefactor)
+      labyrinth.position.set(0, 0, 0) // 中心に配置
       labyrinth.rotation.x = 0 // 水平に配置
 
       labyrinth.traverse((child) => {
@@ -180,6 +182,7 @@ const animate = () => {
   world.step(deltaTime, 1 / 60, 10)
 
   updatePhysics()
+
   if (provider.controls) {
     provider.controls.update()
   }
@@ -281,7 +284,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .layer-on-canvas {
-  /* position: absolute; カメラコントロールが効かなくなる*/
+  /* position: absolute; カメラコントロールが効かなくなるため指定しない */
   top: 0;
   left: 0;
   width: 100%;

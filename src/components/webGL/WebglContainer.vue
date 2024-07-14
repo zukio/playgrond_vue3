@@ -44,17 +44,19 @@ provider.initProvider = () => {
     provider.renderer.setSize(window.innerWidth, window.innerHeight)
   }
 }
-provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera) => {
-  import('three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
-    if (!camera || !provider.renderer) return
-    provider.controls = new OrbitControls(camera, provider.renderer.domElement)
-    provider.controls.enableDamping = true
-    provider.controls.dampingFactor = 0.25
-    provider.controls.screenSpacePanning = false
-    provider.controls.minDistance = 5
-    provider.controls.maxDistance = 50
-    provider.controls.maxPolarAngle = Math.PI / 2
-  })
+provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera | null) => {
+  if (camera) {
+    import('three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
+      if (!provider.renderer) return
+      provider.controls = new OrbitControls(camera, provider.renderer.domElement)
+      provider.controls.enableDamping = true
+      provider.controls.dampingFactor = 0.25
+      provider.controls.screenSpacePanning = false
+      provider.controls.minDistance = 5
+      provider.controls.maxDistance = 50
+      provider.controls.maxPolarAngle = Math.PI / 2
+    })
+  }
   onResize()
 }
 

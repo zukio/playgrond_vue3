@@ -71,14 +71,19 @@ const checkDeviceOrientationAvailability = async () => {
 const checkOrientation = () => {
   return new Promise<boolean>((resolve) => {
     if ('DeviceOrientationEvent' in window) {
-      const timeout = setTimeout(() => {
-        window.removeEventListener('deviceorientation', orientationListener)
-        console.warn('DeviceOrientation event not fired within timeout')
-        resolve(false)
+      let timeout = setTimeout(() => {
+        if (timeout > 0) {
+          clearTimeout(timeout)
+          timeout = -1
+          window.removeEventListener('deviceorientation', orientationListener)
+          console.warn('DeviceOrientation event not fired within timeout')
+          resolve(false)
+        }
       }, 1000)
 
       const orientationListener = (event: DeviceOrientationEvent) => {
         clearTimeout(timeout)
+        timeout = -1
         window.removeEventListener('deviceorientation', orientationListener)
 
         if (event.alpha !== null || event.beta !== null || event.gamma !== null) {
@@ -94,9 +99,6 @@ const checkOrientation = () => {
       console.warn('DeviceOrientation not supported')
       resolve(false)
     }
-  }).catch((error) => {
-    console.error('Error checking DeviceOrientation availability:', error)
-    return false
   })
 }
 
@@ -105,7 +107,11 @@ const checkDeviceMotionAvailability = async () => {
   if ('DeviceMotionEvent' in window) {
     // 使用可能かチェック
     isDeviceMotionAvailable.value = await checkMotion()
+  } else {
+    console.warn('DeviceMotion not supported')
+    isDeviceMotionAvailable.value = false
   }
+  return
 }
 
 const checkMotion = () => {
