@@ -27,7 +27,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
 import type { Rotation } from '@/types/index'
-import { isPortrait, handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import { handleOrientation } from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
 const props = defineProps<{
@@ -213,20 +213,11 @@ const updatePhysics = () => {
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
   handleOrientation(event, rotation)
   // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
-  //if (isPortrait()) {
-  //  const temp = rotation.value.beta
-  //  rotation.value.beta = rotation.value.gamma
-  //  rotation.value.gamma = temp
-  //} else {
-  //  const temp = rotation.value.alpha
-  //  rotation.value.alpha = rotation.value.gamma
-  //  rotation.value.gamma = temp
-  //}
 }
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
-  // fallbackOrientation(event, 5, rotation)
+  // debugOrientation (event, 5, rotation)
 
   // 現在の回転状態を取得
   let { alpha, beta, gamma } = rotation.value

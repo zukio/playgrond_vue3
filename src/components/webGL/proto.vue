@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
 import {
   Scene,
   OrthographicCamera,
@@ -26,17 +26,13 @@ import {
   PlaneGeometry,
   MeshBasicMaterial,
   TextureLoader,
-  Vector2
+  Vector2,
+  type Vector3Tuple
 } from 'three'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
 import type { Rotation } from '@/types/index'
-import {
-  defaultOrientationSign,
-  handleOrientation,
-  fallbackOrientation,
-  isPortrait
-} from '@/utils/orientation'
+import { defaultOrientationSign, handleOrientation } from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
 const props = defineProps<{
@@ -93,20 +89,58 @@ const initScene = async () => {
     provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
   }
   setupLight()
-  // モデルを読み込み
+  // モデル（ステージ）を読み込み
   model.value = await loadLabyrinthAsync()
   createBall()
-  // モデルに重ねる画像を読み込み
+  // モデル（ステージ）に重ねる画像を読み込み
   addImageToScene(modelImagePath)
-  // モデルサイズに合わせてカメラを初期設定
+  // モデル（ステージ）サイズに合わせてカメラを初期設定
   setupCamera()
-  provider.camera.position.set(0, 0, 50)
-  provider.camera.lookAt(0, 0, 0)
+  // ボールを捉えるようカメラの初期位置を設定
+  const leapPosition = setLeapedCameraPosition(new Vector2(1, 0))
+  if (leapPosition) {
+    const newX = Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ball.position.x))
+    const newY = Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ball.position.y))
+    provider.camera.position.set(newX, newY, 50)
+    provider.camera.lookAt(newX, newY, 0)
+  } else {
+    console.log('setLeapedCameraPosition is null')
+    provider.camera.position.set(0, 0, 50)
+    provider.camera.lookAt(ball.position)
+  }
   if (useOrbit) {
     provider.setOrbitControls(provider.camera)
   } else {
     provider.setOrbitControls(null)
   }
+}
+
+const setLeapedCameraPosition = (
+  mergin: Vector2 = new Vector2(0, 0)
+): { min: Vector2; max: Vector2 } | null => {
+  if (!provider.camera || !modelBoundingBox.value) {
+    console.log('provider.camera or modelBoundingBox is null')
+    return null
+  }
+  // モデル全体のサイズと中心を取得
+  // const boundingBox = new Box3().setFromObject(model.value.scene)
+  // カメラの可動範囲を制限
+  const halfFrustum = new Vector2(
+    (provider.camera.right - provider.camera.left) / 2,
+    (provider.camera.top - provider.camera.bottom) / 2
+  )
+  // カメラとモデルのスケールを合わせる
+  let scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.min.y)
+  const minBound = new Vector2(
+    (modelBoundingBox.value.min.x * scalefactor + halfFrustum.x + mergin.x) * -1,
+    (modelBoundingBox.value.min.y * scalefactor + halfFrustum.y + mergin.y) * -1
+  )
+  scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.max.y)
+  const maxBound = new Vector2(
+    modelBoundingBox.value.max.x * scalefactor - halfFrustum.x - mergin.y,
+    modelBoundingBox.value.max.y * scalefactor - halfFrustum.y - mergin.y
+  )
+  return { min: minBound, max: maxBound }
 }
 
 const setupCamera = () => {
@@ -212,20 +246,15 @@ const createBall = () => {
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
   ball.scale.set(1, 1, 1)
-  ball.position.set(0, 0, -0.5) // ボールを迷路の中に配置
+  ball.position.set(-7, 0, 0) // ボールを迷路の中に配置
   scene.add(ball)
-
-  //const debugball = new Mesh(ballGeometry, ballMaterial)
-  //debugball.scale.set(3, 3, 3)
-  //debugball.position.set(8, -0.5, 0) // ボールを迷路の中に配置
-  //scene.add(debugball)
 
   // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
   const shape = new CANNON.Sphere(0.5)
   ballBody = new CANNON.Body({
     mass: 1, // ボールの質量を小さくする
     shape: shape,
-    position: new CANNON.Vec3(0, 0.5, 0),
+    position: new CANNON.Vec3(ball.position.x, ball.position.y, ball.position.z),
     linearDamping: 0.1, // 強めの減衰設定
     angularDamping: 0.3 // 回転の減衰設定
   })
@@ -351,27 +380,18 @@ const updatePhysics = () => {
 }
 
 const updateCameraPosition = () => {
-  if (!provider.camera || !model.value || !modelBoundingBox.value) return
+  if (!provider.camera) {
+    console.log('provider.camera is null')
+    return
+  }
 
-  // モデル全体のサイズと中心を取得
-  // const boundingBox = new Box3().setFromObject(model.value.scene)
-  // カメラの可動範囲を制限
-  const halfFrustum = new Vector2(
-    (provider.camera.right - provider.camera.left) / 2,
-    (provider.camera.top - provider.camera.bottom) / 2
-  )
-  const mergin = new Vector2(0, 0) // カメラの可動範囲の余白
-  // カメラとモデルのスケールを合わせる
-  let scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.min.y)
-  const minBound = new Vector2(
-    modelBoundingBox.value.min.x * scalefactor + halfFrustum.x + mergin.x,
-    modelBoundingBox.value.min.y * scalefactor + halfFrustum.y + mergin.y
-  )
-  scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.max.y)
-  const maxBound = new Vector2(
-    modelBoundingBox.value.max.x * scalefactor - halfFrustum.x - mergin.y,
-    modelBoundingBox.value.max.y * scalefactor - halfFrustum.y - mergin.y
-  )
+  const leapPosition = setLeapedCameraPosition()
+  if (!leapPosition) {
+    console.log('setLeapedCameraPosition is null')
+    return
+  }
+  const minBound = leapPosition.min
+  const maxBound = leapPosition.max
 
   // ボールの位置を取得
   // const ballPosition = ball.position.clone()
@@ -442,7 +462,7 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
 }
 const localFallbackOrientation = (event: KeyboardEvent) => {
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
-  // fallbackOrientation(event, 5, rotation)
+  // debugOrientation (event, 5, rotation)
 
   // 現在の回転状態を取得
   let { alpha, beta, gamma } = rotation.value

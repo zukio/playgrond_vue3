@@ -111,11 +111,7 @@ export const handleMotion = (event: DeviceMotionEvent, acceleration: Ref<any>) =
 //alpha: デバイスの縦軸回転（デバイスが自身の垂直軸を中心に回転ドアのように回転する）
 //beta: デバイスの前後の傾き（腰軸を中心にフリップする）
 //gamma: デバイスの左右の傾き（平面回転）
-export const fallbackOrientation = (
-  event: KeyboardEvent,
-  tiltAmount: number,
-  rotation: Ref<any>
-) => {
+export const debugOrientation = (event: KeyboardEvent, tiltAmount: number, rotation: Ref<any>) => {
   let { alpha, beta, gamma } = rotation.value
 
   switch (event.key) {

@@ -23,7 +23,7 @@ import ParticleClass from '@/components/canvases/classes/particles_gyro.vue'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 import {
   handleOrientation,
-  fallbackOrientation,
+  debugOrientation,
   handleMotion,
   fallbackMotion
 } from '@/utils/orientation'
@@ -73,7 +73,7 @@ async function responcedPermission(
   if (isDeviceOrientationAvailable) {
     window.addEventListener('deviceorientation', (event) => handleOrientation(event, rotation))
   } else {
-    window.addEventListener('keydown', (event) => fallbackOrientation(event, 5, rotation))
+    window.addEventListener('keydown', (event) => debugOrientation(event, 5, rotation))
   }
   if (isDeviceMotionAvailable) {
     window.addEventListener('devicemotion', (event) => handleMotion(event, acceleration))
@@ -156,7 +156,7 @@ onUnmounted(() => {
           handleOrientation(event, rotation)
         )
       } else {
-        window.removeEventListener('keydown', (event) => fallbackOrientation(event, 5, rotation))
+        window.removeEventListener('keydown', (event) => debugOrientation(event, 5, rotation))
       }
     }
   }

@@ -26,7 +26,7 @@ import {
 } from 'three'
 import Permission from '@/components/permission/DeviceOrientation.vue' // パスは実際の場所に合わせて調整してください
 import type { Rotation } from '@/types/index'
-import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import { handleOrientation, debugOrientation } from '@/utils/orientation'
 
 const provider = inject('provider') as {
   context: WebGL2RenderingContext
@@ -106,7 +106,7 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
   // rotationZ.value = event.gamma ?? 0 // Z軸周りの回転 (-90 to 90)
 }
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  fallbackOrientation(event, 5, rotation)
+  debugOrientation(event, 5, rotation)
 }
 
 // デバイス許可の申請結果によって処理を変更

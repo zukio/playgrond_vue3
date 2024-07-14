@@ -31,7 +31,7 @@ import {
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import * as CANNON from 'cannon-es'
 import type { Rotation } from '@/types/index'
-import { defaultOrientationSign, handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import { handleOrientation } from '@/utils/orientation'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 
 const props = defineProps<{
@@ -206,12 +206,12 @@ const createBall = () => {
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
   ball.scale.set(1, 1, 1)
-  ball.position.set(0, 0, -0.5) // ボールを迷路の中に配置
+  ball.position.set(-7, 0, -0.5) // ボールを迷路の中に配置
   scene.add(ball)
 
   //const debugball = new Mesh(ballGeometry, ballMaterial)
-  //debugball.scale.set(3, 3, 3)
-  //debugball.position.set(8, -0.5, 0) // ボールを迷路の中に配置
+  //debugball.scale.set(1, 1, 1)
+  //debugball.position.set(-7, 0, 0) // ボールを迷路の中に配置
   //scene.add(debugball)
 
   // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
@@ -219,7 +219,7 @@ const createBall = () => {
   ballBody = new CANNON.Body({
     mass: 1, // ボールの質量を小さくする
     shape: shape,
-    position: new CANNON.Vec3(0, 0.5, 0),
+    position: new CANNON.Vec3(ball.position.x, ball.position.y, ball.position.z),
     linearDamping: 0.1, // 強めの減衰設定
     angularDamping: 0.3 // 回転の減衰設定
   })
@@ -396,7 +396,7 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
-  // fallbackOrientation(event, 5, rotation)
+  // debugOrientation(event, 5, rotation)
 
   // 現在の回転状態を取得
   let { alpha, beta, gamma } = rotation.value

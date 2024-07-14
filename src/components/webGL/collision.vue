@@ -37,7 +37,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import Permission from '@/components/permission/DeviceOrientation.vue'
 import type { Rotation } from '@/types/index'
-import { handleOrientation, fallbackOrientation } from '@/utils/orientation'
+import { handleOrientation, debugOrientation } from '@/utils/orientation'
 
 const props = defineProps<{
   modelPath: string
@@ -246,7 +246,7 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
 }
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
-  fallbackOrientation(event, 5, rotation)
+  debugOrientation(event, 5, rotation)
 }
 
 // デバイス許可の申請結果によって処理を変更
