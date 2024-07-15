@@ -1,5 +1,5 @@
 <template>
-  <div :style="props.flexStyle">
+  <div class="canvas-wrapper" :style="props.flexStyle">
     <canvas ref="canvas"></canvas>
     <slot></slot>
   </div>
@@ -117,6 +117,7 @@ canvas {
   display: block; /* This removes the default inline-block behavior */
   width: 100%;
   height: 100%;
+  z-index: -2;
 }
 
 @media screen and (max-width: 600px) {

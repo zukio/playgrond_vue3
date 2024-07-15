@@ -87,20 +87,58 @@ const initScene = async () => {
     provider.renderer.setClearColor(0xf0f0f0) // レンダラーの背景色も設定
   }
   setupLight()
-  // モデルを読み込み
+  // モデル（ステージ）を読み込み
   model.value = await loadLabyrinthAsync()
-  createBall()
-  // モデルに重ねる画像を読み込み
+  // モデル（ステージ）に重ねる画像を読み込み
   addImageToScene(modelImagePath)
-  // モデルサイズに合わせてカメラを初期設定
+  // モデル（ステージ）サイズに合わせてカメラを初期設定
   setupCamera()
-  provider.camera.position.set(0, 0, 50)
-  provider.camera.lookAt(0, 0, 0)
+  // ボールをカメラの画額内に配置
+  const ballPosition = new Vector3(-7, 0, 0)
+  const leapPosition = setLeapedCameraPosition(new Vector2(3, 0))
+  const newX = leapPosition
+    ? Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ballPosition.x))
+    : 0
+  const newY = leapPosition
+    ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPosition.y))
+    : 0
+  createBall(newX, newY, 0)
+  // ボールを捉えるようカメラの初期位置を調整
+  provider.camera.position.set(newX, newY, 50)
+  provider.camera.lookAt(newX, newY, 0)
   if (useOrbit) {
     provider.setOrbitControls(provider.camera)
   } else {
     provider.setOrbitControls(null)
   }
+}
+
+const setLeapedCameraPosition = (
+  mergin: Vector2 = new Vector2(0, 0)
+): { min: Vector2; max: Vector2 } | null => {
+  if (!provider.camera || !modelBoundingBox.value) {
+    console.log('provider.camera or modelBoundingBox is null')
+    return null
+  }
+  // モデル全体のサイズと中心を取得
+  // const boundingBox = new Box3().setFromObject(model.value.scene)
+  // カメラの可動範囲を制限
+  const halfFrustum = new Vector2(
+    (provider.camera.right - provider.camera.left) / 2,
+    (provider.camera.top - provider.camera.bottom) / 2
+  )
+  // カメラとモデルのスケールを合わせる
+  let scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.min.y)
+  const minBound = new Vector2(
+    (modelBoundingBox.value.min.x * scalefactor + halfFrustum.x + mergin.x) * -1,
+    (modelBoundingBox.value.min.y * scalefactor + halfFrustum.y + mergin.y) * -1
+  )
+  scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.max.y)
+  const maxBound = new Vector2(
+    modelBoundingBox.value.max.x * scalefactor - halfFrustum.x - mergin.y,
+    modelBoundingBox.value.max.y * scalefactor - halfFrustum.y - mergin.y
+  )
+  return { min: minBound, max: maxBound }
 }
 
 const setupCamera = () => {
@@ -119,12 +157,6 @@ const setupCamera = () => {
     // モデル全体のバウンディングボックスを取得
     modelBoundingBox.value = new Box3().setFromObject(model.value.scene)
     const size = modelBoundingBox.value.getSize(new Vector3())
-
-    // ウィンドウサイズに基づいてスケールを計算
-    const scaleX = clientWidth / size.x
-    const scaleY = fixRatio ? clientHeight / size.x : clientHeight / size.y
-    const scale = Math.min(scaleX, scaleY) / scalefactor // スケールを適度に調整
-
     aspect = fixRatio ? size.x / size.y : clientWidth / clientHeight
     frustumSize = Math.max(size.x, size.y) * scalefactor // モデルのサイズに応じてフラスタムサイズを調整
   }
@@ -201,12 +233,12 @@ const loadLabyrinthAsync = () => {
   })
 }
 
-const createBall = () => {
+const createBall = (posX: number, posY: number, posZ: number) => {
   const ballGeometry = new SphereGeometry(0.5, 16, 16)
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 })
   ball = new Mesh(ballGeometry, ballMaterial)
   ball.scale.set(1, 1, 1)
-  ball.position.set(-7, 0, -0.5) // ボールを迷路の中に配置
+  ball.position.set(posX, posY, posZ) // ボールを迷路の中に配置
   scene.add(ball)
 
   //const debugball = new Mesh(ballGeometry, ballMaterial)
@@ -305,27 +337,18 @@ const updatePhysics = () => {
 }
 
 const updateCameraPosition = () => {
-  if (!provider.camera || !model.value || !modelBoundingBox.value) return
+  if (!provider.camera) {
+    console.log('provider.camera is null')
+    return
+  }
 
-  // モデル全体のサイズと中心を取得
-  // const boundingBox = new Box3().setFromObject(model.value.scene)
-  // カメラの可動範囲を制限
-  const halfFrustum = new Vector2(
-    (provider.camera.right - provider.camera.left) / 2,
-    (provider.camera.top - provider.camera.bottom) / 2
-  )
-  const mergin = new Vector2(0, 0) // カメラの可動範囲の余白
-  // カメラとモデルのスケールを合わせる
-  let scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.min.y)
-  const minBound = new Vector2(
-    modelBoundingBox.value.min.x * scalefactor + halfFrustum.x + mergin.x,
-    modelBoundingBox.value.min.y * scalefactor + halfFrustum.y + mergin.y
-  )
-  scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.max.y)
-  const maxBound = new Vector2(
-    modelBoundingBox.value.max.x * scalefactor - halfFrustum.x - mergin.y,
-    modelBoundingBox.value.max.y * scalefactor - halfFrustum.y - mergin.y
-  )
+  const leapPosition = setLeapedCameraPosition(new Vector2(3, 0))
+  if (!leapPosition) {
+    console.log('setLeapedCameraPosition is null')
+    return
+  }
+  const minBound = leapPosition.min
+  const maxBound = leapPosition.max
 
   // ボールの位置を取得
   // const ballPosition = ball.position.clone()

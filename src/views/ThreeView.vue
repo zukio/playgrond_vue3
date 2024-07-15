@@ -44,8 +44,7 @@ const activeContainerStyle = computed(() => {
   let flexStyle: CSSProperties = {
     width: innerWidth,
     height: innerHeight,
-    overflow: 'hidden',
-    zIndex: -1
+    overflow: 'hidden'
   }
   // position固定にするとカメラオービットが効かないのでコメントアウト
   //if (contentNo.value !== 2) {
