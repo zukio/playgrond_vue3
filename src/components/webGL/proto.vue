@@ -315,7 +315,8 @@ const setupBall = () => {
   const newY = leapPosition
     ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPosition.y))
     : 0
-  createBall(newX, newY, 0)
+  //createBall(newX, newY, 0) // 画面サイズによって変な位置に
+  createBall(-7, 0, 0) // 画面サイズによっては見切れる
   // ボールを捉えるようカメラの初期位置を調整
   provider.camera.position.set(newX, newY, 50)
   provider.camera.lookAt(newX, newY, 0)
