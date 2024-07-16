@@ -12,10 +12,10 @@ export const defaultOrientationSign = (): number => {
     // ポートレイトモード
     if (window.screen.orientation.angle === 0) {
       // 画面が上を向いている場合
-      return 1
+      return -1
     } else if (window.screen.orientation.angle === 180) {
       // 逆さま
-      return -1
+      return 1
     }
   } else {
     // ランドスケープモード
