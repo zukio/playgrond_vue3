@@ -5,7 +5,7 @@
         v-for="(page, index) in pages"
         :key="index"
         class="carousel-item"
-        :class="{ 'active': selectedIndex == index }"
+        :class="{ active: selectedIndex == index }"
       >
         <component :is="page.component" v-bind="page.props"></component>
       </div>
@@ -38,44 +38,45 @@
 </template>
 
 <script setup lang="ts">
-import { useSwipeDetection } from "@/utils/swipeDetection";
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useSwipeDetection } from '@/utils/swipeDetection'
 const props = defineProps<{
-  pages: any[];
-}>();
+  pages: any[]
+}>()
 
-const carouselSelf = ref(null);
-const pageContainer = ref<HTMLElement | null>(null);
-const prevBtn = ref<HTMLButtonElement | null>(null);
-const nextBtn = ref<HTMLButtonElement | null>(null);
-const selectedIndex = ref(0);
+const carouselSelf = ref(null)
+const pageContainer = ref<HTMLElement | null>(null)
+const prevBtn = ref<HTMLButtonElement | null>(null)
+const nextBtn = ref<HTMLButtonElement | null>(null)
+const selectedIndex = ref(0)
 
 const next = () => {
   if (selectedIndex.value < props.pages.length - 1) {
-    selectedIndex.value += 1;
+    selectedIndex.value += 1
   } else {
-    selectedIndex.value = props.pages.length - 1;
+    selectedIndex.value = props.pages.length - 1
   }
-  nextBtn.value?.click();
-};
+  nextBtn.value?.click()
+}
 
 const prev = () => {
   if (selectedIndex.value > 0) {
-    selectedIndex.value -= 1;
+    selectedIndex.value -= 1
   } else {
-    selectedIndex.value = 0;
+    selectedIndex.value = 0
   }
-  prevBtn.value?.click();
-};
+  prevBtn.value?.click()
+}
 
 const handleSwipe = (direction: string) => {
-  if (direction === "left") {
+  if (direction === 'left') {
     // swipe to left from right
-    next();
-  } else if (direction === "right") {
+    next()
+  } else if (direction === 'right') {
     // swipe to right from left
-    prev();
+    prev()
   }
-};
+}
 
 const {
   handleMouseDown,
@@ -84,43 +85,43 @@ const {
   handleMouseLeave,
   handleTouchStart,
   handleTouchMove,
-  handleTouchEnd,
-} = useSwipeDetection(pageContainer, handleSwipe);
+  handleTouchEnd
+} = useSwipeDetection(pageContainer, handleSwipe)
 
 onMounted(() => {
-  const app = useNuxtApp();
-  const carousel = new app.$bootstrap.Carousel(document.getElementById("carouselExample"));
+  const app = useNuxtApp()
+  const carousel = new app.$bootstrap.Carousel(document.getElementById('carouselExample'))
 
   if (carouselSelf.value) {
-    pageContainer.value = carouselSelf.value.parentElement;
+    pageContainer.value = carouselSelf.value.parentElement
     if (pageContainer.value) {
-      pageContainer.value.addEventListener("mousedown", handleMouseDown);
-      pageContainer.value.addEventListener("mousemove", handleMouseMove);
-      pageContainer.value.addEventListener("mouseup", handleMouseUp);
-      pageContainer.value.addEventListener("mouseleave", handleMouseLeave);
-      pageContainer.value.addEventListener("touchstart", handleTouchStart);
-      pageContainer.value.addEventListener("touchmove", handleTouchMove);
-      pageContainer.value.addEventListener("touchend", handleTouchEnd);
+      pageContainer.value.addEventListener('mousedown', handleMouseDown)
+      pageContainer.value.addEventListener('mousemove', handleMouseMove)
+      pageContainer.value.addEventListener('mouseup', handleMouseUp)
+      pageContainer.value.addEventListener('mouseleave', handleMouseLeave)
+      pageContainer.value.addEventListener('touchstart', handleTouchStart)
+      pageContainer.value.addEventListener('touchmove', handleTouchMove)
+      pageContainer.value.addEventListener('touchend', handleTouchEnd)
     }
   }
-});
+})
 
 onBeforeUnmount(() => {
   if (pageContainer.value) {
-    pageContainer.value.removeEventListener("mousedown", handleMouseDown);
-    pageContainer.value.removeEventListener("mousemove", handleMouseMove);
-    pageContainer.value.removeEventListener("mouseup", handleMouseUp);
-    pageContainer.value.removeEventListener("mouseleave", handleMouseLeave);
-    pageContainer.value.removeEventListener("touchstart", handleTouchStart);
-    pageContainer.value.removeEventListener("touchmove", handleTouchMove);
-    pageContainer.value.removeEventListener("touchend", handleTouchEnd);
+    pageContainer.value.removeEventListener('mousedown', handleMouseDown)
+    pageContainer.value.removeEventListener('mousemove', handleMouseMove)
+    pageContainer.value.removeEventListener('mouseup', handleMouseUp)
+    pageContainer.value.removeEventListener('mouseleave', handleMouseLeave)
+    pageContainer.value.removeEventListener('touchstart', handleTouchStart)
+    pageContainer.value.removeEventListener('touchmove', handleTouchMove)
+    pageContainer.value.removeEventListener('touchend', handleTouchEnd)
   }
-});
+})
 
 defineExpose({
   next,
-  prev,
-});
+  prev
+})
 </script>
 
 <style scoped>

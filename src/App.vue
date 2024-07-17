@@ -8,6 +8,8 @@
         <RouterLink to="/three">Three</RouterLink>
         <RouterLink to="/proto">Prototype</RouterLink>
         <RouterLink to="/landing">Landing Page</RouterLink>
+        <RouterLink to="/carousel">carousel</RouterLink>
+        <RouterLink to="/tooltip-gsap">tutorial</RouterLink>
       </nav>
     </div>
   </header>

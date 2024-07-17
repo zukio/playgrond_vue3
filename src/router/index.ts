@@ -37,6 +37,16 @@ const router = createRouter({
       path: '/landing',
       name: 'landing',
       component: () => import('../views/LandingView.vue')
+    },
+    {
+      path: '/carousel',
+      name: 'carousel',
+      component: () => import('../views/carousel.vue')
+    },
+    {
+      path: '/tooltip-gsap',
+      name: 'tooltip-gsap',
+      component: () => import('../views/tooltip-gsap.vue')
     }
   ]
 })
