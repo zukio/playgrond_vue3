@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
     pageTransition: { name: "page", mode: "out-in" },
-    base: "/playgrond_vue3/",
   },
   css: [
     "bootstrap/dist/css/bootstrap.min.css",
@@ -24,6 +23,9 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NODE_ENV === "production" ? process.env.BASE_URL : "/",
     },
+  },
+  router: {
+    base: process.env.NODE_ENV === "production" ? "/playgrond_vue3/" : "/",
   },
   build: {
     transpile: ["gsap"],
