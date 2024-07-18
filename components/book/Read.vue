@@ -81,7 +81,7 @@ const hideAllTooltips = () => {
 };
 // -----------------------------------------------
 // Animation
-const main = ref(null);
+const main = ref<HTMLElement | null>(null);
 let tl;
 let ctx;
 
