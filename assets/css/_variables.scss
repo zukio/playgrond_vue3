@@ -1,0 +1,62 @@
+// レイアウト配色
+$color_main     : #17a2b8; // メインカラー
+$color_sub      : #ebebeb; // サブカラー
+$color_accent1  : #4B73EB; // アクセントカラー
+$color_accent2  : #50C79F; // アクセントカラー
+$color_disable  : #adb5bd; // 無効色
+$color_canvas   : #F3F9FF; // カンバス地色
+$color_oncanvas : white;   // カンバス上の地色（表やカードの地色）
+$color_base     : #eaecee; // 背景色
+$isCanvasShadow : false;     // ドロップシャドウ（true/false）
+
+// Bootstrap の ThemeColors を上書き
+$primary: #0d6efd;
+$secondary:#6e7680;
+//$success;
+//$info: #50C79F;
+//$warning;
+$danger : #d21935;
+//$dark:
+//$light;//f5f5f5
+
+// 警告とOKの色
+$color_impact   : #d21935; // 警告文字（いわゆる赤字）色
+$color_attention: #FFB6C1; // 警告文字（いわゆる赤字）色
+$color_safety   : #767676; // OK色（一般にはグリーンであることが多い）
+
+// 文字の色
+$color_text     : black;
+$color_invert   : white;   // 抜き文字の色
+$color_note     : #767676; // 注釈文字色
+$color_onGraphic: white;
+
+// 文字サイズ
+$font_xl        : 3.5rem;
+$font_l         : 2.5rem;
+$font_ml        : 2rem;
+$font_default   : 1rem;
+$font_s         : 0.8rem;
+$font_xs        : 0.6rem;
+
+// レイアウトサイズ
+$height_header  : 60px;
+$height_footer  : 60px;
+
+//ボタン（bootstrap.btnの設定を同名で上書きするため改名不可）
+$btn-border-radius  : 10px;
+
+//フォーム（bootstrap.form-controlの設定を同名で上書きするため改名不可）
+$input-border-radius: 10px;
+$input-border-width:  2px;
+$input-border-color:  rgb(118, 118, 118);
+//$input-font-family:;
+//$input-font-size:;
+//$input-color:;
+
+//メディア（bootstrap.$grid-breakpoints のサイズを参照）
+$xs: 0;
+$sm: 576px; // 540px;
+$md: 768px; // 720px;
+$lg: 992px; // 960px;
+$xl: 1200px; // 1140px;
+$xxl: 1400px; //1320px;
