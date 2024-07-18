@@ -12,7 +12,7 @@
         class="poster-container"
         :class="{ 'fullscreen': fullScreen }"
         @click="showFullScreen()"
-        :style="`background: url('/images/dammy_bookcover.webp') no-repeat center center/cover`"
+        :style="`background: url('${config.public.baseUrl}images/dammy_bookcover.webp') no-repeat center center/cover`"
       >
         <img src="/images/player/play.png" alt="Play" class="play-btn" />
       </div>
@@ -33,7 +33,8 @@
 import { ref, onBeforeUnmount } from "vue";
 
 // import bookFrame from "@/pages/slide-by-side.vue";
-
+const config = useRuntimeConfig();
+// const baseUrl = config.public.baseUrl;
 const isFullScreenVisible = ref(false);
 const fullScreen = ref(false);
 const timmerId: any = ref(null);
