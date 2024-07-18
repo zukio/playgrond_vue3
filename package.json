@@ -4,7 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "set NODE_ENV=production && nuxt build",
-		"generate:github": "set NODE_ENV=production BASE_URL=/playgrond_vue3/ vue-tsc && nuxt generate",
+		"generate:github": "NODE_ENV=production BASE_URL=/playgrond_vue3/ vue-tsc && nuxt generate",
 		"dev": "nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
