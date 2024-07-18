@@ -4,7 +4,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid align-items-center">
         <h1 class="logo">
-          <a class="navbar-brand" href="/">{{ bookTitle }}</a>
+          <NuxtLink class="navbar-brand" to="/">{{ bookTitle }}</NuxtLink>
         </h1>
         <div class="position-absolute end-0 me-2">
           <slot></slot>
