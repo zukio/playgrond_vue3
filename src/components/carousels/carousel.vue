@@ -40,6 +40,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useSwipeDetection } from '@/utils/swipeDetection'
+import { Carousel } from 'bootstrap'
 const props = defineProps<{
   pages: any[]
 }>()
@@ -90,7 +91,7 @@ const {
 
 onMounted(() => {
   const app = useNuxtApp()
-  const carousel = new app.$bootstrap.Carousel(document.getElementById('carouselExample'))
+  const carousel = new Carousel(document.getElementById('carouselExample'))
 
   if (carouselSelf.value) {
     pageContainer.value = carouselSelf.value.parentElement

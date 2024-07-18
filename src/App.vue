@@ -9,7 +9,7 @@
         <RouterLink to="/proto">Prototype</RouterLink>
         <RouterLink to="/landing">Landing Page</RouterLink>
         <RouterLink to="/carousel">carousel</RouterLink>
-        <RouterLink to="/tooltip-gsap">tutorial</RouterLink>
+        <RouterLink to="/tooltip-bootstrap">tutorial</RouterLink>
       </nav>
     </div>
   </header>

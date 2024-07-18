@@ -8,6 +8,7 @@
       "path": "./tsconfig.app.json"
     }
   ],
+
   "compilerOptions": {
     "strict": true,
     "moduleResolution": "node",
@@ -15,6 +16,7 @@
     "typeRoots": ["./node_modules/@types", "./types", "src/types"],
     "esModuleInterop": true,
     "target": "esnext",
+    "types": ["bootstrap"],
     "module": "esnext",
     "jsx": "preserve",
     "importHelpers": true,

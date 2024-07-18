@@ -44,9 +44,9 @@ const router = createRouter({
       component: () => import('../views/carousel.vue')
     },
     {
-      path: '/tooltip-gsap',
-      name: 'tooltip-gsap',
-      component: () => import('../views/tooltip-gsap.vue')
+      path: '/tooltip-bootstrap',
+      name: 'tooltip-bootstrap',
+      component: () => import('../views/tooltip-bootstrap.vue')
     }
   ]
 })
