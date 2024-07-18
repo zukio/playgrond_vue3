@@ -12,7 +12,7 @@
         class="poster-container"
         :class="{ 'fullscreen': fullScreen }"
         @click="showFullScreen()"
-        style="background: url(&quot;/images/dammy_bookcover.webp&quot;) no-repeat center center/cover"
+        :style="`background: url('/images/dammy_bookcover.webp') no-repeat center center/cover`"
       >
         <img src="/images/player/play.png" alt="Play" class="play-btn" />
       </div>
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from "vue";
-import HeaderSection from "@/components/lp/HeaderSection.vue";
+
 // import bookFrame from "@/pages/slide-by-side.vue";
 
 const isFullScreenVisible = ref(false);
@@ -68,8 +68,10 @@ onBeforeUnmount(() => {
 // -----------------------------------------------
 const message = ref("");
 const handleMessage = (event: any) => {
+  const config = useRuntimeConfig();
+  const baseUrl = config.public.baseUrl;
   // セキュリティのため、特定のオリジンからのメッセージのみを処理する
-  if (event.origin !== "http://localhost:3000") {
+  if (event.origin !== "http://localhost:3000" || event.origin !== "https://zukio.github.io") {
     console.log(event.origin);
     return;
   }
