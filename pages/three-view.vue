@@ -9,8 +9,8 @@
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
 import Canvas from "@/components/webGL/WebglContainer.vue";
-import Basic from "@/components/webGL/basic.vue";
-import Labyrinth001 from "@/components/webGL/labyrinth001.vue";
+import Basic from "@/components/webGL/Basic.vue";
+import Labyrinth001 from "@/components/webGL/Labyrinth001.vue";
 const config = useRuntimeConfig().public;
 
 const props = defineProps<{
