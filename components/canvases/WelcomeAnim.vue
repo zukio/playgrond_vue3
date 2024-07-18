@@ -8,7 +8,7 @@
         </p>
       </div>
       <div class="graphics">
-        <img src="/images/unevencircle001.png" alt="sample" class="diggle" id="charactor001" @click="toggleTimeline" />
+        <img src="/images/unevencircle001.png" alt="sample" class="diggle" id="charactor001" />
       </div>
     </div>
   </div>
