@@ -21,7 +21,7 @@ onBeforeUnmount(() => {
 });
 // -----------------------------------------------
 // Carousel Slider
-const carouselRef = ref(null);
+const carouselRef: any = ref(null);
 const pages = [
   { component: Page1, props: { pageIndex: 0 }, ref: "page1Ref" },
   { component: Page2, props: { pageIndex: 1 }, ref: "page2Ref" },
@@ -52,6 +52,7 @@ const onPageChanged = (newIndex: number, oldIndex: number) => {
 };
 
 const hideAllTooltips = (newIndex: number, oldIndex: number) => {
+  if (!carouselRef.value) return;
   const oldPageInstance = carouselRef.value.pageRefs[oldIndex]; // Get the instance of the current page
   if (oldPageInstance && oldPageInstance.hideAllTooltips) {
     oldPageInstance.hideAllTooltips();
@@ -61,6 +62,7 @@ const hideAllTooltips = (newIndex: number, oldIndex: number) => {
 };
 
 const setGsapAnimation = (newIndex: number, oldIndex: number) => {
+  if (!carouselRef.value) return;
   const newPageInstance = carouselRef.value.pageRefs[newIndex];
   if (newPageInstance && newPageInstance.setAnimation) {
     newPageInstance.setAnimation();
@@ -76,7 +78,7 @@ const sendMessageToParent = () => {
 };
 // -----------------------------------------------
 // Tour
-const { $driver } = useNuxtApp();
+const { $driver }: any = useNuxtApp();
 
 const startTour = () => {
   const driverObj = $driver({
@@ -100,7 +102,7 @@ const startTour = () => {
       },
     ],
     onDestroyed: () => {
-      const carouselInstance = carouselRef.value;
+      const carouselInstance: any = carouselRef.value;
       if (carouselInstance) {
         const page1Instance = carouselInstance.pageRefs[0]; // Get the instance of Page1
         if (page1Instance && page1Instance.toggleTimeline) {

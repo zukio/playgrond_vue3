@@ -36,8 +36,8 @@ import HeaderSection from "@/components/lp/HeaderSection.vue";
 
 const isFullScreenVisible = ref(false);
 const fullScreen = ref(false);
-const timmerId = ref(null);
-const timeout = 1000;
+const timmerId: any = ref(null);
+const timeout: number = 1000;
 // -----------------------------------------------
 // method
 function showFullScreen() {
@@ -67,7 +67,7 @@ onBeforeUnmount(() => {
 });
 // -----------------------------------------------
 const message = ref("");
-const handleMessage = (event) => {
+const handleMessage = (event: any) => {
   // セキュリティのため、特定のオリジンからのメッセージのみを処理する
   if (event.origin !== "http://localhost:3000") {
     console.log(event.origin);
