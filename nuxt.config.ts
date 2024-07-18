@@ -28,6 +28,6 @@ export default defineNuxtConfig({
     base: process.env.NODE_ENV === "production" ? "/playgrond_vue3/" : "/",
   },
   build: {
-    transpile: ["gsap"],
+    transpile: ["gsap", "three"],
   },
 });
