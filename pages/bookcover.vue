@@ -71,7 +71,7 @@ const handleMessage = (event: any) => {
   const config = useRuntimeConfig();
   const baseUrl = config.public.baseUrl;
   // セキュリティのため、特定のオリジンからのメッセージのみを処理する
-  if (event.origin !== "http://localhost:3000" || event.origin !== "https://zukio.github.io") {
+  if (event.origin !== "http://localhost:3000" && event.origin !== "https://zukio.github.io") {
     console.log(event.origin);
     return;
   }
