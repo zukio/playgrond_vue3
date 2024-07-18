@@ -35,7 +35,7 @@ const titleElement = ref<HTMLElement | null>(null);
 
 let animationFrameId: number;
 
-const drawImages = (images) => {
+const drawImages = (images: any[]) => {
   const canvas = provider.canvas;
   const ctx = provider.context;
 
@@ -52,13 +52,13 @@ const drawImages = (images) => {
   //ctx.fillText("My Canvas Image", 10, 30);
 };
 
-const loadImages = (imagePaths) => {
+const loadImages = (imagePaths: string[]) => {
   if (!provider || !provider.canvas || !provider.context) {
     console.error("Canvas provider is not available");
     return;
   }
 
-  const images = [];
+  const images: any[] = [];
   let loadedCount = 0;
 
   imagePaths.forEach((src, index) => {
@@ -109,7 +109,7 @@ const loadImages = (imagePaths) => {
   });
 };
 
-const animateImages = (images) => {
+const animateImages = (images: any[]) => {
   const canvas = provider.canvas;
   const targetScale = Math.max(canvas.width / images[0].width, canvas.height / images[0].height);
 

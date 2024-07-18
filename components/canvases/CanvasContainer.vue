@@ -21,7 +21,7 @@ const provider = reactive<Provider>({
 provide("provider", provider);
 
 const props = defineProps<{
-  flexStyle: CSSProperties | undefined;
+  flexStyle: any;
 }>();
 
 const canvas1 = ref<HTMLCanvasElement | null>(null);

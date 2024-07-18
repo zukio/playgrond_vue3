@@ -214,7 +214,7 @@ const loadLabyrinthAsync = () => {
     const loader = new GLTFLoader();
     loader
       .loadAsync(props.modelPath)
-      .then((gltf) => {
+      .then((gltf: GLTF) => {
         labyrinth = gltf.scene;
         if (scene && labyrinth) {
           const scalefactor = 5.4;
@@ -222,7 +222,7 @@ const loadLabyrinthAsync = () => {
           labyrinth.position.set(0, 0, 0); // 中心に配置
           labyrinth.rotation.x = 0; // 水平に配置
 
-          labyrinth.traverse((child) => {
+          labyrinth.traverse((child: any) => {
             if (child instanceof Mesh) {
               // メッシュを非表示にする
               child.visible = isDebug;
@@ -266,7 +266,7 @@ const loadLabyrinthAsync = () => {
 
 const addImageToScene = (imagePath: string) => {
   const textureLoader = new TextureLoader();
-  textureLoader.load(imagePath, (texture) => {
+  textureLoader.load(imagePath, (texture: any) => {
     const geometry = new PlaneGeometry(1, 1); // 画像の平面ジオメトリ
     const material = new MeshBasicMaterial({ map: texture, transparent: true });
     const plane = new Mesh(geometry, material);
@@ -281,7 +281,7 @@ const addImageToScene = (imagePath: string) => {
 
     scene.add(plane);
   });
-  textureLoader.load(ballImagePath, (texture) => {
+  textureLoader.load(ballImagePath, (texture: any) => {
     const geometry = new PlaneGeometry(1, 1); // 画像の平面ジオメトリ
     const material = new MeshBasicMaterial({ map: texture, transparent: true });
     const scale = 1.5;

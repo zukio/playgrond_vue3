@@ -3,16 +3,8 @@
  2. iOS デバイスの場合、必要な許可を要求します。
 -->
 <template>
-  <div
-    id="permissionOverlay"
-    ref="permissionOverlay"
-  >
-    <button
-      v-if="!isChecked"
-      id="permissionButton"
-      @click="requestPermission"
-      class="btn btn-primary"
-    >
+  <div id="permissionOverlay" ref="permissionOverlay">
+    <button v-if="!isChecked" id="permissionButton" @click="requestPermission" class="btn btn-primary">
       センサーの使用を許可する
     </button>
     <p v-if="isChecked">デバイスオリエンテーション: {{ isDeviceMotionAvailable ? "利用可能" : "利用不可" }}</p>
@@ -72,8 +64,8 @@ const checkDeviceOrientationAvailability = async () => {
 const checkOrientation = () => {
   return new Promise<boolean>((resolve) => {
     if ("DeviceOrientationEvent" in window) {
-      let timeout = setTimeout(() => {
-        if (timeout > 0) {
+      let timeout: NodeJS.Timeout | number = setTimeout(() => {
+        if ((timeout as number) > 0) {
           clearTimeout(timeout);
           timeout = -1;
           window.removeEventListener("deviceorientation", orientationListener);

@@ -43,7 +43,7 @@ const props = defineProps<{
   pages: any[];
 }>();
 
-const carouselSelf = ref(null);
+const carouselSelf = ref<HTMLElement | null>(null);
 const pageContainer = ref<HTMLElement | null>(null);
 const prevBtn = ref<HTMLButtonElement | null>(null);
 const nextBtn = ref<HTMLButtonElement | null>(null);
@@ -88,8 +88,8 @@ const {
 } = useSwipeDetection(pageContainer, handleSwipe);
 
 onMounted(() => {
-  const app = useNuxtApp();
-  const carousel = new app.$bootstrap.Carousel(document.getElementById("carouselExample"));
+  const { $bootstrap }: any = useNuxtApp();
+  const carousel = new $bootstrap.Carousel(document.getElementById("carouselExample"));
 
   if (carouselSelf.value) {
     pageContainer.value = carouselSelf.value.parentElement;

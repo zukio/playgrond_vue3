@@ -18,8 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import HeaderSection from "@/components/lp/HeaderSection.vue";
-
 const catchphrase = "Embark on a New Adventure\nwith a Digital Pictute Book!";
 const subCatchphrase = "ジャイロ機能を使ったラビリンスボールゲームが楽しめる";
 const visualImage = "/images/header/Cover.png";

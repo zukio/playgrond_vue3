@@ -2,7 +2,7 @@
   <section>
     <div class="page-container" ref="pageContainer">
       <div v-for="(page, index) in pages" :key="index" class="page">
-        <component :is="page.component" v-bind="page.props" :ref="(el) => (pageRefs[index] = el)"></component>
+        <component :is="page.component" v-bind="page.props" :ref="(el: any) => (pageRefs[index] = el)"></component>
       </div>
     </div>
     <div class="position-absolute w-100 top-50 d-flex justify-content-between">
@@ -54,7 +54,7 @@ const endStop = computed(() => {
 
 // -----------------------------------------------
 // Reminder
-const timmer = ref(null);
+const timmer = ref<NodeJS.Timeout | null>(null);
 const showAttention = ref(false);
 const intervalSeconds = 1000 + 1000; // 表示間隔（ミリ秒）最低アニメーション分の１秒を確保
 const localSetInterval = () => {

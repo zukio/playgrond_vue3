@@ -7,7 +7,7 @@
         </p>
       </div>
       <div class="graphics">
-        <BootstrapTooltip title="ぼっちだよ" placement="top" :ref="setTooltipRef(0)">
+        <TooltipMultiple title="ぼっちだよ" placement="top" :ref="setTooltipRef(0)">
           <img
             src="/images/unevencircle001.png"
             alt="sample"
@@ -15,7 +15,7 @@
             id="charactor001"
             @click="toggleTimeline"
           />
-        </BootstrapTooltip>
+        </TooltipMultiple>
       </div>
     </div>
     <div class="boad boad02 row" v-else>
@@ -26,19 +26,19 @@
       </div>
       <div class="graphics" @click="toggleTimeline">
         <div id="charactor001">
-          <BootstrapTooltip title="ぼっちだよ" placement="bottom" :ref="setTooltipRef(0)">
+          <TooltipMultiple title="ぼっちだよ" placement="bottom" :ref="setTooltipRef(0)">
             <img src="/images/unevencircle001.png" alt="sample" class="diggle" />
-          </BootstrapTooltip>
+          </TooltipMultiple>
         </div>
         <div id="charactor002">
-          <BootstrapTooltip title="こっちがまっち" placement="bottom" :ref="setTooltipRef(1)">
+          <TooltipMultiple title="こっちがまっち" placement="bottom" :ref="setTooltipRef(1)">
             <img src="/images/unevencircle002.png" alt="sample" class="diggle" />
-          </BootstrapTooltip>
+          </TooltipMultiple>
         </div>
         <div id="charactor003">
-          <BootstrapTooltip title="こっちがぱっち" placement="bottom" :ref="setTooltipRef(2)">
+          <TooltipMultiple title="こっちがぱっち" placement="bottom" :ref="setTooltipRef(2)">
             <img src="/images/unevencircle003.png" alt="sample" class="diggle" />
-          </BootstrapTooltip>
+          </TooltipMultiple>
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import BootstrapTooltip from "@/components/tooltip/Multiple.vue";
+// import BootstrapTooltip from "@/components/tooltip/Multiple.vue";
 import gsap from "gsap";
 
 const props = defineProps<{
@@ -63,7 +63,7 @@ const scripts = [
 // -----------------------------------------------
 // Tooltip
 const tooltipRefs = ref<Array<any>>([]); // Array to hold references to tooltip components
-const setTooltipRef = (index) => (el) => {
+const setTooltipRef = (index: number) => (el: any) => {
   tooltipRefs.value[index] = el;
 };
 
@@ -82,16 +82,17 @@ const hideAllTooltips = () => {
 // -----------------------------------------------
 // Animation
 const main = ref<HTMLElement | null>(null);
-let tl;
-let ctx;
+let tl: gsap.core.Timeline;
+let ctx: gsap.Context;
 
 const toggleTimeline = () => {
   tl.reversed(!tl.reversed());
 };
 const setAnimation = () => {
   if (ctx) ctx.revert();
+  if (!main.value) return;
   ctx = gsap.context((self) => {
-    const boxes = gsap.utils.toArray(".diggle");
+    const boxes: HTMLElement[] = gsap.utils.toArray(".diggle");
     if (boxes.length > 0) {
       tl = gsap
         .timeline()

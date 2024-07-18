@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
-const { $bootstrap } = useNuxtApp();
+const { $bootstrap }: any = useNuxtApp();
 
 const props = defineProps({
   title: {
@@ -30,7 +30,7 @@ const props = defineProps({
 
 const tooltipRef = ref(null);
 let tooltipInstance: any = null;
-let touchTimer: number | null = null;
+let touchtimmer: ReturnType<typeof setTimeout> | null = null;
 const touchDelay = 1000; // milliseconds
 
 const show = () => {
@@ -52,14 +52,14 @@ function toggleTooltip() {
 }
 
 function handleTouchStart() {
-  touchTimer = setTimeout(() => {
+  touchtimmer = setTimeout(() => {
     toggleTooltip();
   }, touchDelay);
 }
 
 function handleTouchEnd() {
-  if (touchTimer) {
-    clearTimeout(touchTimer);
+  if (touchtimmer) {
+    clearTimeout(touchtimmer);
   }
 }
 
@@ -79,9 +79,9 @@ function dispose() {
   if (tooltipInstance) {
     tooltipInstance.dispose();
   }
-  if (touchTimer) {
-    clearTimeout(touchTimer);
-    touchTimer = null;
+  if (touchtimmer) {
+    clearTimeout(touchtimmer);
+    touchtimmer = null;
   }
 }
 

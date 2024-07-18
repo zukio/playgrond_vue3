@@ -18,7 +18,7 @@ const emit = defineEmits(["close"]);
 
 // Tooltipの参照
 const attention = ref(null);
-const timmer = ref(null);
+const timmer = ref<NodeJS.Timeout | null>(null);
 
 function showAttention() {
   gsap.from(attention.value, { opacity: 0, x: -20, duration: 0.1 });

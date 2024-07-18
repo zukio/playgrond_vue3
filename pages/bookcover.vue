@@ -36,20 +36,20 @@ import HeaderSection from "@/components/lp/HeaderSection.vue";
 
 const isFullScreenVisible = ref(false);
 const fullScreen = ref(false);
-const timerId = ref(null);
+const timmerId = ref(null);
 const timeout = 1000;
 // -----------------------------------------------
 // method
 function showFullScreen() {
   fullScreen.value = true;
-  timerId.value = setTimeout(() => {
+  timmerId.value = setTimeout(() => {
     isFullScreenVisible.value = true;
   }, timeout);
 }
 
 function closeFullScreen() {
   isFullScreenVisible.value = false;
-  timerId.value = setTimeout(() => {
+  timmerId.value = setTimeout(() => {
     fullScreen.value = false;
   }, timeout); // Short delay to allow fade-out animation
 }
@@ -59,9 +59,9 @@ onMounted(() => {
   window.addEventListener("message", handleMessage);
 });
 onBeforeUnmount(() => {
-  if (timerId.value) {
-    clearTimeout(timerId.value);
-    timerId.value = null;
+  if (timmerId.value) {
+    clearTimeout(timmerId.value);
+    timmerId.value = null;
   }
   window.removeEventListener("message", handleMessage);
 });

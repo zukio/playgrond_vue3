@@ -17,6 +17,7 @@ npm install three cannon-es
 
 # CSS
 npm install --save bootstrap @popperjs/core
+npm i --save-dev @types/bootstrap
 npm install gsap
 npm install --save-dev @types/gsap
 npm install driverjs
