@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   app: {
     pageTransition: { name: "page", mode: "out-in" },
+    base: "/playgrond_vue3/",
   },
   css: [
     "bootstrap/dist/css/bootstrap.min.css",
