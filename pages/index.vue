@@ -9,7 +9,7 @@
       <template #default>
         <div>
           <NuxtLink to="bookcover" class="btn btn-light btn-lg me-3">絵本を読む</NuxtLink>
-          <NuxtLink to="#purchase" class="btn btn-primary btn-lg">迷路を解く</NuxtLink>
+          <!--NuxtLink to="#purchase" class="btn btn-primary btn-lg">迷路を解く</NuxtLink-->
         </div>
       </template>
     </hero-section>

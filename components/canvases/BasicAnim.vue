@@ -161,13 +161,14 @@ const onResize = () => {
 };
 
 watch(provider, () => {
-  console.log("pageIndex changed");
+  const config = useRuntimeConfig().public;
+  const baseUrl = config ? config.baseUrl : "/";
   if (provider.canvas) {
     const imagePaths = [
-      "/images/book/DigitalBook_maze_01_0708.png",
-      "/images/unevencircle001.png",
-      "/images/unevencircle002.png",
-      "/images/unevencircle003.png",
+      `${baseUrl}images/book/DigitalBook_maze_01_0708.png`,
+      `${baseUrl}images/unevencircle001.png`,
+      `${baseUrl}images/unevencircle002.png`,
+      `${baseUrl}images/unevencircle003.png`,
     ];
     loadImages(imagePaths);
   }

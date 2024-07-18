@@ -20,7 +20,9 @@
 <script setup lang="ts">
 const catchphrase = "Embark on a New Adventure\nwith a Digital Pictute Book!";
 const subCatchphrase = "ジャイロ機能を使ったラビリンスボールゲームが楽しめる";
-const visualImage = "/images/header/Cover.png";
+const config = useRuntimeConfig();
+
+const visualImage = `${config.public.baseUrl}images/header/Cover.png`;
 </script>
 
 <style scoped>
