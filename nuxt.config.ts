@@ -1,9 +1,12 @@
+import { defineNuxtConfig } from "nuxt/config";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
   app: {
     pageTransition: { name: "page", mode: "out-in" },
+    baseURL: process.env.NODE_ENV === "production" ? "/playgrond_vue3/" : "/",
   },
   css: [
     "bootstrap/dist/css/bootstrap.min.css",
@@ -23,9 +26,6 @@ export default defineNuxtConfig({
     public: {
       baseUrl: process.env.NODE_ENV === "production" ? process.env.BASE_URL : "/",
     },
-  },
-  router: {
-    base: process.env.NODE_ENV === "production" ? "/playgrond_vue3/" : "/",
   },
   build: {
     transpile: ["gsap", "three"],
