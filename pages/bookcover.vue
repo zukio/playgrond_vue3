@@ -121,6 +121,7 @@ section {
   transition: all 1s ease-in-out;
   transform-origin: center center;
   opacity: 1;
+  background: url("/images/dammy_bookcover.webp") no-repeat center center/cover;
 }
 
 .poster-container.fullscreen {
