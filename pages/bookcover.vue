@@ -12,7 +12,6 @@
         class="poster-container"
         :class="{ 'fullscreen': fullScreen }"
         @click="showFullScreen()"
-        :style="`background: url('${config.public.baseUrl}images/dammy_bookcover.webp') no-repeat center center/cover`"
       >
         <img src="/images/player/play.png" alt="Play" class="play-btn" />
       </div>

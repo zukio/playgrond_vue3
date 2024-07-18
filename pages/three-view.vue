@@ -11,14 +11,14 @@ import { ref, computed, type CSSProperties } from "vue";
 import Canvas from "@/components/webGL/WebglContainer.vue";
 import Basic from "@/components/webGL/Basic.vue";
 import Labyrinth001 from "@/components/webGL/Labyrinth001.vue";
-const config = useRuntimeConfig().public;
+const config = useRuntimeConfig();
 
 const props = defineProps<{
   contentNo: number;
   // modelPath: string
 }>();
 const contentNo = ref(0);
-const modelPath = `${config.baseUrl}models/DigitalBook_maze_01_0708.glb`;
+const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
 // const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
 const activeComponent = computed(() => {
