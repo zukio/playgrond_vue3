@@ -15,9 +15,10 @@ npm install -D sass sass-loader@latest
 # webGLを使用
 npm install three cannon-es
 
-# CSS 
+# CSS
 npm install --save bootstrap @popperjs/core
 npm install gsap
+npm install --save-dev @types/gsap
 npm install driverjs
 
 # 構文エラーを確認するためのデバッグツール
