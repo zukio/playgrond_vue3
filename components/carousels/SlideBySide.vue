@@ -43,7 +43,7 @@ const emit = defineEmits(["onPageChanged"]);
 
 const pageContainer = ref<HTMLElement | null>(null);
 const currentIndex = ref(0);
-const pageRefs = ref([]); // Array to hold references to page components
+const pageRefs = ref<Array<HTMLElement | null>>([]); // Array to hold references to page components
 
 const startStop = computed(() => {
   return currentIndex.value === 0;

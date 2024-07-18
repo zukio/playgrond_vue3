@@ -14,6 +14,7 @@ npm install -D sass sass-loader@latest
 
 # webGLを使用
 npm install three cannon-es
+npm install --save-dev @types/three
 
 # CSS
 npm install --save bootstrap @popperjs/core

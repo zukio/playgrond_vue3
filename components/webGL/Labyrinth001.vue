@@ -42,9 +42,9 @@ import {
 } from "three";
 import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as CANNON from "cannon-es";
-import type { Rotation } from "@/types/index";
 import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
+import type { Rotation } from "@/types";
 
 const props = defineProps<{
   modelPath: string;

@@ -16,9 +16,17 @@
     "lib": ["esnext", "dom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"]
     }
   },
-  "include": ["types/**/*.d.ts", ".nuxt/nuxt.d.ts", "src/**/*", "src/**/*.vue", "src/**/**/*.vue"],
+  "include": [
+    "types/**/*.d.ts",
+    ".nuxt/nuxt.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "src/**/**/*.vue",
+    "components/**/*.vue",
+    "pages/**/*.vue"
+  ],
   "exclude": ["src/**/__tests__/*"]
 }
