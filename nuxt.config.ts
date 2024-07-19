@@ -31,12 +31,6 @@ export default defineNuxtConfig({
     optimizeDeps: {
       include: ["three"],
     },
-    build: {
-      chunkSizeWarningLimit: 1000,
-      commonjsOptions: {
-        include: [/three/, /node_modules/],
-      },
-    },
   },
   runtimeConfig: {
     public: {
