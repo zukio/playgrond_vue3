@@ -44,7 +44,9 @@ const emit = defineEmits(["onPageChanged"]);
 const pageContainer = ref<HTMLElement | null>(null);
 const currentIndex = ref(0);
 const pageRefs = ref<Array<HTMLElement | null>>([]); // Array to hold references to page components
-
+//const activeComponent: any = computed(() => {
+//  return pageRefs.value ? pageRefs.value[currentIndex.value] || null : null;
+//});
 const startStop = computed(() => {
   return currentIndex.value === 0;
 });
@@ -104,6 +106,7 @@ const {
 } = useSwipeDetection(pageContainer, handleSwipe);
 
 onMounted(() => {
+  console.log("Mounted: Carousel(slide)");
   if (pageContainer.value) {
     pageContainer.value.addEventListener("mousedown", handleMouseDown);
     pageContainer.value.addEventListener("mousemove", handleMouseMove);
@@ -118,6 +121,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  console.log("Unmount: Carousel(slide)");
   if (pageContainer.value) {
     pageContainer.value.removeEventListener("mousedown", handleMouseDown);
     pageContainer.value.removeEventListener("mousemove", handleMouseMove);

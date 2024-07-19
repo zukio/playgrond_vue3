@@ -32,8 +32,6 @@
 import { ref, onBeforeUnmount } from "vue";
 
 // import bookFrame from "@/pages/slide-by-side.vue";
-const config = useRuntimeConfig();
-// const baseUrl = config.public.baseUrl;
 const isFullScreenVisible = ref(false);
 const fullScreen = ref(false);
 const timmerId: any = ref(null);
@@ -56,9 +54,11 @@ function closeFullScreen() {
 // -----------------------------------------------
 // lifecycle
 onMounted(() => {
+  console.log("Mounted: bookcover");
   window.addEventListener("message", handleMessage);
 });
 onBeforeUnmount(() => {
+  console.log("Unmount: bookcover");
   if (timmerId.value) {
     clearTimeout(timmerId.value);
     timmerId.value = null;
@@ -66,10 +66,7 @@ onBeforeUnmount(() => {
   window.removeEventListener("message", handleMessage);
 });
 // -----------------------------------------------
-const message = ref("");
 const handleMessage = (event: any) => {
-  const config = useRuntimeConfig();
-  const baseUrl = config.public.baseUrl;
   // セキュリティのため、特定のオリジンからのメッセージのみを処理する
   if (event.origin !== "http://localhost:3000" && event.origin !== "https://zukio.github.io") {
     console.log(event.origin);

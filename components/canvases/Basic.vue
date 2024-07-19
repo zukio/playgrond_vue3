@@ -82,6 +82,12 @@ onMounted(() => {
     loadImage();
   }
 });
+const activeSelf = (activate: boolean) => {
+  //
+};
+defineExpose({
+  activeSelf,
+});
 </script>
 
 <style scoped lang="scss">

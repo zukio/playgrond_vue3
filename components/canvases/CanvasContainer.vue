@@ -29,35 +29,49 @@ const canvas1 = ref<HTMLCanvasElement | null>(null);
 const initProvider = () => {
   if (canvas1.value && (!provider.context || !provider.canvas)) {
     provider.canvas = canvas1.value;
-    provider.context = canvas1.value.getContext("2d");
+    // provider.context = canvas1.value.getContext("2d");
+    provider.context = canvas1.value.getContext("2d", {
+      willReadFrequently: true,
+    });
 
     const parentElement = canvas1.value.parentElement;
-    if (parentElement) {
-      // 解像度
-      canvas1.value.width = parentElement.clientWidth;
-      canvas1.value.height = parentElement.clientHeight;
-      // 表示サイズ
-      canvas1.value.style.width = `${parentElement.clientWidth}px`;
-      canvas1.value.style.height = `${parentElement.clientHeight}px`;
-    }
+    const parentWidth = parentElement ? parentElement.clientWidth : window.innerWidth;
+    const parentHeight = parentElement ? parentElement.clientHeight : window.innerHeight;
+    // 解像度
+    canvas1.value.width = parentWidth;
+    canvas1.value.height = parentHeight;
+    // 表示サイズ 100%
+    //canvas1.value.style.width = `${parentWidth}px`;
+    //canvas1.value.style.height = `${parentHeight}px`;
   }
 };
 
 const onResize = () => {
   if (provider.canvas) {
-    provider.canvas.width = window.innerWidth;
-    provider.canvas.height = window.innerHeight;
+    const parentElement = provider.canvas.parentElement;
+    const parentWidth = parentElement ? parentElement.clientWidth : window.innerWidth;
+    const parentHeight = parentElement ? parentElement.clientHeight : window.innerHeight;
+
+    // 解像度 そのまま
+    provider.canvas.width = parentWidth;
+    provider.canvas.height = parentHeight;
   }
 };
 
 onMounted(() => {
-  window.addEventListener("resize", onResize);
-  onResize();
+  // window.addEventListener("resize", onResize);
+  // onResize();
   initProvider();
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", onResize);
+  // window.removeEventListener("resize", onResize);
+});
+const activeSelf = (activate: boolean) => {
+  //
+};
+defineExpose({
+  activeSelf,
 });
 </script>
 

@@ -1,14 +1,18 @@
 <template>
   <div class="p-0 m-0">
-    <Canvas :flexStyle="activeContainerStyle">
-      <component :is="activeComponent" :modelPath="modelPath"></component>
-    </Canvas>
+    <CanvasContainer :flexStyle="activeContainerStyle">
+      <component
+        :is="activeComponent.component"
+        v-bind="activeComponent.props"
+        :ref="(el: any) => (components[currentIndex].ref = el)"
+      ></component>
+    </CanvasContainer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
-import Canvas from "@/components/webGL/WebglContainer.vue";
+import CanvasContainer from "@/components/webGL/WebglContainer.vue";
 import Basic from "@/components/webGL/Basic.vue";
 import Labyrinth001 from "@/components/webGL/Labyrinth001.vue";
 const config = useRuntimeConfig();
@@ -17,13 +21,16 @@ const props = defineProps<{
   contentNo: number;
   // modelPath: string
 }>();
-const contentNo = ref(0);
+const currentIndex = ref(0);
 const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
 // const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
+const components = [
+  { component: Basic, props: { modelPath: modelPath }, ref: null as any },
+  { component: Labyrinth001, props: { modelPath: modelPath }, ref: null as any },
+];
 const activeComponent = computed(() => {
-  const components = [Labyrinth001, Basic];
-  return components[contentNo.value] || null;
+  return components[currentIndex.value] || null;
 });
 const activeContainerStyle = computed(() => {
   let innerWidth = "100%";
@@ -40,8 +47,19 @@ const activeContainerStyle = computed(() => {
   //}
   return flexStyle;
 });
+// -----------------------------------------------
+// コンポーネント切り替え(Mount/Unmount)処理
+const activeSelf = (activate: boolean) => {
+  if (activeComponent.value && activeComponent.value.ref && activeComponent.value.ref.activeSelf) {
+    activeComponent.value.ref.activeSelf(activate);
+  }
+};
 onMounted(() => {
-  contentNo.value = props.contentNo || 0;
+  console.log("Mounted: ThreeView");
+  currentIndex.value = props.contentNo || 0;
+});
+defineExpose({
+  activeSelf,
 });
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

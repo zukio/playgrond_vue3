@@ -1,11 +1,14 @@
 <template>
   <div class="p-0 m-0">
     <img src="/images/player/close.png" alt="Close" class="close-btn" @click="sendMessageToParent()" />
-    <Carousel :pages="pages" ref="carouselRef" @onPageChanged="onPageChanged" />
+    <Carousel :pages="components" ref="carouselRef" @onPageChanged="onPageChanged" />
   </div>
 </template>
 
 <script setup lang="ts">
+// ===============================================
+// Pages: 各コンポーネントを全画面表示で横に並べる（閉じるボタン付）
+// ===============================================
 import Carousel from "@/components/carousels/SlideBySide.vue";
 import Page1 from "@/components/book/Read.vue";
 import Page2 from "@/components/book/Read.vue";
@@ -22,21 +25,40 @@ onBeforeUnmount(() => {
 // -----------------------------------------------
 // Carousel Slider
 const carouselRef: any = ref(null);
-const pages = [
-  { component: Page1, props: { pageIndex: 0 }, ref: "page1Ref" },
-  { component: Page2, props: { pageIndex: 1 }, ref: "page2Ref" },
-  { component: CanvasView, props: { contentNo: 0 }, ref: "page3Ref" },
+const components = [
+  { component: Page1, props: { pageIndex: 0 } },
+  { component: Page2, props: { pageIndex: 1 } },
+  { component: CanvasView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 0 } },
   //{{ component: ThreeView, props: { contentNo: 1 } },
 ];
-
+const activeIndex = computed(() => {
+  return carouselRef?.currentIndex || 0;
+});
+const getActiveComponent = () => {
+  return carouselRef.value?.pageRefs[activeIndex.value] || null;
+};
+// -----------------------------------------------
+// コンポーネント切り替え(Mount/Unmount)処理
 const onPageChanged = (newIndex: number, oldIndex: number) => {
+  //for (let i = 0; i < components.length; i++) {
+  //  if (i === newIndex) {
+  //    components[i].props.isActive = true;
+  //  } else {
+  //    components[i].props.isActive = false;
+  //  }
+  //}
   switch (newIndex) {
     case 0:
     case 1:
       setGsapAnimation(newIndex, oldIndex);
       break;
     case 2:
+    case 3:
+      const newPageInstance = carouselRef.value.pageRefs[newIndex];
+      if (newPageInstance && newPageInstance.activeSelf) {
+        newPageInstance.activeSelf(true);
+      }
       break;
     default:
       break;
@@ -71,9 +93,8 @@ const setGsapAnimation = (newIndex: number, oldIndex: number) => {
   }
 };
 
+// 親ウィンドウ（iFrame）にメッセージを送信
 const sendMessageToParent = () => {
-  console.log("send message to parent2");
-  // 親ウィンドウにメッセージを送信
   window.parent.postMessage("iframe", "*");
 };
 // -----------------------------------------------

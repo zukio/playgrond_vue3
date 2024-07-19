@@ -1,13 +1,15 @@
 <template>
   <div class="layer-on-canvas" :style="{ position: isDebug ? 'relative' : 'absolute' }">
-    <Permission v-show="!permissionGranted" @click="handlePermissionResponse" ref="permissionComponent" />
-    <div v-if="goalLost" class="info">
+    <Permission v-if="!permissionGranted" @click="handlePermissionResponse" ref="permissionComponent" />
+    <Modal @onContinue="continuation" :succeed="goalReached" :failed="goalLost" />
+
+    <!--div v-if="goalLost" class="info">
       <h3 class="text-center">まま と であえなかった</h3>
       <p style="white-space: pre-wrap">{{ randomLottery.name }} と であった</p>
       <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
       <div>
         <button class="btn btn-dark me-2" @click="showFanfare">まんぞく</button>
-        <button class="btn btn-primary" @click="resetGame">あきらめない！</button>
+        <button class="btn btn-primary" @click="restartGame">あきらめない！</button>
       </div>
     </div>
     <div v-if="goalReached" class="info">
@@ -16,7 +18,7 @@
       <div>
         <a class="btn btn-dark me-2" href="slide-by-side">次へ</a>
       </div>
-    </div>
+    </div-->
   </div>
 </template>
 
@@ -45,42 +47,50 @@ import * as CANNON from "cannon-es";
 import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
 import type { Rotation } from "@/types";
+import Modal from "@/components/book/Layer_Labyrinth001.vue";
 
 const props = defineProps<{
   modelPath: string;
 }>();
 
-const lottery = [
-  {
-    msg: "100回叩くと壊れる壁があったとする。\nでもみんな何回叩けば壊れるかわからないから、90回まで来ていても途中であきらめてしまう。",
-    name: "ぜったいに ささない はち",
-    src: new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href,
-  },
-  {
-    msg: "勝ち負けなんか、ちっぽけなこと。\n大事なことは、本気だったかどうかだ！",
-    name: "おしゃれな ありんこ",
-  },
-  {
-    msg: "ベストを尽くすだけでは勝てない。\n僕は勝ちにいく。",
-    name: "ちいさな くじら",
-  },
-  {
-    msg: "いまの僕には勢いがある",
-    name: "みみ の ながい ねこ",
-  },
-  {
-    msg: "ミスをすることは悪いことじゃない。\nそれは上達するためには必ず必要なもの。\nただし、同じミスはしないこと。",
-    name: "けむくじゃら の いぬ",
-  },
-  {
-    msg: "予想外の人生になっても、そのとき、幸せだったらいいんじゃないかな。",
-    name: "まるい しっぽ の くま",
-  },
-];
-const randomLottery = computed(() => {
-  const randomIndex = Math.floor(Math.random() * lottery.length);
-  return lottery[randomIndex];
-});
+const continuation = (userChoice: boolean) => {
+  if (userChoice) {
+    restartGame();
+  } else {
+    showFanfare();
+  }
+};
+//const lottery = [
+//  {
+//    msg: "100回叩くと壊れる壁があったとする。\nでもみんな何回叩けば壊れるかわからないから、90回まで来ていても途中であきらめてしまう。",
+//    name: "ぜったいに ささない はち",
+//    src: new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href,
+//  },
+//  {
+//    msg: "勝ち負けなんか、ちっぽけなこと。\n大事なことは、本気だったかどうかだ！",
+//    name: "おしゃれな ありんこ",
+//  },
+//  {
+//    msg: "ベストを尽くすだけでは勝てない。\n僕は勝ちにいく。",
+//    name: "ちいさな くじら",
+//  },
+//  {
+//    msg: "いまの僕には勢いがある",
+//    name: "みみ の ながい ねこ",
+//  },
+//  {
+//    msg: "ミスをすることは悪いことじゃない。\nそれは上達するためには必ず必要なもの。\nただし、同じミスはしないこと。",
+//    name: "けむくじゃら の いぬ",
+//  },
+//  {
+//    msg: "予想外の人生になっても、そのとき、幸せだったらいいんじゃないかな。",
+//    name: "まるい しっぽ の くま",
+//  },
+//];
+//const randomLottery = computed(() => {
+//  const randomIndex = Math.floor(Math.random() * lottery.length);
+//  return lottery[randomIndex];
+//});
 
 const provider = inject("provider") as {
   context: WebGL2RenderingContext;
@@ -484,7 +494,7 @@ const showFanfare = () => {
   }, 5000); // 5秒後に自動遷移
 };
 
-const resetGame = () => {
+const restartGame = () => {
   goalReached.value = false;
   goalLost.value = false;
   rotation.value = { alpha: 0, beta: 0, gamma: 0, absolute: false };
@@ -532,6 +542,7 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
   // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
   handleOrientation(event, rotation);
 };
+
 const localFallbackOrientation = (event: KeyboardEvent) => {
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
   // debugOrientation (event, 5, rotation)
@@ -601,6 +612,12 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
   }
 });
+const activeSelf = (activate: boolean) => {
+  //
+};
+defineExpose({
+  activeSelf,
+});
 </script>
 
 <style lang="scss" scoped>
@@ -613,30 +630,7 @@ onUnmounted(() => {
   z-index: 1; /* canvasの上 */
   touch-action: none; /* canvasのカメラコントロールが効かなくなるため指定しない */
 }
-.info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  // position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  animation: slideinTopDown 0.3s ease-in-out;
-  text-align: center;
-  touch-action: auto;
-}
 
-@keyframes slideinTopDown {
-  0% {
-    transform: translateY(-100vh);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 .model-image {
   width: 100%;
   height: 100%;

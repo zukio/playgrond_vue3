@@ -6,19 +6,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, provide, onMounted, onUnmounted, type CSSProperties } from 'vue'
-import { OrthographicCamera, PerspectiveCamera, WebGLRenderer } from 'three'
+import { ref, reactive, provide, onMounted, onUnmounted, type CSSProperties } from "vue";
+import { OrthographicCamera, PerspectiveCamera, WebGLRenderer } from "three";
 
-const canvas = ref<HTMLCanvasElement | null>(null)
+const canvas = ref<HTMLCanvasElement | null>(null);
 
 interface Provider {
-  canvas: HTMLCanvasElement | null
-  context: WebGL2RenderingContext | null
-  camera: OrthographicCamera | PerspectiveCamera | null
-  renderer: WebGLRenderer | null
-  controls: any | null
-  initProvider: () => void
-  setOrbitControls: (camera: OrthographicCamera | PerspectiveCamera) => void
+  canvas: HTMLCanvasElement | null;
+  context: WebGL2RenderingContext | null;
+  camera: OrthographicCamera | PerspectiveCamera | null;
+  renderer: WebGLRenderer | null;
+  controls: any | null;
+  initProvider: () => void;
+  setOrbitControls: (camera: OrthographicCamera | PerspectiveCamera) => void;
 }
 const provider = reactive<Provider>({
   canvas: null,
@@ -27,84 +27,93 @@ const provider = reactive<Provider>({
   renderer: null,
   controls: null,
   initProvider: () => {},
-  setOrbitControls: () => {}
-})
-provide('provider', provider)
+  setOrbitControls: () => {},
+});
+provide("provider", provider);
 provider.initProvider = () => {
   if (canvas.value) {
-    provider.canvas = canvas.value
-    provider.context = canvas.value.getContext('webgl2') as WebGL2RenderingContext
+    provider.canvas = canvas.value;
+    provider.context = canvas.value.getContext("webgl2") as WebGL2RenderingContext;
 
     // レンダラーの作成
     provider.renderer = new WebGLRenderer({
       canvas: provider.canvas,
       context: provider.context,
-      antialias: true
-    })
-    provider.renderer.setSize(window.innerWidth, window.innerHeight)
+      antialias: true,
+    });
+    provider.renderer.setSize(window.innerWidth, window.innerHeight);
   }
-}
+};
 provider.setOrbitControls = (camera: OrthographicCamera | PerspectiveCamera | null) => {
   if (camera) {
-    import('three/examples/jsm/controls/OrbitControls.js').then(({ OrbitControls }) => {
-      if (!provider.renderer) return
-      provider.controls = new OrbitControls(camera, provider.renderer.domElement)
-      provider.controls.enableDamping = true
-      provider.controls.dampingFactor = 0.25
-      provider.controls.screenSpacePanning = false
-      provider.controls.minDistance = 5
-      provider.controls.maxDistance = 50
-      provider.controls.maxPolarAngle = Math.PI / 2
-    })
+    import("three/examples/jsm/controls/OrbitControls.js").then(({ OrbitControls }) => {
+      if (!provider.renderer) return;
+      provider.controls = new OrbitControls(camera, provider.renderer.domElement);
+      provider.controls.enableDamping = true;
+      provider.controls.dampingFactor = 0.25;
+      provider.controls.screenSpacePanning = false;
+      provider.controls.minDistance = 5;
+      provider.controls.maxDistance = 50;
+      provider.controls.maxPolarAngle = Math.PI / 2;
+    });
   }
-  onResize()
-}
+  onResize();
+};
 
 const props = defineProps<{
-  flexStyle: CSSProperties | undefined
-}>()
+  flexStyle: CSSProperties | undefined;
+}>();
 
 const onResize = () => {
   if (canvas.value) {
-    const parentElement = canvas.value.parentElement
+    const parentElement = canvas.value.parentElement;
 
     if (parentElement) {
       // 解像度
-      canvas.value.width = parentElement.clientWidth
-      canvas.value.height = parentElement.clientHeight
+      canvas.value.width = parentElement.clientWidth;
+      canvas.value.height = parentElement.clientHeight;
       // 表示サイズ
-      canvas.value.style.width = `${parentElement.clientWidth}px`
-      canvas.value.style.height = `${parentElement.clientHeight}px`
+      canvas.value.style.width = `${parentElement.clientWidth}px`;
+      canvas.value.style.height = `${parentElement.clientHeight}px`;
     }
 
     if (provider.camera && provider.renderer) {
-      const aspect = canvas.value ? canvas.value.clientWidth / canvas.value.clientHeight : 1
-      const frustumSize = 10
+      const aspect = canvas.value ? canvas.value.clientWidth / canvas.value.clientHeight : 1;
+      const frustumSize = 10;
       if (provider.camera instanceof OrthographicCamera) {
-        provider.camera.left = (frustumSize * aspect) / -2
-        provider.camera.right = (frustumSize * aspect) / 2
-        provider.camera.top = frustumSize / 2
-        provider.camera.bottom = frustumSize / -2
+        provider.camera.left = (frustumSize * aspect) / -2;
+        provider.camera.right = (frustumSize * aspect) / 2;
+        provider.camera.top = frustumSize / 2;
+        provider.camera.bottom = frustumSize / -2;
       } else if (provider.camera instanceof PerspectiveCamera) {
-        provider.camera.aspect = aspect
+        provider.camera.aspect = aspect;
       }
-      provider.camera.updateProjectionMatrix()
-      provider.renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight)
+      provider.camera.updateProjectionMatrix();
+      provider.renderer.setSize(canvas.value.clientWidth, canvas.value.clientHeight);
     }
   }
-}
+};
 
 onMounted(() => {
-  provider.initProvider()
-  window.addEventListener('resize', onResize)
-})
+  console.log("Mounted: WebGLContainer");
+  provider.initProvider();
+  window.addEventListener("resize", onResize);
+});
 
 onUnmounted(() => {
+  console.log("Unmount: WebGLContainer");
   if (provider.renderer) {
-    provider.renderer.dispose()
+    provider.renderer.dispose();
   }
-  window.removeEventListener('resize', onResize)
-})
+  window.removeEventListener("resize", onResize);
+});
+
+const activeSelf = (activate: boolean) => {
+  //
+};
+defineExpose({
+  activeSelf,
+});
 </script>
 
 <style lang="scss" scoped>

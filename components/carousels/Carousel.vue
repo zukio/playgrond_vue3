@@ -5,13 +5,13 @@
         v-for="(page, index) in pages"
         :key="index"
         class="carousel-item"
-        :class="{ 'active': selectedIndex == index }"
+        :class="{ 'active': currentIndex == index }"
       >
-        <component :is="page.component" v-bind="page.props"></component>
+        <component :is="page.component" v-bind="page.props" :ref="(el: any) => (pageRefs[index] = el)"></component>
       </div>
     </div>
     <button
-      v-if="selectedIndex > 0"
+      v-if="!startStop"
       @click="prev"
       ref="prevBtn"
       class="carousel-control-prev"
@@ -23,7 +23,7 @@
       <span class="visually-hidden">Previous</span>
     </button>
     <button
-      v-if="selectedIndex < pages.length - 1"
+      v-if="!endStop"
       @click="next"
       ref="nextBtn"
       class="carousel-control-next"
@@ -43,30 +43,41 @@ const props = defineProps<{
   pages: any[];
 }>();
 
+// Emitsの定義
+const emit = defineEmits(["onPageChanged"]);
+
 const carouselSelf = ref<HTMLElement | null>(null);
-const pageContainer = ref<HTMLElement | null>(null);
+const carouselContainer = ref<HTMLElement | null>(null);
+const pageRefs = ref<Array<HTMLElement | null>>([]); // Array to hold references to page components
+const currentIndex = ref(0);
+//const activeComponent: any = computed(() => {
+//  return pageRefs.value ? pageRefs.value[currentIndex.value] || null : null;
+//});
 const prevBtn = ref<HTMLButtonElement | null>(null);
 const nextBtn = ref<HTMLButtonElement | null>(null);
-const selectedIndex = ref(0);
-
+const startStop = computed(() => {
+  return currentIndex.value <= 0;
+});
+const endStop = computed(() => {
+  return currentIndex.value >= props.pages.length - 1;
+});
 const next = () => {
-  if (selectedIndex.value < props.pages.length - 1) {
-    selectedIndex.value += 1;
-  } else {
-    selectedIndex.value = props.pages.length - 1;
-  }
-  nextBtn.value?.click();
+  if (endStop) return;
+  const oldIndex = currentIndex.value;
+  currentIndex.value += 1;
+  // nextBtn.value?.click();
+  emit("onPageChanged", currentIndex.value, oldIndex);
 };
 
 const prev = () => {
-  if (selectedIndex.value > 0) {
-    selectedIndex.value -= 1;
-  } else {
-    selectedIndex.value = 0;
-  }
-  prevBtn.value?.click();
+  if (startStop) return;
+  const oldIndex = currentIndex.value;
+  currentIndex.value -= 1;
+  // prevBtn.value?.click();
+  emit("onPageChanged", currentIndex.value, oldIndex);
 };
-
+// -----------------------------------------------
+// Swipe
 const handleSwipe = (direction: string) => {
   if (direction === "left") {
     // swipe to left from right
@@ -85,39 +96,43 @@ const {
   handleTouchStart,
   handleTouchMove,
   handleTouchEnd,
-} = useSwipeDetection(pageContainer, handleSwipe);
+} = useSwipeDetection(carouselContainer, handleSwipe);
 
 onMounted(() => {
+  console.log("Mounted: Carousel");
   const { $bootstrap }: any = useNuxtApp();
   const carousel = new $bootstrap.Carousel(document.getElementById("carouselExample"));
 
   if (carouselSelf.value) {
-    pageContainer.value = carouselSelf.value.parentElement;
-    if (pageContainer.value) {
-      pageContainer.value.addEventListener("mousedown", handleMouseDown);
-      pageContainer.value.addEventListener("mousemove", handleMouseMove);
-      pageContainer.value.addEventListener("mouseup", handleMouseUp);
-      pageContainer.value.addEventListener("mouseleave", handleMouseLeave);
-      pageContainer.value.addEventListener("touchstart", handleTouchStart);
-      pageContainer.value.addEventListener("touchmove", handleTouchMove);
-      pageContainer.value.addEventListener("touchend", handleTouchEnd);
+    carouselContainer.value = carouselSelf.value.parentElement;
+    if (carouselContainer.value) {
+      carouselContainer.value.addEventListener("mousedown", handleMouseDown);
+      carouselContainer.value.addEventListener("mousemove", handleMouseMove);
+      carouselContainer.value.addEventListener("mouseup", handleMouseUp);
+      carouselContainer.value.addEventListener("mouseleave", handleMouseLeave);
+      carouselContainer.value.addEventListener("touchstart", handleTouchStart);
+      carouselContainer.value.addEventListener("touchmove", handleTouchMove);
+      carouselContainer.value.addEventListener("touchend", handleTouchEnd);
     }
   }
 });
 
 onBeforeUnmount(() => {
-  if (pageContainer.value) {
-    pageContainer.value.removeEventListener("mousedown", handleMouseDown);
-    pageContainer.value.removeEventListener("mousemove", handleMouseMove);
-    pageContainer.value.removeEventListener("mouseup", handleMouseUp);
-    pageContainer.value.removeEventListener("mouseleave", handleMouseLeave);
-    pageContainer.value.removeEventListener("touchstart", handleTouchStart);
-    pageContainer.value.removeEventListener("touchmove", handleTouchMove);
-    pageContainer.value.removeEventListener("touchend", handleTouchEnd);
+  console.log("Unmount: Carousel");
+  if (carouselContainer.value) {
+    carouselContainer.value.removeEventListener("mousedown", handleMouseDown);
+    carouselContainer.value.removeEventListener("mousemove", handleMouseMove);
+    carouselContainer.value.removeEventListener("mouseup", handleMouseUp);
+    carouselContainer.value.removeEventListener("mouseleave", handleMouseLeave);
+    carouselContainer.value.removeEventListener("touchstart", handleTouchStart);
+    carouselContainer.value.removeEventListener("touchmove", handleTouchMove);
+    carouselContainer.value.removeEventListener("touchend", handleTouchEnd);
   }
 });
 
 defineExpose({
+  currentIndex,
+  pageRefs,
   next,
   prev,
 });

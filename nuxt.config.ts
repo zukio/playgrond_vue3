@@ -1,5 +1,6 @@
 import { defineNuxtConfig } from "nuxt/config";
 import { fileURLToPath, URL } from "node:url";
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
@@ -39,7 +40,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      baseUrl: process.env.BASE_URL || "/",
+      baseUrl: process.env.NODE_ENV === "production" ? "/playgrond_vue3/" : "/",
     },
   },
   build: {

@@ -1,31 +1,37 @@
 <template>
   <div class="p-0 m-0">
-    <Canvas class="p-0 m-0" :flexStyle="activeContainerStyle">
-      <component :is="activeComponent" :pageIndex="writableContentNo"></component>
-    </Canvas>
+    <CanvasContainer class="p-0 m-0" :flexStyle="activeContainerStyle">
+      <component
+        :is="activeComponent.component"
+        v-bind="activeComponent.props"
+        :ref="(el: any) => (components[currentIndex].ref = el)"
+      ></component>
+    </CanvasContainer>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
-import Canvas from "@/components/canvases/CanvasContainer.vue";
+import CanvasContainer from "@/components/canvases/CanvasContainer.vue";
 import Basic from "@/components/canvases/BasicAnim.vue";
 import WelcomeAnim from "@/components/canvases/WelcomeAnim.vue";
 
 const props = defineProps<{
-  // contentNo: number;
+  contentNo: number;
   // modelPath: string
   //
 }>();
-const writableContentNo = ref(0);
+const currentIndex = ref(0);
 const backgroundColor = (index: number) => {
   const array = ["211, 97, 21", "211, 97, 21", "211, 97, 21"];
   return array[index];
 };
-
-const activeComponent = computed(() => {
-  const components = [Basic, WelcomeAnim];
-  return components[writableContentNo.value] || null;
+const components = [
+  { component: Basic, props: { pageIndex: 0 }, ref: null },
+  { component: WelcomeAnim, props: { pageIndex: 0 }, ref: null },
+];
+const activeComponent: any = computed(() => {
+  return components[currentIndex.value] || null;
 });
 const activeContainerStyle = computed(() => {
   let flexStyle: CSSProperties = {
@@ -36,14 +42,29 @@ const activeContainerStyle = computed(() => {
     // overflow: "hidden",
     zIndex: -1,
   };
-  if (writableContentNo.value !== 2) {
+  if (currentIndex.value !== 2) {
     //flexStyle.position = "absolute";
   }
   return flexStyle;
 });
+// -----------------------------------------------
+// コンポーネント切り替え(Mount/Unmount)処理
+const activeSelf = (activate: boolean) => {
+  console.log(activeComponent.value.ref);
+  if (activeComponent.value && activeComponent.value.ref && activeComponent.value.ref.activeSelf) {
+    activeComponent.value.ref.activeSelf(activate);
+  }
+};
+// -----------------------------------------------
+// Lyfe Cycle
 onMounted(() => {
-  //writableContentNo.value = props.contentNo || 0;
-  writableContentNo.value = 0;
+  console.log("Mounted: CanvasView");
+  currentIndex.value = 0;
+});
+defineExpose({
+  currentIndex,
+  activeComponent,
+  activeSelf,
 });
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

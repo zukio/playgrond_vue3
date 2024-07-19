@@ -72,6 +72,12 @@ const startCanvasAnimation = (element: HTMLElement, duration: number) => {
 onMounted(() => {
   //
 });
+const activeSelf = (activate: boolean) => {
+  //
+};
+defineExpose({
+  activeSelf,
+});
 </script>
 
 <style>
