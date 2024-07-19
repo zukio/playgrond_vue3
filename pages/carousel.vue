@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSwipeDetection } from "@/utils/swipeDetection";
+// import { useSwipeDetection } from "@/utils/swipeDetection";
 import Carousel from "@/components/carousels/Carousel.vue";
 import Page from "@/components/HelloWorld.vue";
 

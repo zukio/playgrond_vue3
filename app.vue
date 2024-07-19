@@ -5,8 +5,10 @@
 </template>
 
 <script setup lang="ts">
-const config = useRuntimeConfig();
-const baseUrl = config.public.baseUrl;
+import { useHead } from "nuxt/app";
+
+//const config = useRuntimeConfig();
+//const baseUrl = config.public.baseUrl;
 useHead({
   titleTemplate: (titleChunk: string | undefined) => {
     return titleChunk ? `${titleChunk} - Sitename` : "Sitename";
