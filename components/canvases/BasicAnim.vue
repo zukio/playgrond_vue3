@@ -165,10 +165,10 @@ watch(provider, () => {
   const baseUrl = config ? config.public.baseUrl : "/";
   if (provider.canvas) {
     const imagePaths = [
-      `${baseUrl}images/book/DigitalBook_maze_01_0708.png`,
-      `${baseUrl}images/unevencircle001.png`,
-      `${baseUrl}images/unevencircle002.png`,
-      `${baseUrl}images/unevencircle003.png`,
+      "`${baseUrl}images/book/DigitalBook_maze_01_0708.png`",
+      "`${baseUrl}images/unevencircle001.png`",
+      "`${baseUrl}images/unevencircle002.png`",
+      "`${baseUrl}images/unevencircle003.png`",
       //`@/assets/images/DigitalBook_maze_01_0708.png`,
       //`@/assets/images/unevencircle001.png`,
       //`@/assets/images/unevencircle002.png`,
