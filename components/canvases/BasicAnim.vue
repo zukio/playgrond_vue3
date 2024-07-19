@@ -28,7 +28,6 @@ const scripts = [
   ["line1", "line2"],
 ];
 
-const playCue = ref<Array<boolean>>([false]);
 const imagesRef = ref<any[]>([]);
 const titleElement = ref<HTMLElement | null>(null);
 
@@ -63,17 +62,15 @@ const loadImages = (imagePaths: string[]) => {
       loadedCount += 1;
 
       const { parentWidth, parentHeight } = getParentSize();
-
       const x = parentWidth / 2 + (index % 2);
       const y = parentHeight / 2 + Math.floor(index / 2);
 
-      images[index] = { img, x, y, width: img.width, height: img.height, scale: 1 };
+      images[index] = { img, x, y, width: img.width, height: img.height, scale: 0.5 };
 
       if (loadedCount === imagePaths.length) {
         imagesRef.value = images;
-        if (playCue.value.length && playCue.value[0]) {
-          animateImages(images);
-        }
+
+        animateImages(images);
       }
     };
 
@@ -96,32 +93,37 @@ const getAdjustSize = (image: any) => {
   const canvasAspectRatio = parentWidth / parentHeight;
   let newWidth, newHeight;
 
-  if (canvasAspectRatio > aspectRatio) {
-    newHeight = parentHeight * image.scale;
+  if (canvasAspectRatio < aspectRatio) {
+    newHeight = parentWidth * image.scale;
     newWidth = newHeight * aspectRatio;
   } else {
-    newWidth = parentWidth * image.scale;
+    newWidth = parentHeight * image.scale;
     newHeight = newWidth / aspectRatio;
   }
-
   return { newWidth, newHeight };
 };
 let defaultWidth = -1;
 let defaultHeight = -1;
+let targetScale = 1;
+function setDefault(images: any[]) {
+  if (defaultWidth <= 0) {
+    defaultWidth = images[0].width;
+    defaultHeight = images[0].height;
+  }
+  images[0].scale = 3;
+  targetScale = 1;
+  // const { parentWidth, parentHeight } = getParentSize();
+  // targetScale1 = Math.max(parentWidth / defaultWidth, parentHeight / defaultHeight);
+}
+
 const animateImages = (images: any[]) => {
   if (!provider || !provider.canvas || !provider.context || !images.length) {
     console.error("Canvas provider is not available");
     return;
   }
-  if (defaultWidth <= 0) {
-    defaultWidth = images[0].width;
-    defaultHeight = images[0].height;
-  }
-  images[0].scale = 9; // 2752,2064
-  const { parentWidth, parentHeight } = getParentSize();
-  const targetScale = Math.max(parentWidth / defaultWidth, parentHeight / defaultHeight);
-  console.log(targetScale);
+  setDefault(images);
   const update = () => {
+    const { parentWidth, parentHeight } = getParentSize();
     images.forEach((image, index) => {
       if (index === 0) {
         const { newWidth, newHeight } = getAdjustSize(image);
@@ -139,22 +141,12 @@ const animateImages = (images: any[]) => {
 
     drawImages(images);
 
-    if (images[0].scale > targetScale) {
+    //if (images[0].scale > targetScale) {
+    if (images[0].scale > 1) {
       animationFrameId = requestAnimationFrame(update);
     }
   };
   update();
-};
-
-const onResize = () => {
-  if (provider.canvas && provider.context) {
-    const parentElement = provider.canvas.parentElement;
-    const parentWidth = parentElement ? parentElement.clientWidth : window.innerWidth;
-    const parentHeight = parentElement ? parentElement.clientHeight : window.innerHeight;
-
-    const imgData = provider.context.getImageData(0, 0, parentWidth, parentHeight);
-    provider.context.putImageData(imgData, 0, 0);
-  }
 };
 
 watch(provider, () => {
@@ -172,12 +164,12 @@ watch(provider, () => {
 });
 
 onMounted(() => {
-  window.addEventListener("resize", onResize);
+  // window.addEventListener("resize", onResize);
 });
 
 onUnmounted(() => {
   cancelAnimationFrame(animationFrameId);
-  window.removeEventListener("resize", onResize);
+  // window.removeEventListener("resize", onResize);
 });
 
 const activeSelf = (activate: boolean) => {
