@@ -1,10 +1,10 @@
 <template>
   <NuxtLayout>
-    <NuxtPage ref="page" />
+    <NuxtPage />
   </NuxtLayout>
 </template>
+
 <script setup lang="ts">
-const page = ref();
 useHead({
   titleTemplate: (titleChunk: string | undefined) => {
     return titleChunk ? `${titleChunk} - Sitename` : "Sitename";
