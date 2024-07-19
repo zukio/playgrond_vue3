@@ -5,6 +5,8 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseUrl;
 useHead({
   titleTemplate: (titleChunk: string | undefined) => {
     return titleChunk ? `${titleChunk} - Sitename` : "Sitename";
@@ -15,11 +17,11 @@ useHead({
     { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
     { name: "apple-mobile-web-app-capable", content: "yes" },
   ],
-  /*link: [
-    { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
-    { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
-    // { rel: "manifest", href: "/manifest.json" }
-  ],*/
+  link: [
+    // { rel: "icon", type: "image/svg+xml", href: `${baseUrl}favicon.svg` },
+    // { rel: "apple-touch-icon", href: `${baseUrl}apple-touch-icon.png`, sizes: "180x180" },
+    // { rel: "manifest", href: `${baseUrl}manifest.json` }
+  ],
 });
 </script>
 <style lang="scss">
