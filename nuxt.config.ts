@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from "nuxt/config";
+import { fileURLToPath, URL } from "node:url";
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -21,10 +22,31 @@ export default defineNuxtConfig({
         },
       },
     },
+    resolve: {
+      alias: {
+        "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@popperjs/core": "@popperjs/core/dist/umd/popper.min.js",
+      },
+    },
+    server: {
+      headers: {
+        "Content-Security-Policy":
+          "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:  data:; img-src 'self' data:; object-src 'none';",
+      },
+    },
+    optimizeDeps: {
+      include: ["three"],
+    },
+    build: {
+      chunkSizeWarningLimit: 1000,
+      commonjsOptions: {
+        include: [/three/, /node_modules/],
+      },
+    },
   },
   runtimeConfig: {
     public: {
-      baseUrl: process.env.NODE_ENV === "production" ? process.env.BASE_URL : "/",
+      baseUrl: process.env.BASE_URL || "/",
     },
   },
   build: {
