@@ -22,12 +22,6 @@ export default defineNuxtConfig({
         },
       },
     },
-    resolve: {
-      alias: {
-        "@": fileURLToPath(new URL("./src", import.meta.url)),
-        "@popperjs/core": "@popperjs/core/dist/umd/popper.min.js",
-      },
-    },
     optimizeDeps: {
       include: ["three"],
     },
