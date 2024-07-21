@@ -38,13 +38,9 @@ const activeIndex = computed(() => {
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
 const onPageChanged = (newIndex: number, oldIndex: number) => {
-  //for (let i = 0; i < components.length; i++) {
-  //  if (i === newIndex) {
-  //    components[i].props.isActive = true;
-  //  } else {
-  //    components[i].props.isActive = false;
-  //  }
-  //}
+  // ツアー中なら次のステップへ
+  if (tourDriver) tourDriver.moveNext();
+  // 各ページの処理を実行
   switch (newIndex) {
     case 0:
     case 1:
@@ -97,9 +93,9 @@ const sendMessageToParent = () => {
 // -----------------------------------------------
 // Tour
 const { $driver }: any = useNuxtApp();
-
+let tourDriver: any = null;
 const startTour = () => {
-  const driverObj = $driver({
+  tourDriver = $driver({
     popoverClass: "driverjs-theme",
     showButtons: ["next", "close"],
     nextBtnText: "わかった！",
@@ -132,11 +128,11 @@ const startTour = () => {
         console.log("carouselInstance is not found");
       }
       // 本来の処理を明示的に呼び出す必要がある
-      driverObj.destroy();
+      tourDriver.destroy();
     },
   });
   // ツアーを開始
-  driverObj.drive();
+  tourDriver.drive();
 };
 </script>
 

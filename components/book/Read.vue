@@ -52,18 +52,8 @@
 <script setup lang="ts">
 import gsap from "gsap";
 // -----------------------------------------------
-// Page Visibility
-const isActive = ref(false);
-const onSlideVisible = () => {
-  console.log("Element is now visible!");
-  isActive.value = true;
-};
-const onSlideHidden = () => {
-  console.log("Element is now hidden!");
-  isActive.value = false;
-};
-// -----------------------------------------------
 // data
+const isActive = ref(false);
 const props = defineProps<{
   pageIndex: number;
 }>();
@@ -89,24 +79,24 @@ const hideAllTooltips = () => {
   tooltipRefs.value.forEach((tooltip) => {
     tooltip.hide();
   });
-  if (ctx) ctx.revert();
+  if (gsapCtx) gsapCtx.revert();
 };
 // -----------------------------------------------
 // Animation
 const main = ref<HTMLElement | null>(null);
-let tl: gsap.core.Timeline;
-let ctx: gsap.Context;
+let gsapCtxTL: gsap.core.Timeline;
+let gsapCtx: gsap.Context;
 
 const toggleTimeline = () => {
-  tl.reversed(!tl.reversed());
+  gsapCtxTL.reversed(!gsapCtxTL.reversed());
 };
 const setAnimation = () => {
-  if (ctx) ctx.revert();
+  if (gsapCtx) gsapCtx.revert();
   if (!main.value) return;
-  ctx = gsap.context((self) => {
+  gsapCtx = gsap.context((self) => {
     const boxes: HTMLElement[] = gsap.utils.toArray(".diggle");
     if (boxes.length > 0) {
-      tl = gsap
+      gsapCtxTL = gsap
         .timeline()
         .to(boxes[0], { x: 100, rotation: 360 })
         .to(boxes[1], { x: -100, y: 100, rotation: -360 }, "<")
@@ -114,6 +104,17 @@ const setAnimation = () => {
         .reverse();
     }
   }, main.value); // <- Scope!
+};
+// -----------------------------------------------
+// Page Visibility
+const onSlideVisible = () => {
+  isActive.value = true;
+  setAnimation();
+};
+const onSlideHidden = () => {
+  hideAllTooltips();
+  if (gsapCtx) gsapCtx.revert(); // <- Easy Cleanup!
+  isActive.value = false;
 };
 // -----------------------------------------------
 // LifeCycle
@@ -124,8 +125,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  hideAllTooltips();
-  if (ctx) ctx.revert(); // <- Easy Cleanup!
+  if (gsapCtx) gsapCtx.revert(); // <- Easy Cleanup!
 });
 
 defineExpose({

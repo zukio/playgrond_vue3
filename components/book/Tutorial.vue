@@ -71,27 +71,11 @@ import illustPath002 from "@/assets/images/utils/touch.png";
 import illustPath003 from "@/assets/images/utils/gyroscope.png";
 import illustPath004 from "@/assets/images/utils/key_arrow.png";
 import illustPath005 from "@/assets/images/labyrinth/unevencircle002.png";
-// -----------------------------------------------
-// Page Visibility
-const isActive = ref(false);
-const onSlideVisible = () => {
-  console.log("Element is now visible!");
-  isActive.value = true;
-};
-const onSlideHidden = () => {
-  console.log("Element is now hidden!");
-  isActive.value = false;
-};
-const activeSelf = (activate: boolean) => {
-  // animateCancel();
-  stopAnimation();
-  resetTour();
-  if (activate) {
-    startAnimation();
-  }
-};
+
 // -----------------------------------------------
 // data
+const isActive = ref(false);
+
 const provider = inject("provider") as {
   context: CanvasRenderingContext2D;
   canvas: HTMLCanvasElement;
@@ -240,6 +224,7 @@ const setupPhysics = () => {
 
   // 衝突イベントのリッスン
   body.addEventListener("collide", (event: any) => {
+    if (!isActive) return;
     if (event.body === ground) {
       // stopAnimation();
       if (!onTour.value) {
@@ -315,7 +300,7 @@ const keepInBounds = (
 };
 
 const animate = () => {
-  if (!provider || !provider.canvas || !provider.context) {
+  if (!isActive || !provider || !provider.canvas || !provider.context) {
     console.error("Canvas provider is not available");
     return;
   }
@@ -459,7 +444,8 @@ watch(
   { immediate: true }
 );
 const onMouseDown = (evt: MouseEvent | TouchEvent) => {
-  if (!img || !provider) return;
+  // 非表示時は処理しない
+  if (!isActive.value || !img || !provider) return;
   const isMouseEvent = evt instanceof MouseEvent;
   const x = isMouseEvent ? (evt as MouseEvent).clientX : (evt as TouchEvent).touches[0].clientX;
   const y = isMouseEvent ? (evt as MouseEvent).clientY : (evt as TouchEvent).touches[0].clientY;
@@ -474,6 +460,8 @@ const onMouseDown = (evt: MouseEvent | TouchEvent) => {
   }
 };
 const onMouseUp = () => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   isDragging.value = false;
   //stopAnimation();
   if (body) {
@@ -482,7 +470,8 @@ const onMouseUp = () => {
 };
 
 const onMousemove = (evt: MouseEvent | TouchEvent) => {
-  if (!isDragging.value) {
+  // 非表示時は処理しない
+  if (!isActive.value || !isDragging.value) {
     return;
   }
   const isMouseEvent = evt instanceof MouseEvent;
@@ -493,6 +482,8 @@ const onMousemove = (evt: MouseEvent | TouchEvent) => {
 
 // 画面リサイズでアスペクト比が崩れないように画像を再描画
 const onResize = () => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   if (provider && provider.context && img && imgRect.value) {
     const ctx = provider.context;
     const canvas = provider.canvas;
@@ -547,6 +538,24 @@ async function checkOrientationAvailability() {
     }
   }
 }
+// -----------------------------------------------
+// Page Visibility
+const onSlideVisible = () => {
+  console.log("Element is now visible!");
+  startAnimation();
+  isActive.value = true;
+};
+const onSlideHidden = () => {
+  stopAnimation();
+  resetTour();
+  isActive.value = false;
+};
+const activeSelf = (activate: boolean) => {
+  console.log("Element is now activeSelf!");
+  if (activate) {
+    startAnimation();
+  }
+};
 // -----------------------------------------------
 // Lifecycle
 onMounted(async () => {
