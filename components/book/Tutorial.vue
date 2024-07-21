@@ -104,7 +104,7 @@ let animationId: number | null = null;
 // Tour
 const showOverlay = ref<boolean>(false);
 const tryCount = ref<number>(0);
-const tryTimeoutId = ref<NodeJS.Timeout | null>(null);
+//　const tryTimeoutId = ref<NodeJS.Timeout | null>(null);
 const tourIndex = ref<number>(-1);
 const tourSteps = [
   {
@@ -141,12 +141,6 @@ function driveTour(stepNo: number = 0) {
   if (stepNo < tourSteps.length) {
     tourIndex.value = onTour.value ? stepNo : 0;
     showOverlay.value = true;
-    tryTimeoutId.value = setTimeout(() => {
-      if (onTour.value) {
-        tryTimeoutId.value = null;
-        hideTour();
-      }
-    }, 5000);
   } else if (stepNo == tourSteps.length) {
     triggerConfetti();
     completeModal.value?.show();
@@ -156,15 +150,11 @@ function driveTour(stepNo: number = 0) {
 function hideTour() {
   showOverlay.value = false;
   // チュートリアル試行回数が不足（かつ制限時間以内）
-  if (tryCount.value < 3 && tryTimeoutId.value) {
+  if (tryCount.value < 3) {
     tryCount.value += 1;
     return;
   }
   // チュートリアル達成（試行回数、制限時間をリセット）
-  if (tryTimeoutId.value) {
-    clearTimeout(tryTimeoutId.value);
-    tryTimeoutId.value = null;
-  }
   tryCount.value = 0;
   // NextStep
   tourIndex.value += 1;
@@ -175,10 +165,6 @@ function resetTour() {
   tourIndex.value = -1;
   showOverlay.value = false;
   tryCount.value = 0;
-  if (tryTimeoutId.value) {
-    clearTimeout(tryTimeoutId.value);
-    tryTimeoutId.value = null;
-  }
 }
 
 const { initConfetti, setConfettiCanvas, triggerConfetti, updateAndDrawConfetti, isConfettiActive } = useConfetti();
