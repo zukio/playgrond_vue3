@@ -17,10 +17,13 @@ import Basic from "@/components/webGL/Basic.vue";
 import Labyrinth001 from "@/components/webGL/Labyrinth001.vue";
 const config = useRuntimeConfig();
 
-const props = defineProps<{
-  contentNo: number;
-  // modelPath: string
-}>();
+const props = defineProps({
+  contentNo: {
+    type: Number as PropType<number>,
+    required: false,
+    default: 0,
+  },
+});
 const currentIndex = ref(0);
 const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
 // const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
@@ -56,7 +59,7 @@ const activeSelf = (activate: boolean) => {
 };
 onMounted(() => {
   console.log("Mounted: ThreeView");
-  currentIndex.value = props.contentNo || 0;
+  // currentIndex.value = props.contentNo || 0;
 });
 defineExpose({
   activeSelf,

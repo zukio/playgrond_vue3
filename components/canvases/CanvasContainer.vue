@@ -53,8 +53,8 @@ const onResize = () => {
     const parentHeight = parentElement ? parentElement.clientHeight : window.innerHeight;
 
     // 解像度 そのまま
-    provider.canvas.width = parentWidth;
-    provider.canvas.height = parentHeight;
+    //provider.canvas.width = parentWidth;
+    //provider.canvas.height = parentHeight;
   }
 };
 
@@ -80,5 +80,6 @@ canvas {
   display: block; /* This removes the default inline-block behavior */
   width: 100%;
   height: 100%;
+  background-color: antiquewhite;
 }
 </style>

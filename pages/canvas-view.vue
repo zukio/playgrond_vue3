@@ -13,21 +13,24 @@
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
 import CanvasContainer from "@/components/canvases/CanvasContainer.vue";
-import Basic from "@/components/canvases/BasicAnim.vue";
+import Tutorial from "@/components/canvases/Tutorial.vue";
 import WelcomeAnim from "@/components/canvases/WelcomeAnim.vue";
 
-const props = defineProps<{
-  contentNo: number;
-  // modelPath: string
-  //
-}>();
-const currentIndex = ref(0);
+const props = defineProps({
+  contentNo: {
+    type: Number as PropType<number>,
+    required: false,
+    default: 0,
+  },
+});
+
 const backgroundColor = (index: number) => {
   const array = ["211, 97, 21", "211, 97, 21", "211, 97, 21"];
   return array[index];
 };
+const currentIndex = ref(0);
 const components = [
-  { component: Basic, props: { pageIndex: 0 }, ref: null },
+  { component: Tutorial, props: { pageIndex: 0 }, ref: null },
   { component: WelcomeAnim, props: { pageIndex: 0 }, ref: null },
 ];
 const activeComponent: any = computed(() => {
@@ -50,7 +53,6 @@ const activeContainerStyle = computed(() => {
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
 const activeSelf = (activate: boolean) => {
-  console.log(activeComponent.value.ref);
   if (activeComponent.value && activeComponent.value.ref && activeComponent.value.ref.activeSelf) {
     activeComponent.value.ref.activeSelf(activate);
   }

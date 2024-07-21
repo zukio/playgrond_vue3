@@ -15,7 +15,43 @@
 
 <script setup lang="ts">
 import { onMounted, ref, inject, watch, defineProps, onUnmounted } from "vue";
-import { debounce } from "@/utils";
+import { debounce } from "@/utils/";
+import * as CANNON from "cannon-es";
+
+let world: CANNON.World | null = null;
+let body: CANNON.Body | null = null;
+let ground: CANNON.Body | null = null;
+
+const setupPhysics = () => {
+  // World setup
+  world = new CANNON.World();
+  world.gravity.set(0, -9.82, 0);
+
+  // Ground setup
+  const groundShape = new CANNON.Plane();
+  const groundMaterial = new CANNON.Material();
+  ground = new CANNON.Body({ mass: 0, material: groundMaterial });
+  ground.addShape(groundShape);
+  // Groundの位置を設定
+  ground.position.set(0, -5, 0); // 高さ -1 に設定
+  ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // 水平に配置
+  world.addBody(ground);
+
+  // Image setup
+  const boxShape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
+  const boxMaterial = new CANNON.Material();
+  body = new CANNON.Body({ mass: 1, material: boxMaterial });
+  body.addShape(boxShape);
+  body.position.set(0, 5, 0); // Start position
+  world.addBody(body);
+
+  // 衝突イベントのリッスン
+  body.addEventListener("collide", (event: any) => {
+    if (event.body === ground) {
+      stopAnimation();
+    }
+  });
+};
 
 const provider = inject("provider") as {
   context: CanvasRenderingContext2D;
@@ -43,13 +79,13 @@ const imgRect = ref<{ left: number; top: number; right: number; bottom: number }
 const mouse = ref({ x: 0, y: 0 });
 const isDragging = ref<boolean>(false);
 
-const calculateImageSize = (sample: HTMLImageElement): { width: number; height: number } => {
+const calculateImageSize = (sampleW: number, sampleH: number): { width: number; height: number } => {
   // 画面の短かい方の長さを取得
   const minDimension = Math.min(window.innerWidth, window.innerHeight);
   // 画像のアスペクト比
-  const aspectRatio = sample.width / sample.height;
+  const aspectRatio = sampleW / sampleH;
   // 画像の長い方を画面の短い方の長さの0.3倍にする
-  if (sample.width > sample.height) {
+  if (sampleW > sampleH) {
     return {
       width: minDimension * 0.3,
       height: (minDimension * 0.3) / aspectRatio,
@@ -67,6 +103,7 @@ const onMouseDown = (evt: MouseEvent | TouchEvent) => {
   const isMouseEvent = evt instanceof MouseEvent;
   const x = isMouseEvent ? (evt as MouseEvent).clientX : (evt as TouchEvent).touches[0].clientX;
   const y = isMouseEvent ? (evt as MouseEvent).clientY : (evt as TouchEvent).touches[0].clientY;
+
   if (x >= imgRect.value.left && x <= imgRect.value.right && y >= imgRect.value.top && y <= imgRect.value.bottom) {
     isDragging.value = true;
     startAnimation();
@@ -74,7 +111,10 @@ const onMouseDown = (evt: MouseEvent | TouchEvent) => {
 };
 const onMouseUp = () => {
   isDragging.value = false;
-  stopAnimation();
+  //stopAnimation();
+  if (body) {
+    body.applyForce(new CANNON.Vec3(0, -50, 0), body.position);
+  }
 };
 
 const onMousemove = (evt: MouseEvent | TouchEvent) => {
@@ -106,30 +146,41 @@ const animate = () => {
     console.error("Canvas provider is not available");
     return;
   }
+
   if (img) {
     const canvas = provider.canvas;
     const ctx = provider.context;
-    const imageSize = calculateImageSize(img);
+    const imageSize = calculateImageSize(img.width, img.height);
+
+    let x: number = mouse.value.x;
+    let y: number = mouse.value.y;
+    if (body) {
+      if (isDragging.value) {
+        body.position.x = (mouse.value.x - canvas.width / 2) / 50; // Convert from pixels to physics units
+        body.position.y = (canvas.height - mouse.value.y - canvas.height / 2) / 50; // Convert and flip y-axis
+        body.velocity.set(0, 0, 0); // Reset velocity to prevent drifting
+        body.angularVelocity.set(0, 0, 0); // Reset angular velocity
+      } else {
+        // Physics step
+        if (world) world.step(1 / 60);
+        // Update image position from physics body
+        x = body.position.x * 50 + canvas.width / 2; // Convert from physics units to pixels
+        y = canvas.height - (body.position.y * 50 + canvas.height / 2); // Convert and flip y-axis
+      }
+    }
     imgRect.value = {
-      left: mouse.value.x - imageSize.width / 2,
-      top: mouse.value.y - imageSize.height / 2,
-      right: mouse.value.x + imageSize.width / 2,
-      bottom: mouse.value.y + imageSize.height / 2,
+      left: x - imageSize.width / 2,
+      top: y - imageSize.height / 2,
+      right: x + imageSize.width / 2,
+      bottom: y + imageSize.height / 2,
     };
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(
-      img,
-      mouse.value.x - imageSize.width / 2,
-      mouse.value.y - imageSize.height / 2,
-      imageSize.width,
-      imageSize.height
-    );
+    ctx.drawImage(img, imgRect.value.left, imgRect.value.top, imageSize.width, imageSize.height);
   }
   requestId = requestAnimationFrame(animate);
 };
 
 const loadImage = () => {
-  console.log("loadImage");
   if (!provider || !provider.canvas || !provider.context) {
     console.error("Canvas provider is not available");
     return;
@@ -145,7 +196,7 @@ const loadImage = () => {
 
     const x = (canvas.width - img.width) / 2;
     const y = (canvas.height - img.height) / 2;
-    const imageSize = calculateImageSize(img);
+    const imageSize = calculateImageSize(img.width, img.height);
     // 初期化
     imgRect.value = {
       left: x,
@@ -157,12 +208,14 @@ const loadImage = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, x, y, imageSize.width, imageSize.height);
 
+    setupPhysics();
+
     //ctx.font = "20px Arial";
     //ctx.fillStyle = "white";
     //ctx.fillText("My Canvas Image", 10, 30);
 
     // アニメーション関数の呼び出し
-    // animate();
+    animate();
   };
 
   img.onerror = function () {
@@ -215,8 +268,10 @@ const onResize = () => {
   if (provider && provider.context && img && imgRect.value) {
     const ctx = provider.context;
     const canvas = provider.canvas;
-    const imageSize = calculateImageSize(img);
-
+    const imageSize = calculateImageSize(
+      imgRect.value.right - imgRect.value.left,
+      imgRect.value.bottom - imgRect.value.top
+    );
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, imgRect.value.left, imgRect.value.top, imageSize.width, imageSize.height);
   }

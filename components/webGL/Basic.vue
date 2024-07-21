@@ -1,12 +1,12 @@
 <template>
-  <div ref="container" class="layer-on-canvas"></div>
+  <div ref="layerContainer" class="layer-on-canvas"></div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, inject } from "vue";
 import * as THREE from "three";
 
-const container = ref<HTMLDivElement | null>(null);
+const layerContainer = ref<HTMLDivElement | null>(null);
 let scene: THREE.Scene;
 let cube: THREE.Mesh;
 let animationFrameId: number | null = null;
@@ -112,9 +112,11 @@ defineExpose({
 .layer-on-canvas {
   /* position: absolute; カメラコントロールが効かなくなる*/
   top: 0;
-  left: 0;
+  /* left:0; カルーセルで１番左へ配置される*/
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
 }
 </style>

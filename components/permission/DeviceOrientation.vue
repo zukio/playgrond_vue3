@@ -7,12 +7,13 @@
     <button v-if="!isChecked" id="permissionButton" @click="requestPermission" class="btn btn-primary">
       センサーの使用を許可する
     </button>
-    <p v-if="isChecked">デバイスオリエンテーション: {{ isDeviceMotionAvailable ? "利用可能" : "利用不可" }}</p>
+    <p v-if="isChecked">デバイスオリエンテーション: {{ isDeviceOrientationAvailable ? "利用可能" : "利用不可" }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, type Ref } from "vue";
+//import type { Permission } from "@/types";
 
 // Vueで親コンポーネントへクリックイベントをEmitする関数
 const emit = defineEmits(["click"]);
@@ -24,20 +25,19 @@ interface WindowWithDeviceOrientation extends Window {
   };
 }
 
-const isChecked = ref(false);
-const isDeviceOrientationAvailable = ref(false);
-const isDeviceMotionAvailable = ref(false);
+const isChecked = computed(() => useUser().isDeviceOrientationAvailable.isChecked);
+const isDeviceOrientationAvailable = computed(() => useUser().isDeviceOrientationAvailable.available);
+const isDeviceMotionAvailable = computed(() => useUser().isDeviceMotionAvailable.available);
 
 // クリックイベントを受けてデバイスの許可をリクエスト
 async function requestPermission() {
   checkDeviceMotionAvailability();
   await checkDeviceOrientationAvailability();
-  isChecked.value = true;
-  emit("click", isDeviceOrientationAvailable.value, isDeviceMotionAvailable.value);
+  emit("click", useUser().isDeviceOrientationAvailable, useUser().isDeviceMotionAvailable);
   // responcedPermission(rotation, acceleration)
 }
 
-const checkDeviceOrientationAvailability = async () => {
+const checkDeviceOrientationAvailability = async (): Promise<boolean> => {
   const windowWithOrientation = window as WindowWithDeviceOrientation;
 
   // iOS 13+ での許可要求
@@ -45,19 +45,20 @@ const checkDeviceOrientationAvailability = async () => {
     try {
       const permission = await windowWithOrientation.DeviceOrientationEvent.requestPermission();
       if (permission === "granted") {
-        isDeviceMotionAvailable.value = await checkOrientation();
+        useUser().setDeviceOrientationAvailable(await checkOrientation());
       } else {
         console.warn("DeviceOrientation permission denied");
-        isDeviceMotionAvailable.value = false;
+        useUser().setDeviceOrientationAvailable(false);
       }
     } catch (error) {
       console.error("Error requesting DeviceOrientation permission:", error);
-      isDeviceMotionAvailable.value = false;
+      useUser().setDeviceOrientationAvailable(false);
     }
   } else {
     // 他のデバイスでの可用性チェック
-    isDeviceMotionAvailable.value = await checkOrientation();
+    useUser().setDeviceOrientationAvailable(await checkOrientation());
   }
+  return useUser().isDeviceOrientationAvailable.available;
 };
 
 // 一般的なデバイスオリエンテーションの可用性チェック
@@ -99,12 +100,12 @@ const checkDeviceMotionAvailability = async () => {
   // DeviceMotionEventが存在する
   if ("DeviceMotionEvent" in window) {
     // 使用可能かチェック
-    isDeviceMotionAvailable.value = await checkMotion();
+    useUser().setDeviceMotionAvailable(await checkMotion());
   } else {
     console.warn("DeviceMotion not supported");
-    isDeviceMotionAvailable.value = false;
+    useUser().setDeviceMotionAvailable(false);
   }
-  return;
+  return useUser().isDeviceMotionAvailable.available;
 };
 
 const checkMotion = () => {
@@ -134,11 +135,10 @@ const checkMotion = () => {
 };
 
 defineExpose({
-  isChecked,
   isDeviceMotionAvailable,
   isDeviceOrientationAvailable,
   requestPermission,
-  checkOrientation,
+  checkDeviceOrientationAvailability,
 });
 </script>
 

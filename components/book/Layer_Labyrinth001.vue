@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-const illustPath001 = new URL("@/assets/images/unevencircle002.png", import.meta.url).href;
+const illustPath001 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
 
 // ===============================================
 // components: レイヤー | loading spinner

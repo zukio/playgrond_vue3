@@ -35,9 +35,6 @@ const components = [
 const activeIndex = computed(() => {
   return carouselRef?.currentIndex || 0;
 });
-const getActiveComponent = () => {
-  return carouselRef.value?.pageRefs[activeIndex.value] || null;
-};
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
 const onPageChanged = (newIndex: number, oldIndex: number) => {

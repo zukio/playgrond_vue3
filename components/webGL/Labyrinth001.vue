@@ -104,6 +104,7 @@ const provider = inject("provider") as {
 // const gameContainer = ref<HTMLDivElement | null>(null)
 const permissionGranted = ref(false);
 const permissionComponent = ref<any | null>(null);
+const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false });
 
 let scene: Scene;
 let ball: Mesh;
@@ -115,16 +116,15 @@ let ballBody: CANNON.Body;
 
 let ballImage: any;
 
-const illustPath001 = new URL("@/assets/images/unevencircle002.png", import.meta.url).href;
+const illustPath001 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
 const modelImagePath = new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href;
-const ballImagePath = new URL("@/assets/images/unevencircle001.png", import.meta.url).href;
+const ballImagePath = new URL("@/assets/images/labyrinth/unevencircle001.png", import.meta.url).href;
 const fixRatio = true; // 縦横比を画面サイズに合わせて調整するか
 const useOrbit = false; // カメラコントロールを使用するか
 const isDebug = false; // デバッグモード
 
 const model = ref<GLTF | null>(null);
 const modelBoundingBox = ref<Box3 | null>(null);
-const rotation = ref<Rotation>({ alpha: 0, beta: 0, gamma: 0, absolute: false });
 const goalReached = ref(false);
 const goalLost = ref(false);
 
@@ -589,15 +589,18 @@ const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
   permissionGranted.value = true;
 };
 
-onMounted(async () => {
+async function checkOrientationAvailability() {
   if (permissionComponent.value) {
     try {
-      const isAvailable = await permissionComponent.value.checkOrientation();
+      const isAvailable = await permissionComponent.value.checkDeviceOrientationAvailability();
       handlePermissionResponse(isAvailable);
     } catch (error) {
       console.error("Error checking orientation availability:", error);
     }
   }
+}
+onMounted(async () => {
+  await checkOrientationAvailability();
   initGame();
 });
 
@@ -624,9 +627,11 @@ defineExpose({
 .layer-on-canvas {
   // position: absolute;
   top: 0;
-  left: 0;
+  /* left: 0; カルーセルで１番左へ配置される */
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
   z-index: 1; /* canvasの上 */
   touch-action: none; /* canvasのカメラコントロールが効かなくなるため指定しない */
 }

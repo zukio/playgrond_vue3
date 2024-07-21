@@ -77,7 +77,7 @@ const hideAllTooltips = () => {
   tooltipRefs.value.forEach((tooltip) => {
     tooltip.hide();
   });
-  ctx.revert();
+  if (ctx) ctx.revert();
 };
 // -----------------------------------------------
 // Animation
@@ -113,7 +113,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   hideAllTooltips();
-  ctx.revert(); // <- Easy Cleanup!
+  if (ctx) ctx.revert(); // <- Easy Cleanup!
 });
 
 defineExpose({

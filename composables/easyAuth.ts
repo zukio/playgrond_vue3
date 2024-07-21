@@ -1,9 +1,8 @@
 // ===============================================
 // 画面のロック（ローディング）状態を管理する
-
+// ===============================================
 import { useState } from "nuxt/app";
 
-// ===============================================
 export const useEasyAuth = () => {
   const easyPassword = useState<string>("easyPassword", () => "password");
   const easyAuthenticated = useState<boolean>("easyAuthenticated", () => false);

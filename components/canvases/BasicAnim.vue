@@ -1,5 +1,5 @@
 <template>
-  <div class="m-0 p-0 content-wrapper">
+  <div class="layer-on-canvas">
     <div class="boad boad01" v-if="props.pageIndex == 0">
       <div class="textline">
         <p v-for="(script, index) in scripts[props.pageIndex ?? 0]" :key="script" :class="{ h1: index == 0 }">
@@ -185,10 +185,13 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.content-wrapper {
+.layer-on-canvas {
   position: absolute;
+  /* left:0; カルーセルで１番左へ配置される*/
   top: 0;
   width: 100svw;
+  margin: 0;
+  padding: 0;
 }
 
 h2.center {
