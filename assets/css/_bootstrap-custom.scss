@@ -18,3 +18,6 @@
 .bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before, .bs-tooltip-left .tooltip-arrow::before{
 	border-left-color: #FDE047 !important;
 }
+.modal-backdrop {
+  z-index: 9 !important;
+}

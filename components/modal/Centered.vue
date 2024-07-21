@@ -76,7 +76,15 @@ onUnmounted(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
+/* カルーセル内のモーダル用カスタムスタイル */
+.modal {
+  width: 100% !important;
+  max-width: 100svw;
+  left: auto !important;
+  // z-index: 10 !important;
+}
+
 .modal-dialog.modal-dialog-centered {
   .modal-header,
   .modal-footer {

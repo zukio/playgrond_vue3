@@ -52,20 +52,7 @@ import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
 import type { Rotation } from "@/types";
 import Modal from "@/components/book/Layer_Labyrinth001.vue";
-// -----------------------------------------------
-// Page Visibility
-const isActive = ref(false);
-const onSlideVisible = () => {
-  console.log("Element is now visible!");
-  isActive.value = true;
-};
-const onSlideHidden = () => {
-  console.log("Element is now hidden!");
-  isActive.value = false;
-};
-const activeSelf = (activate: boolean) => {
-  //
-};
+
 // -----------------------------------------------
 // data
 const props = defineProps<{
@@ -505,7 +492,7 @@ const initGame = async () => {
 };
 
 const animate = () => {
-  if (goalReached.value || goalLost.value) {
+  if (!isActive.value || goalReached.value || goalLost.value) {
     return;
   }
   if (!provider.camera) return;
@@ -527,11 +514,15 @@ const animate = () => {
 };
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   // ポートレイトとランドスケープの切り替えはヘルパー関数内で行われている
   handleOrientation(event, rotation);
 };
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
   // debugOrientation (event, 5, rotation)
 
@@ -587,6 +578,26 @@ async function checkOrientationAvailability() {
     }
   }
 }
+// -----------------------------------------------
+// Page Visibility
+const isActive = ref(false);
+const onSlideVisible = () => {
+  console.log("Element is now visible!");
+  isActive.value = true;
+  restartGame();
+};
+const onSlideHidden = () => {
+  console.log("Element is now hidden!");
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  isActive.value = false;
+};
+const activeSelf = (activate: boolean) => {
+  //
+};
+// -----------------------------------------------
+// Lifecycle
 onMounted(async () => {
   await checkOrientationAvailability();
   initGame();

@@ -47,6 +47,7 @@
       ref="completeModal"
       title="じゅんびができた！"
       description="まっちをさがしにいこう"
+      class="clamp-in-page"
     >
       <template #image>
         <img :src="illustPath005" width="200" height="auto" />
@@ -579,6 +580,7 @@ defineExpose({
   top: 0;
   /* left:0; カルーセルで１番左へ配置される*/
   width: 100%;
+  max-width: 100svw;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -628,5 +630,19 @@ h2.center {
       font-size: 2.6rem;
     }
   }
+}
+.clamp-in-page {
+  width: 100svw !important;
+  max-width: 100svw;
+}
+/* カルーセル内のモーダル用カスタムスタイル */
+.modal-dialog {
+  width: 100svw !important;
+  max-width: 100svw;
+}
+/* モーダルの背景がカルーセルの外に出ないようにする */
+.modal-backdrop {
+  width: 100svw !important;
+  position: absolute;
 }
 </style>

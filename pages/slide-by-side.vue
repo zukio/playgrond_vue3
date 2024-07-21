@@ -136,7 +136,7 @@ const startTour = () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .close-btn {
   position: absolute;
   top: 20px;
@@ -147,6 +147,6 @@ const startTour = () => {
   border: #fff 2px solid;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 3;
+  z-index: 11; // モーダルより上
 }
 </style>

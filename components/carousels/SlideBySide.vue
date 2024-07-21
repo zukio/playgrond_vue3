@@ -17,7 +17,7 @@
         >
       </div>
     </div>
-    <div id="attention" class="position-absolute w-100" v-if="showAttention">
+    <!--div id="attention" class="position-absolute w-100" v-if="showAttention">
       <Bubble
         :title="!endStop ? '>' : '<'"
         :duration="intervalSeconds"
@@ -25,7 +25,7 @@
         class="position-absolute top-50 z-3"
         :class="endStop ? 'start-0' : 'end-0'"
       />
-    </div>
+    </div-->
   </section>
 </template>
 
@@ -154,6 +154,7 @@ defineExpose({
   padding: 0;
   // overflow: hidden; /* 横スクロールバーを非表示にする */
   scrollbar-width: none; /* Firefox のスクロールバーを非表示にする */
+  z-index: 10;
 }
 .page-container::-webkit-scrollbar {
   display: none; /* Webkit ブラウザのスクロールバーを非表示にする */
