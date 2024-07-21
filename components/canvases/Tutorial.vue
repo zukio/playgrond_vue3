@@ -1,5 +1,5 @@
 <template>
-  <div ref="layerContainer" class="layer-on-canvas">
+  <div v-visible="onVisible" ref="layerContainer" class="layer-on-canvas">
     <PermissionButton v-if="!permissionGranted.isChecked" @click="handlePermissionResponse" ref="permissionComponent" />
     <div class="boad boad01" v-if="props.pageIndex == 0">
       <div class="textline">
@@ -67,7 +67,6 @@ const illustPath002 = new URL("@/assets/images/utils/touch.png", import.meta.url
 const illustPath003 = new URL("@/assets/images/utils/gyroscope.png", import.meta.url).href;
 const illustPath004 = new URL("@/assets/images/utils/key_arrow.png", import.meta.url).href;
 const illustPath005 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
-
 const provider = inject("provider") as {
   context: CanvasRenderingContext2D;
   canvas: HTMLCanvasElement;
@@ -76,6 +75,11 @@ const provider = inject("provider") as {
 const props = defineProps<{
   pageIndex: number;
 }>();
+
+const onVisible = () => {
+  console.log("Element is now visible!");
+  // Perform any actions you need when the element becomes visible
+};
 
 const scripts = [["さいしょは みんな はなれてたんだ", "ぱっち と まっち を さがしにいこう！"]];
 
