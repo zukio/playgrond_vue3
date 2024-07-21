@@ -1,20 +1,12 @@
 <template>
   <div class="m-0 p-0 w-100 h-100">
     <div v-if="succeed" class="info">
-      <div class="modal-content rounded">
-        <div class="modal-body text-center">
-          <div class="mt-3 mb-5 text-black">
-            <h3>{{ title }}</h3>
-            <p style="white-space: pre-wrap">{{ description }}</p>
-          </div>
-          <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
-          <div>
-            <button class="btn btn-dark me-2" @click="($event) => emit('onContinue', false)">まんぞく</button>
-            <button class="btn btn-warning fw-bold" @click="($event) => emit('onContinue', true)">
-              あきらめない！
-            </button>
-          </div>
-        </div>
+      <h3 class="text-center">まっち と であえなかった</h3>
+      <p style="white-space: pre-wrap">{{ randomLottery.name }} と であった</p>
+      <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
+      <div>
+        <button class="btn btn-dark me-2" @click="($event) => emit('onContinue', false)">まんぞく</button>
+        <button class="btn btn-primary" @click="($event) => emit('onContinue', true)">あきらめない！</button>
       </div>
     </div>
     <div v-if="failed" class="info">
@@ -80,11 +72,6 @@ const randomLottery = computed(() => {
   const randomIndex = Math.floor(Math.random() * lottery.length);
   return lottery[randomIndex];
 });
-const title = "まっち と であえなかった";
-const description = computed(() => {
-  return randomLottery.value.msg;
-});
-import IllustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
 // -----------------------------------------------
 // LifeCycle
 onMounted(() => {});
@@ -102,7 +89,7 @@ onUnmounted(() => {});
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   animation: slideinTopDown 0.3s ease-in-out;
   text-align: center;
   touch-action: auto;
@@ -115,14 +102,5 @@ onUnmounted(() => {});
   100% {
     transform: translateY(0);
   }
-}
-/* カルーセル内のモーダル用カスタムスタイル */
-.modal-content {
-  margin: auto;
-  width: auto;
-  max-width: calc(100svw - 2rem); /* 左右に少し余白を持たせる */
-  background-color: aliceblue;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  padding: 30px;
 }
 </style>

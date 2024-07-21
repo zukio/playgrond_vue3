@@ -1,10 +1,19 @@
 <template>
-  <div class="m-0 p-3 w-100 h-100" ref="gsapCanvas">
-    <div class="info">
-      <h3 class="text-center">{{ title }}</h3>
-      <p style="white-space: pre-wrap">{{ description }}</p>
-      <slot></slot>
-    </div>
+  <div class="m-0 p-0 w-100 h-100">
+    <Transition name="fade" mode="out-in">
+      <div v-if="modalVisible" class="info" ref="modalElement">
+        <div class="modal-content rounded">
+          <div class="modal-body text-center">
+            <div class="mt-3 mb-5 text-black">
+              <h3 class="fw-semibold">{{ title }}</h3>
+              <p style="white-space: pre-wrap">{{ description }}</p>
+            </div>
+            <slot name="image"></slot>
+            <slot name="button"></slot>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -29,15 +38,32 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["onContinue"]);
 // -----------------------------------------------
 // data
+const modalElement: Ref<HTMLElement | null> = ref(null);
+const modalVisible: Ref<boolean> = ref(false);
+
+const toggle = () => {
+  modalVisible.value = !modalVisible.value;
+};
+const show = () => {
+  modalVisible.value = true;
+};
+const hide = () => {
+  modalVisible.value = false;
+};
+const dispose = () => {
+  if (ctx) ctx.revert(); // <- Easy Cleanup!
+  modalVisible.value = false;
+};
+// -----------------------------------------------
+// gsap
 let tl: gsap.core.Timeline;
 let ctx: gsap.Context;
 const gsapCanvas = ref<HTMLElement | null>(null);
-// -----------------------------------------------
-// LifeCycle
 function tween() {
   tl.play();
 }
-
+// -----------------------------------------------
+// LifeCycle
 onMounted(() => {
   if (ctx) ctx.revert();
   if (!gsapCanvas.value) return;
@@ -48,6 +74,10 @@ onUnmounted(() => {
 });
 
 defineExpose({
+  toggle,
+  show,
+  hide,
+  dispose,
   tween,
 });
 </script>
@@ -76,5 +106,14 @@ defineExpose({
   100% {
     transform: translateY(0);
   }
+}
+/* カルーセル内のモーダル用カスタムスタイル */
+.modal-content {
+  margin: auto;
+  width: auto;
+  max-width: calc(100svw - 2rem); /* 左右に少し余白を持たせる */
+  background-color: aliceblue;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+  padding: 30px;
 }
 </style>

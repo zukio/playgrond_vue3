@@ -15,7 +15,7 @@
             />
           </mask>
         </defs>
-        <rect width="100%" height="100%" fill="rgba(0, 0, 0, 0.8)" mask="url(#highlight-mask)" />
+        <rect width="100%" height="100%" fill="rgba(0, 0, 0, 0.7)" mask="url(#highlight-mask)" />
       </svg>
 
       <div class="highlight" :style="highlightStyle"></div>

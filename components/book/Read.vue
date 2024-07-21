@@ -50,6 +50,7 @@
 </template>
 
 <script setup lang="ts">
+import TooltipMultiple from "@/components/tooltip/BootstrapMultiple.vue";
 import gsap from "gsap";
 // -----------------------------------------------
 // data

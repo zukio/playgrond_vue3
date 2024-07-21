@@ -50,7 +50,9 @@
       class="clamp-in-page"
     >
       <template #image>
-        <img :src="illustPath005" width="200" height="auto" />
+        <TooltipStatic class="position-relative" title="これがまっち" placement="bottom">
+          <img :src="illustPath005" width="200" height="auto" />
+        </TooltipStatic>
       </template>
     </CompleteOverlay>
   </div>
@@ -65,8 +67,7 @@ import { handleOrientation, debugOrientation } from "@/utils/orientation"; // �
 import { useConfetti } from "@/components/canvases/class/Confetti";
 import HighlightOverlay from "@/components/lock/Highlight.vue";
 import PermissionButton from "@/components/permission/DeviceOrientation.vue";
-// import CompleteOverlay from "@/components/book/Layer_Labyrinth000.vue";
-import CompleteOverlay from "@/components/modal/Centered.vue";
+import CompleteOverlay from "@/components/book/Layer_Labyrinth000.vue";
 import illustPath001 from "@/assets/images/labyrinth/unevencircle003.png";
 import illustPath002 from "@/assets/images/utils/touch.png";
 import illustPath003 from "@/assets/images/utils/gyroscope.png";
@@ -250,6 +251,7 @@ const updateGravity = () => {
 };
 
 // -----------------------------------------------
+// Canvas Animation Helper
 const calculateImageSize = (sampleW: number, sampleH: number): { width: number; height: number } => {
   // 画面の短かい方の長さを取得
   const minDimension = Math.min(window.innerWidth, window.innerHeight);
@@ -268,20 +270,6 @@ const calculateImageSize = (sampleW: number, sampleH: number): { width: number; 
     };
   }
 };
-
-const startAnimation = () => {
-  if (animationId === null) {
-    animate();
-  }
-};
-
-const stopAnimation = () => {
-  if (animationId !== null) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
-  }
-};
-
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 const keepInBounds = (
@@ -298,6 +286,21 @@ const keepInBounds = (
   y = clamp(y, halfHeight, canvas.height - halfHeight);
 
   return { x, y };
+};
+
+// ----------------
+// Canvas Animation
+const startAnimation = () => {
+  if (animationId === null) {
+    animate();
+  }
+};
+
+const stopAnimation = () => {
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
 };
 
 const animate = () => {
@@ -636,13 +639,4 @@ h2.center {
   max-width: 100svw;
 }
 /* カルーセル内のモーダル用カスタムスタイル */
-.modal-dialog {
-  width: 100svw !important;
-  max-width: 100svw;
-}
-/* モーダルの背景がカルーセルの外に出ないようにする */
-.modal-backdrop {
-  width: 100svw !important;
-  position: absolute;
-}
 </style>
