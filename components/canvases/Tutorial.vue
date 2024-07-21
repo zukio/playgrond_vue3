@@ -57,16 +57,16 @@ import * as CANNON from "cannon-es";
 import type { Rotation, Permission } from "@/types";
 import { debounce } from "@/utils/";
 import { handleOrientation, debugOrientation } from "@/utils/orientation"; // 改善されたユーティリティ関数をインポート
-import { useConfetti } from "@/components/canvases/class/Confetti.vue";
+import { useConfetti } from "@/components/canvases/class/Confetti";
 import HighlightOverlay from "@/components/lock/Highlight.vue";
 import PermissionButton from "@/components/permission/DeviceOrientation.vue";
 // import CompleteOverlay from "@/components/book/Layer_Labyrinth000.vue";
 import CompleteOverlay from "@/components/modal/Centered.vue";
-const illustPath001 = new URL("@/assets/images/labyrinth/unevencircle003.png", import.meta.url).href;
-const illustPath002 = new URL("@/assets/images/utils/touch.png", import.meta.url).href;
-const illustPath003 = new URL("@/assets/images/utils/gyroscope.png", import.meta.url).href;
-const illustPath004 = new URL("@/assets/images/utils/key_arrow.png", import.meta.url).href;
-const illustPath005 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
+import illustPath001 from "@/assets/images/labyrinth/unevencircle003.png";
+import illustPath002 from "@/assets/images/utils/touch.png";
+import illustPath003 from "@/assets/images/utils/gyroscope.png";
+import illustPath004 from "@/assets/images/utils/key_arrow.png";
+import illustPath005 from "@/assets/images/labyrinth/unevencircle002.png";
 const provider = inject("provider") as {
   context: CanvasRenderingContext2D;
   canvas: HTMLCanvasElement;

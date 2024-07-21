@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-const illustPath001 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
+import illustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
 
 // ===============================================
 // components: レイヤー | loading spinner
@@ -39,11 +39,13 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["onContinue"]);
 // -----------------------------------------------
 // data
+const config = useRuntimeConfig();
+const baseUrl = config ? config.public.baseUrl : "/";
 const lottery = [
   {
     msg: "100回叩くと壊れる壁があったとする。\nでもみんな何回叩けば壊れるかわからないから、90回まで来ていても途中であきらめてしまう。",
     name: "ぜったいに ささない はち",
-    src: new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href,
+    src: `${baseUrl}images/DigitalBook_maze_01_0708.png`,
   },
   {
     msg: "勝ち負けなんか、ちっぽけなこと。\n大事なことは、本気だったかどうかだ！",

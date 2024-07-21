@@ -26,7 +26,8 @@
     "src/**/*.vue",
     "src/**/**/*.vue",
     "components/**/*.vue",
-    "pages/**/*.vue"
+    "pages/**/*.vue",
+    "components/canvases/class/Confetti.ts"
   ],
   "exclude": ["src/**/__tests__/*"]
 }

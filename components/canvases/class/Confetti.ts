@@ -1,6 +1,3 @@
-<template></template>
-
-<script lang="ts">
 import { ref, onUnmounted } from "vue";
 
 interface Confetti {
@@ -116,7 +113,7 @@ class ConfettiSystem {
   }
 }
 
-export default function useConfetti() {
+export function useConfetti() {
   const confettiSystem = ref<ConfettiSystem | null>(null);
 
   function initConfetti(baseSpeed = 2, speedRange = 3, fadeOut = false) {
@@ -151,4 +148,3 @@ export default function useConfetti() {
     isConfettiActive: () => confettiSystem.value?.isActive() ?? false,
   };
 }
-</script>

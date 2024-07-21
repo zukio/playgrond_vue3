@@ -26,7 +26,6 @@ const props = defineProps({
 });
 const currentIndex = ref(0);
 const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
-// const modelPath = new URL('@/assets/models/labyrinth001.glb', import.meta.url).href
 
 const components = [
   { component: Basic, props: { modelPath: modelPath }, ref: null as any },

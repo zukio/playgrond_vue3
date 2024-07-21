@@ -60,37 +60,6 @@ const continuation = (userChoice: boolean) => {
     showFanfare();
   }
 };
-//const lottery = [
-//  {
-//    msg: "100回叩くと壊れる壁があったとする。\nでもみんな何回叩けば壊れるかわからないから、90回まで来ていても途中であきらめてしまう。",
-//    name: "ぜったいに ささない はち",
-//    src: new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href,
-//  },
-//  {
-//    msg: "勝ち負けなんか、ちっぽけなこと。\n大事なことは、本気だったかどうかだ！",
-//    name: "おしゃれな ありんこ",
-//  },
-//  {
-//    msg: "ベストを尽くすだけでは勝てない。\n僕は勝ちにいく。",
-//    name: "ちいさな くじら",
-//  },
-//  {
-//    msg: "いまの僕には勢いがある",
-//    name: "みみ の ながい ねこ",
-//  },
-//  {
-//    msg: "ミスをすることは悪いことじゃない。\nそれは上達するためには必ず必要なもの。\nただし、同じミスはしないこと。",
-//    name: "けむくじゃら の いぬ",
-//  },
-//  {
-//    msg: "予想外の人生になっても、そのとき、幸せだったらいいんじゃないかな。",
-//    name: "まるい しっぽ の くま",
-//  },
-//];
-//const randomLottery = computed(() => {
-//  const randomIndex = Math.floor(Math.random() * lottery.length);
-//  return lottery[randomIndex];
-//});
 
 const provider = inject("provider") as {
   context: WebGL2RenderingContext;
@@ -116,9 +85,9 @@ let ballBody: CANNON.Body;
 
 let ballImage: any;
 
-const illustPath001 = new URL("@/assets/images/labyrinth/unevencircle002.png", import.meta.url).href;
-const modelImagePath = new URL("@/assets/images/DigitalBook_maze_01_0708.png", import.meta.url).href;
-const ballImagePath = new URL("@/assets/images/labyrinth/unevencircle001.png", import.meta.url).href;
+const illustPath001 = "@/assets/images/labyrinth/unevencircle002.png";
+const modelImagePath = "@/assets/images/DigitalBook_maze_01_0708.png";
+const ballImagePath = "@/assets/images/labyrinth/unevencircle001.png";
 const fixRatio = true; // 縦横比を画面サイズに合わせて調整するか
 const useOrbit = false; // カメラコントロールを使用するか
 const isDebug = false; // デバッグモード
