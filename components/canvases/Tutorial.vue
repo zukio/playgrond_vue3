@@ -11,10 +11,10 @@
     <HighlightOverlay
       v-if="showOverlay"
       :highlightRect="{
-        x: imgRect?.left ?? 0,
-        y: imgRect?.top ?? 0,
-        width: imgRect?.right - imgRect?.left ?? 0,
-        height: imgRect?.bottom - imgRect?.top ?? 0,
+        x: imgRect?.left || 0,
+        y: imgRect?.top || 0,
+        width: imgRect?.right - imgRect?.left || 0,
+        height: imgRect?.bottom - imgRect?.top || 0,
       }"
       :title="propsTiltle"
       :description="propsDescription"

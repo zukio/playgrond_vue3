@@ -116,7 +116,7 @@ class ConfettiSystem {
   }
 }
 
-export function useConfetti() {
+export default function useConfetti() {
   const confettiSystem = ref<ConfettiSystem | null>(null);
 
   function initConfetti(baseSpeed = 2, speedRange = 3, fadeOut = false) {
