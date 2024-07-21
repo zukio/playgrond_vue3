@@ -1,5 +1,9 @@
 <template>
-  <div class="layer-on-canvas" :style="{ position: isDebug ? 'relative' : 'absolute' }">
+  <div
+    v-visible="{ onVisible: onSlideVisible, onHidden: onSlideHidden, threshold: 0.8 }"
+    class="layer-on-canvas"
+    :style="{ position: isDebug ? 'relative' : 'absolute' }"
+  >
     <Permission v-if="!permissionGranted" @click="handlePermissionResponse" ref="permissionComponent" />
     <Modal @onContinue="continuation" :succeed="goalReached" :failed="goalLost" />
 
@@ -48,7 +52,22 @@ import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
 import type { Rotation } from "@/types";
 import Modal from "@/components/book/Layer_Labyrinth001.vue";
-
+// -----------------------------------------------
+// Page Visibility
+const isActive = ref(false);
+const onSlideVisible = () => {
+  console.log("Element is now visible!");
+  isActive.value = true;
+};
+const onSlideHidden = () => {
+  console.log("Element is now hidden!");
+  isActive.value = false;
+};
+const activeSelf = (activate: boolean) => {
+  //
+};
+// -----------------------------------------------
+// data
 const props = defineProps<{
   modelPath: string;
 }>();
@@ -85,9 +104,9 @@ let ballBody: CANNON.Body;
 
 let ballImage: any;
 
-const illustPath001 = "@/assets/images/labyrinth/unevencircle002.png";
-const modelImagePath = "@/assets/images/DigitalBook_maze_01_0708.png";
-const ballImagePath = "@/assets/images/labyrinth/unevencircle001.png";
+import illustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
+import modelImagePath from "@/assets/images/DigitalBook_maze_01_0708.png";
+import ballImagePath from "@/assets/images/labyrinth/unevencircle001.png";
 const fixRatio = true; // 縦横比を画面サイズに合わせて調整するか
 const useOrbit = false; // カメラコントロールを使用するか
 const isDebug = false; // デバッグモード
@@ -584,9 +603,7 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
   }
 });
-const activeSelf = (activate: boolean) => {
-  //
-};
+
 defineExpose({
   activeSelf,
 });

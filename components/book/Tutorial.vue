@@ -1,5 +1,9 @@
 <template>
-  <div v-visible="onVisible" ref="layerContainer" class="layer-on-canvas">
+  <div
+    v-visible="{ onVisible: onSlideVisible, onHidden: onSlideHidden, threshold: 0.8 }"
+    ref="layerContainer"
+    class="layer-on-canvas"
+  >
     <PermissionButton v-if="!permissionGranted.isChecked" @click="handlePermissionResponse" ref="permissionComponent" />
     <div class="boad boad01" v-if="props.pageIndex == 0">
       <div class="textline">
@@ -67,6 +71,27 @@ import illustPath002 from "@/assets/images/utils/touch.png";
 import illustPath003 from "@/assets/images/utils/gyroscope.png";
 import illustPath004 from "@/assets/images/utils/key_arrow.png";
 import illustPath005 from "@/assets/images/labyrinth/unevencircle002.png";
+// -----------------------------------------------
+// Page Visibility
+const isActive = ref(false);
+const onSlideVisible = () => {
+  console.log("Element is now visible!");
+  isActive.value = true;
+};
+const onSlideHidden = () => {
+  console.log("Element is now hidden!");
+  isActive.value = false;
+};
+const activeSelf = (activate: boolean) => {
+  // animateCancel();
+  stopAnimation();
+  resetTour();
+  if (activate) {
+    startAnimation();
+  }
+};
+// -----------------------------------------------
+// data
 const provider = inject("provider") as {
   context: CanvasRenderingContext2D;
   canvas: HTMLCanvasElement;
@@ -75,11 +100,6 @@ const provider = inject("provider") as {
 const props = defineProps<{
   pageIndex: number;
 }>();
-
-const onVisible = () => {
-  console.log("Element is now visible!");
-  // Perform any actions you need when the element becomes visible
-};
 
 const scripts = [["さいしょは みんな はなれてたんだ", "ぱっち と まっち を さがしにいこう！"]];
 
@@ -488,6 +508,8 @@ const onResize = () => {
 const debouncedOnResize = debounce(onResize, 200);
 
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   handleOrientation(event, rotation);
   updateGravity();
   // チュートリアル（ジャイロで動かす）を達成
@@ -495,6 +517,8 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
 };
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
+  // 非表示時は処理しない
+  if (!isActive.value) return;
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
   debugOrientation(event, 90, rotation);
   updateGravity();
@@ -534,15 +558,6 @@ onUnmounted(() => {
   animateCancel();
   window.removeEventListener("resize", debouncedOnResize);
 });
-
-const activeSelf = (activate: boolean) => {
-  // animateCancel();
-  stopAnimation();
-  resetTour();
-  if (activate) {
-    startAnimation();
-  }
-};
 
 defineExpose({
   activeSelf,

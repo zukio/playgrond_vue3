@@ -102,7 +102,11 @@ onMounted(() => {
   console.log("Mounted: Carousel");
   const { $bootstrap }: any = useNuxtApp();
   const carousel = new $bootstrap.Carousel(document.getElementById("carouselExample"));
-
+  carousel.addEventListener("slide.bs.carousel", (event: any) => {
+    const slideIndex = event.to;
+    // slideIndexを使用して特定のスライドに対する処理を実行
+    console.log(slideIndex);
+  });
   if (carouselSelf.value) {
     carouselContainer.value = carouselSelf.value.parentElement;
     if (carouselContainer.value) {

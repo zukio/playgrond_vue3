@@ -1,6 +1,6 @@
 <template>
   <div class="p-0 m-0">
-    <CanvasContainer class="p-0 m-0" :flexStyle="activeContainerStyle">
+    <CanvasContainer :flexStyle="activeContainerStyle">
       <component
         :is="activeComponent.component"
         v-bind="activeComponent.props"
@@ -12,9 +12,10 @@
 
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
-import CanvasContainer from "@/components/canvases/CanvasContainer.vue";
-import Tutorial from "@/components/canvases/Tutorial.vue";
-import WelcomeAnim from "@/components/canvases/WelcomeAnim.vue";
+import CanvasContainer from "@/components/webGL/WebglContainer.vue";
+import Basic from "@/components/webGL/Basic.vue";
+import Labyrinth001 from "@/components/book/Labyrinth001.vue";
+const config = useRuntimeConfig();
 
 const props = defineProps({
   contentNo: {
@@ -23,31 +24,29 @@ const props = defineProps({
     default: 0,
   },
 });
-
-const backgroundColor = (index: number) => {
-  const array = ["211, 97, 21", "211, 97, 21", "211, 97, 21"];
-  return array[index];
-};
 const currentIndex = ref(0);
+const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
+
 const components = [
-  { component: Tutorial, props: { pageIndex: 0 }, ref: null },
-  { component: WelcomeAnim, props: { pageIndex: 0 }, ref: null },
+  { component: Labyrinth001, props: { modelPath: modelPath }, ref: null as any },
+  { component: Basic, props: { modelPath: modelPath }, ref: null as any },
 ];
-const activeComponent: any = computed(() => {
+const activeComponent = computed(() => {
   return components[currentIndex.value] || null;
 });
 const activeContainerStyle = computed(() => {
+  let innerWidth = "100%";
+  let innerHeight = "100%";
+
   let flexStyle: CSSProperties = {
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100svh",
-    // overflow: "hidden",
-    zIndex: -1,
+    width: innerWidth,
+    height: innerHeight,
+    overflow: "hidden",
   };
-  if (currentIndex.value !== 2) {
-    //flexStyle.position = "absolute";
-  }
+  // position固定にするとカメラオービットが効かないのでコメントアウト
+  //if (contentNo.value !== 2) {
+  //  flexStyle.position = 'absolute'
+  //}
   return flexStyle;
 });
 // -----------------------------------------------
@@ -57,17 +56,17 @@ const activeSelf = (activate: boolean) => {
     activeComponent.value.ref.activeSelf(activate);
   }
 };
-// -----------------------------------------------
-// Lyfe Cycle
 onMounted(() => {
-  console.log("Mounted: CanvasView");
-  currentIndex.value = 0;
+  console.log("Mounted: ThreeView");
+  // currentIndex.value = props.contentNo || 0;
 });
 defineExpose({
-  currentIndex,
-  activeComponent,
   activeSelf,
 });
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.canvas-wrapper {
+  position: relative;
+}
+</style>

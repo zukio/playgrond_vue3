@@ -1,5 +1,9 @@
 <template>
-  <section class="boxes-container" ref="main">
+  <section
+    v-visible="{ onVisible: onSlideVisible, onHidden: onSlideHidden, threshold: 0.8 }"
+    class="boxes-container"
+    ref="main"
+  >
     <div class="boad boad01" v-if="pageIndex == 0">
       <div class="textline">
         <p v-for="(script, index) in scripts[props.pageIndex ?? 0]" :key="script" :class="{ h1: index == 0 }">
@@ -46,15 +50,23 @@
 </template>
 
 <script setup lang="ts">
-// import BootstrapTooltip from "@/components/tooltip/Multiple.vue";
 import gsap from "gsap";
-
+// -----------------------------------------------
+// Page Visibility
+const isActive = ref(false);
+const onSlideVisible = () => {
+  console.log("Element is now visible!");
+  isActive.value = true;
+};
+const onSlideHidden = () => {
+  console.log("Element is now hidden!");
+  isActive.value = false;
+};
+// -----------------------------------------------
+// data
 const props = defineProps<{
   pageIndex: number;
 }>();
-const onPageIndexChanged = (pageIndex: number) => {
-  // console.log(pageIndex, props.pageIndex);
-};
 
 const scripts = [
   ["はじめまして", "ぼっちだよ！"],

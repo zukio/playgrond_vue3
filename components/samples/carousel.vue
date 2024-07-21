@@ -9,8 +9,8 @@
 import Carousel from "@/components/carousels/Carousel.vue";
 import Page1 from "@/components/book/Read.vue";
 import Page2 from "@/components/book/Read.vue";
-import CanvasView from "@/pages/canvas-view.vue";
-import ThreeView from "@/pages/three-view.vue"; // Page1とPage2は同じコンポーネントと仮定
+import CanvasView from "@/components/samples/canvas-view.vue";
+import ThreeView from "@/components/samples/three-view.vue"; // Page1とPage2は同じコンポーネントと仮定
 
 const carouselRef: any = ref(null);
 const components = [
