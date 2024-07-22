@@ -5,6 +5,7 @@
         :is="activeComponent.component"
         v-bind="activeComponent.props"
         :ref="(el: any) => (components[currentIndex].ref = el)"
+        @custom-event="handleCustomEvent"
       ></component>
     </CanvasContainer>
   </div>
@@ -13,7 +14,6 @@
 <script setup lang="ts">
 import { ref, computed, type CSSProperties } from "vue";
 import CanvasContainer from "@/components/webGL/WebglContainer.vue";
-import Basic from "@/components/webGL/Basic.vue";
 import Labyrinth001 from "@/components/book/Labyrinth001.vue";
 const config = useRuntimeConfig();
 
@@ -24,12 +24,17 @@ const props = defineProps({
     default: 0,
   },
 });
+
+// Emitsの定義
+const emit = defineEmits(["customEvent"]);
+
 const currentIndex = ref(0);
 const modelPath = `${config.public.baseUrl}models/DigitalBook_maze_01_0708.glb`;
 
 const components = [
   { component: Labyrinth001, props: { modelPath: modelPath }, ref: null as any },
-  { component: Basic, props: { modelPath: modelPath }, ref: null as any },
+  { component: Labyrinth001, props: { modelPath: modelPath }, ref: null as any },
+  { component: Labyrinth001, props: { modelPath: modelPath }, ref: null as any },
 ];
 const activeComponent = computed(() => {
   return components[currentIndex.value] || null;
@@ -51,6 +56,9 @@ const activeContainerStyle = computed(() => {
 });
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
+const handleCustomEvent = (eventData: any) => {
+  emit("customEvent", eventData);
+};
 const activeSelf = (activate: boolean) => {
   if (activeComponent.value && activeComponent.value.ref && activeComponent.value.ref.activeSelf) {
     activeComponent.value.ref.activeSelf(activate);
@@ -58,7 +66,10 @@ const activeSelf = (activate: boolean) => {
 };
 onMounted(() => {
   console.log("Mounted: ThreeView");
-  // currentIndex.value = props.contentNo || 0;
+  currentIndex.value = props.contentNo || 0;
+});
+onBeforeUnmount(() => {
+  // console.log("Unmount: CanvasView");
 });
 defineExpose({
   activeSelf,

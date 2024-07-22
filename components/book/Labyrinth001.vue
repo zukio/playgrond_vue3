@@ -52,12 +52,18 @@ import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
 import type { Rotation } from "@/types";
 import Modal from "@/components/book/Layer_Labyrinth001.vue";
+import illustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
+import modelImagePath from "@/assets/images/DigitalBook_maze_01_0708.png";
+import ballImagePath from "@/assets/images/labyrinth/unevencircle001.png";
 
 // -----------------------------------------------
 // data
 const props = defineProps<{
   modelPath: string;
 }>();
+
+// Emitsの定義
+const emit = defineEmits(["customEvent"]);
 
 const continuation = (userChoice: boolean) => {
   if (userChoice) {
@@ -91,9 +97,6 @@ let ballBody: CANNON.Body;
 
 let ballImage: any;
 
-import illustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
-import modelImagePath from "@/assets/images/DigitalBook_maze_01_0708.png";
-import ballImagePath from "@/assets/images/labyrinth/unevencircle001.png";
 const fixRatio = true; // 縦横比を画面サイズに合わせて調整するか
 const useOrbit = false; // カメラコントロールを使用するか
 const isDebug = false; // デバッグモード
@@ -102,7 +105,7 @@ const model = ref<GLTF | null>(null);
 const modelBoundingBox = ref<Box3 | null>(null);
 const goalReached = ref(false);
 const goalLost = ref(false);
-
+// -----------------------------------------------
 const initPhysics = () => {
   world = new CANNON.World();
   world.gravity.set(0, 0, 0);
@@ -465,7 +468,8 @@ const showFanfare = () => {
 
   setTimeout(() => {
     // 自動で次のページに遷移
-    window.location.href = "/next-page"; // 適切なURLに変更してください
+    // window.location.href = "/next-page"; // 適切なURLに変更してください
+    emit("customEvent", "fanfare");
   }, 5000); // 5秒後に自動遷移
 };
 
@@ -490,7 +494,7 @@ const initGame = async () => {
   window.addEventListener("resize", setupCamera);
   animate();
 };
-
+// -----------------------------------------------
 const animate = () => {
   if (!isActive.value || goalReached.value || goalLost.value) {
     return;
@@ -512,7 +516,7 @@ const animate = () => {
     provider.renderer.render(scene, provider.camera);
   }
 };
-
+// -----------------------------------------------
 const localHandleOrientation = (event: DeviceOrientationEvent) => {
   // 非表示時は処理しない
   if (!isActive.value) return;

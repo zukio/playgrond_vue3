@@ -28,7 +28,8 @@
     "components/**/*.vue",
     "pages/**/*.vue",
     "components/canvases/class/Confetti.ts",
-    "_old/Confetti001.vue"
+    "_old/Confetti001.vue",
+    "_old/Layer_Labyrinth001 copy.vue"
   ],
   "exclude": ["src/**/__tests__/*"]
 }

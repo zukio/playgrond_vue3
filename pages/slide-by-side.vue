@@ -1,7 +1,7 @@
 <template>
   <div class="p-0 m-0">
     <img src="/images/player/close.png" alt="Close" class="close-btn" @click="sendMessageToParent()" />
-    <Carousel :pages="components" ref="carouselRef" @onPageChanged="onPageChanged" />
+    <Carousel :pages="components" ref="carouselRef" @onPageChanged="onPageChanged" @customEvent="handleCustomEvent" />
   </div>
 </template>
 
@@ -11,7 +11,6 @@
 // ===============================================
 import Carousel from "@/components/carousels/SlideBySide.vue";
 import Page1 from "@/components/book/Read.vue";
-import Page2 from "@/components/book/Read.vue";
 import CanvasView from "@/components/samples/canvas-view.vue";
 import ThreeView from "@/components/samples/three-view.vue"; // Page1とPage2は同じコンポーネントと仮定
 
@@ -27,62 +26,29 @@ onBeforeUnmount(() => {
 const carouselRef: any = ref(null);
 const components = [
   { component: Page1, props: { pageIndex: 0 } },
-  { component: Page2, props: { pageIndex: 1 } },
+  { component: Page1, props: { pageIndex: 1 } },
   { component: CanvasView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 0 } },
-  //{{ component: ThreeView, props: { contentNo: 1 } },
+  { component: ThreeView, props: { contentNo: 1 } },
+  { component: ThreeView, props: { contentNo: 2 } },
+  { component: CanvasView, props: { contentNo: 1 } },
 ];
 const activeIndex = computed(() => {
   return carouselRef?.currentIndex || 0;
 });
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
+const handleCustomEvent = (eventData: any) => {
+  console.log("Custom event received in parent:", eventData);
+  // ここでイベントデータを処理します
+};
 const onPageChanged = (newIndex: number, oldIndex: number) => {
   // ツアー中なら次のステップへ
   if (tourDriver) tourDriver.moveNext();
-  // 各ページの処理を実行
-  switch (newIndex) {
-    case 0:
-    case 1:
-      setGsapAnimation(newIndex, oldIndex);
-      break;
-    case 2:
-    case 3:
-      const newPageInstance = carouselRef.value.pageRefs[newIndex];
-      if (newPageInstance && newPageInstance.activeSelf) {
-        newPageInstance.activeSelf(true);
-      }
-      break;
-    default:
-      break;
-  }
-  switch (oldIndex) {
-    case 0:
-    case 1:
-      hideAllTooltips(newIndex, oldIndex);
-      break;
-    default:
-      break;
-  }
-};
-
-const hideAllTooltips = (newIndex: number, oldIndex: number) => {
-  if (!carouselRef.value) return;
-  const oldPageInstance = carouselRef.value.pageRefs[oldIndex]; // Get the instance of the current page
-  if (oldPageInstance && oldPageInstance.hideAllTooltips) {
-    oldPageInstance.hideAllTooltips();
-  } else {
-    console.log("pageInstance is not found");
-  }
-};
-
-const setGsapAnimation = (newIndex: number, oldIndex: number) => {
-  if (!carouselRef.value) return;
+  // 表示中のコンポーネントに連絡
   const newPageInstance = carouselRef.value.pageRefs[newIndex];
-  if (newPageInstance && newPageInstance.setAnimation) {
-    newPageInstance.setAnimation();
-  } else {
-    console.log("pageInstance is not found");
+  if (newPageInstance && newPageInstance.activeSelf) {
+    newPageInstance.activeSelf(true);
   }
 };
 

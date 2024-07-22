@@ -2,7 +2,12 @@
   <section>
     <div class="page-container" ref="pageContainer">
       <div v-for="(page, index) in pages" :key="index" class="page">
-        <component :is="page.component" v-bind="page.props" :ref="(el: any) => (pageRefs[index] = el)"></component>
+        <component
+          :is="page.component"
+          v-bind="page.props"
+          :ref="(el: any) => (pageRefs[index] = el)"
+          @custom-event="handleCustomEvent"
+        ></component>
       </div>
     </div>
     <div class="position-absolute w-100 top-50 d-flex justify-content-between">
@@ -17,7 +22,8 @@
         >
       </div>
     </div>
-    <!--div id="attention" class="position-absolute w-100" v-if="showAttention">
+    <!-- Reminder -->
+    <div id="attention" class="position-absolute w-100" v-if="showAttention">
       <Bubble
         :title="!endStop ? '>' : '<'"
         :duration="intervalSeconds"
@@ -25,21 +31,25 @@
         class="position-absolute top-50 z-3"
         :class="endStop ? 'start-0' : 'end-0'"
       />
-    </div-->
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import { useSwipeDetection } from "@/utils/swipeDetection";
 import Bubble from "@/components/tooltip/GsapAttention.vue";
+import { useSwipeDetection } from "@/utils/swipeDetection";
 
 const props = defineProps<{
   pages: any[];
 }>();
 
 // Emitsの定義
-const emit = defineEmits(["onPageChanged"]);
+const emit = defineEmits(["onPageChanged", "customEvent"]);
+
+const handleCustomEvent = (eventData: any) => {
+  emit("customEvent", eventData);
+};
 
 const pageContainer = ref<HTMLElement | null>(null);
 const currentIndex = ref(0);
