@@ -39,7 +39,6 @@ $arrow-size: 5px;
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: var(--bs-font-sans-serif);
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
