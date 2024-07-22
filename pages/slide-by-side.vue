@@ -33,14 +33,18 @@ const components = [
   { component: ThreeView, props: { contentNo: 2 } },
   { component: CanvasView, props: { contentNo: 1 } },
 ];
-const activeIndex = computed(() => {
-  return carouselRef?.currentIndex || 0;
+const currentIndex = computed(() => {
+  return useUser().readingState.currentIndex;
 });
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
 const handleCustomEvent = (eventData: any) => {
-  console.log("Custom event received in parent:", eventData);
+  console.log("Custom event received in parent:", currentIndex.value, eventData);
   // ここでイベントデータを処理します
+  switch (eventData.type) {
+    default:
+      break;
+  }
 };
 const onPageChanged = (newIndex: number, oldIndex: number) => {
   // ツアー中なら次のステップへ

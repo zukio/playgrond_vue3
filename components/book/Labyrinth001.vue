@@ -65,6 +65,10 @@ const props = defineProps<{
 // Emitsの定義
 const emit = defineEmits(["customEvent"]);
 
+const currentIndex = computed(() => {
+  return useUser().readingState.currentIndex;
+});
+
 const continuation = (userChoice: boolean) => {
   if (userChoice) {
     restartGame();
@@ -463,14 +467,14 @@ const checkGoal = () => {
 };
 
 const showFanfare = () => {
-  goalReached.value = true;
+  goalReached.value = false;
   goalLost.value = false;
 
   setTimeout(() => {
     // 自動で次のページに遷移
-    // window.location.href = "/next-page"; // 適切なURLに変更してください
-    emit("customEvent", "fanfare");
-  }, 5000); // 5秒後に自動遷移
+    useUser().setCurrentIndex(currentIndex.value + 1);
+    // emit("customEvent", { type: "next" });
+  }, 500); // 5秒後に自動遷移
 };
 
 const restartGame = () => {

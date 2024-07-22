@@ -44,7 +44,7 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .attention {
-  width: 50px;
+  width: 25px;
   height: 50px;
   position: absolute;
   display: flex;
@@ -56,8 +56,14 @@ onBeforeUnmount(() => {
   opacity: 1;
   font-size: 2rem;
   margin: 0;
-  padding: 0 0 0 0;
+  padding: 0;
   touch-action: none;
   user-select: none;
+  &.left {
+    left: 30px;
+  }
+  &.right {
+    right: 30px;
+  }
 }
 </style>

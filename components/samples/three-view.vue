@@ -57,6 +57,7 @@ const activeContainerStyle = computed(() => {
 // -----------------------------------------------
 // コンポーネント切り替え(Mount/Unmount)処理
 const handleCustomEvent = (eventData: any) => {
+  console.log("親へ届け", eventData);
   emit("customEvent", eventData);
 };
 const activeSelf = (activate: boolean) => {

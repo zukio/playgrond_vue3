@@ -29,7 +29,7 @@
         :duration="intervalSeconds"
         @close="showAttention = false"
         class="position-absolute top-50 z-3"
-        :class="endStop ? 'start-0' : 'end-0'"
+        :class="endStop ? 'left' : 'right'"
       />
     </div>
   </section>
@@ -39,7 +39,8 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import Bubble from "@/components/tooltip/GsapAttention.vue";
 import { useSwipeDetection } from "@/utils/swipeDetection";
-
+// -----------------------------------------------
+// data
 const props = defineProps<{
   pages: any[];
 }>();
@@ -50,13 +51,18 @@ const emit = defineEmits(["onPageChanged", "customEvent"]);
 const handleCustomEvent = (eventData: any) => {
   emit("customEvent", eventData);
 };
-
+// -----------------------------------------------
+// カルーセル
 const pageContainer = ref<HTMLElement | null>(null);
-const currentIndex = ref(0);
 const pageRefs = ref<Array<HTMLElement | null>>([]); // Array to hold references to page components
-//const activeComponent: any = computed(() => {
-//  return pageRefs.value ? pageRefs.value[currentIndex.value] || null : null;
-//});
+
+const currentIndex = computed(() => {
+  return useUser().readingState.currentIndex;
+});
+watch(currentIndex, (newIndex, oldIndex) => {
+  updatePagePosition(oldIndex);
+});
+
 const startStop = computed(() => {
   return currentIndex.value === 0;
 });
@@ -64,6 +70,22 @@ const endStop = computed(() => {
   return currentIndex.value === props.pages.length - 1;
 });
 
+function moveNext() {
+  if (currentIndex.value < props.pages.length - 1) {
+    // ページ移動先：進む
+    useUser().setCurrentIndex(currentIndex.value + 1);
+    // ページ移動元（進む前のページ）
+    // updatePagePosition(currentIndex.value - 1);
+  }
+}
+function movePrev() {
+  if (currentIndex.value > 0) {
+    // ページ移動先：戻る
+    useUser().setCurrentIndex(currentIndex.value - 1);
+    // ページ移動元（戻る前のページ）
+    // updatePagePosition(currentIndex.value + 1);
+  }
+}
 // -----------------------------------------------
 // Reminder
 const timmer = ref<NodeJS.Timeout | null>(null);
@@ -84,17 +106,10 @@ const localClearInterval = () => {
 // -----------------------------------------------
 // Swipe
 const handleSwipe = (direction: string) => {
-  const oldIndex = currentIndex.value;
   if (direction === "left") {
-    if (currentIndex.value < props.pages.length - 1) {
-      currentIndex.value++;
-      updatePagePosition(oldIndex);
-    }
+    moveNext();
   } else if (direction === "right") {
-    if (currentIndex.value > 0) {
-      currentIndex.value--;
-      updatePagePosition(oldIndex);
-    }
+    movePrev();
   }
 };
 
@@ -148,6 +163,8 @@ onBeforeUnmount(() => {
 defineExpose({
   currentIndex,
   pageRefs,
+  moveNext,
+  movePrev,
 });
 </script>
 

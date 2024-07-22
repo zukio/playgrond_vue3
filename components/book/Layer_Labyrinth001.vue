@@ -1,6 +1,6 @@
 <template>
   <div class="m-0 p-0 w-100 h-100">
-    <div v-if="succeed" class="info">
+    <div v-if="failed" class="info">
       <div class="modal-content rounded">
         <div class="modal-body text-center">
           <div class="mt-3 mb-5 text-black">
@@ -17,11 +17,11 @@
         </div>
       </div>
     </div>
-    <div v-if="failed" class="info">
+    <div v-else-if="succeed" class="info">
       <h3 class="text-center" style="white-space: pre-wrap">まっち と であえた！</h3>
       <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
       <div>
-        <a class="btn btn-dark me-2" href="slide-by-side">次へ</a>
+        <button class="btn btn-dark" @click="($event) => emit('onContinue', false)">つぎはぼっちだ</button>
       </div>
     </div>
   </div>
