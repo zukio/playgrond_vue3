@@ -6,23 +6,6 @@
   >
     <Permission v-if="!permissionGranted" @click="handlePermissionResponse" ref="permissionComponent" />
     <Modal @onContinue="continuation" :succeed="goalReached" :failed="goalLost" />
-
-    <!--div v-if="goalLost" class="info">
-      <h3 class="text-center">まま と であえなかった</h3>
-      <p style="white-space: pre-wrap">{{ randomLottery.name }} と であった</p>
-      <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
-      <div>
-        <button class="btn btn-dark me-2" @click="showFanfare">まんぞく</button>
-        <button class="btn btn-primary" @click="restartGame">あきらめない！</button>
-      </div>
-    </div>
-    <div v-if="goalReached" class="info">
-      <h3 class="text-center" style="white-space: pre-wrap">まま と であえた！</h3>
-      <img :src="illustPath001" alt="shuzo" width="300" height="auto" />
-      <div>
-        <a class="btn btn-dark me-2" href="slide-by-side">次へ</a>
-      </div>
-    </div-->
   </div>
 </template>
 
@@ -45,6 +28,8 @@ import {
   PlaneGeometry,
   MeshBasicMaterial,
   TextureLoader,
+  SRGBColorSpace,
+  MeshStandardMaterial,
 } from "three";
 import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as CANNON from "cannon-es";
@@ -126,9 +111,9 @@ const initScene = async () => {
 
   if (provider.renderer) {
     provider.renderer.setSize(window.innerWidth, window.innerHeight);
-    provider.renderer.setClearColor(0xf0f0f0); // レンダラーの背景色も設定
+    // provider.renderer.setClearColor(0xf0f0f0); // レンダラーの背景色も設定
   }
-  // setupLight();
+  setupLight();
   // モデル（ステージ）を読み込み
   model.value = await loadLabyrinthAsync();
   // モデル（ステージ）に重ねる画像を読み込み
@@ -274,8 +259,9 @@ const addImageToScene = (imagePath: string) => {
     scene.add(plane);
   });
   textureLoader.load(ballImagePath, (texture: any) => {
+    texture.encoding = SRGBColorSpace;
     const geometry = new PlaneGeometry(1, 1); // 画像の平面ジオメトリ
-    const material = new MeshBasicMaterial({ map: texture, transparent: true });
+    const material = new MeshStandardMaterial({ map: texture, transparent: true });
     const scale = 1.5;
     ballImage = new Mesh(geometry, material);
     ballImage.scale.set(scale, scale, scale); // 必要に応じてスケールを調整
@@ -470,11 +456,9 @@ const showFanfare = () => {
   goalReached.value = false;
   goalLost.value = false;
 
-  setTimeout(() => {
-    // 自動で次のページに遷移
-    useUser().setCurrentIndex(currentIndex.value + 1);
-    // emit("customEvent", { type: "next" });
-  }, 500); // 5秒後に自動遷移
+  // 自動で次のページに遷移
+  useUser().setCurrentIndex(currentIndex.value + 1);
+  // emit("customEvent", { type: "next" });
 };
 
 const restartGame = () => {

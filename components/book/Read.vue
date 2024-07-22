@@ -141,6 +141,8 @@ defineExpose({
 .boad {
   position: relative;
   background-color: #f0f0f0;
+  background-image: url("@/assets/images/labyrinth/texture_01.png");
+  background-repeat: repeat;
   display: flex;
   justify-content: center;
   align-items: center;

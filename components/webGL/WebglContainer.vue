@@ -127,6 +127,8 @@ canvas {
   width: 100%;
   height: 100%;
   z-index: -2;
+  background-color: #f0f0f0;
+  background-image: url("@/assets/images/labyrinth/texture_01.png");
 }
 
 @media screen and (max-width: 600px) {

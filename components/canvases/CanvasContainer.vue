@@ -80,6 +80,7 @@ canvas {
   display: block; /* This removes the default inline-block behavior */
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: #f0f0f0;
+  background-image: url("@/assets/images/labyrinth/texture_01.png");
 }
 </style>

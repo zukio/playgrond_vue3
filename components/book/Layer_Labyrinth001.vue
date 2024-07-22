@@ -102,7 +102,7 @@ onUnmounted(() => {});
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(113, 114, 109, 0.7);
   animation: slideinTopDown 0.3s ease-in-out;
   text-align: center;
   touch-action: auto;
@@ -121,7 +121,7 @@ onUnmounted(() => {});
   margin: auto;
   width: auto;
   max-width: calc(100svw - 2rem); /* 左右に少し余白を持たせる */
-  background-color: aliceblue;
+  background-color: #e3e3da;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
   padding: 30px;
 }

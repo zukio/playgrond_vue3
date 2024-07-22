@@ -165,6 +165,7 @@ function resetTour() {
   tourIndex.value = -1;
   showOverlay.value = false;
   tryCount.value = 0;
+  completeModal.value?.hide();
 }
 
 const { initConfetti, setConfettiCanvas, triggerConfetti, updateAndDrawConfetti, isConfettiActive } = useConfetti();
