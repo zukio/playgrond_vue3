@@ -13,7 +13,7 @@
       <div class="graphics">
         <TooltipMultiple title="ぼっちだよ" placement="top" :ref="setTooltipRef(0)">
           <img
-            src="/images/unevencircle001.png"
+            src="@/assets/images/labyrinth/unevencircle001.gif"
             alt="sample"
             class="diggle"
             id="charactor001"
@@ -31,17 +31,17 @@
       <div class="graphics" @click="toggleTimeline">
         <div id="charactor001">
           <TooltipMultiple title="ぼっちだよ" placement="bottom" :ref="setTooltipRef(0)">
-            <img src="/images/unevencircle001.png" alt="sample" class="diggle" />
+            <img src="@/assets/images/labyrinth/unevencircle001.gif" alt="sample" class="diggle" />
           </TooltipMultiple>
         </div>
         <div id="charactor002">
           <TooltipMultiple title="こっちがまっち" placement="bottom" :ref="setTooltipRef(1)">
-            <img src="/images/unevencircle002.png" alt="sample" class="diggle" />
+            <img src="@/assets/images/labyrinth/unevencircle002.gif" alt="sample" class="diggle" />
           </TooltipMultiple>
         </div>
         <div id="charactor003">
           <TooltipMultiple title="こっちがぱっち" placement="bottom" :ref="setTooltipRef(2)">
-            <img src="/images/unevencircle003.png" alt="sample" class="diggle" />
+            <img src="@/assets/images/labyrinth/unevencircle003.gif" alt="sample" class="diggle" />
           </TooltipMultiple>
         </div>
       </div>

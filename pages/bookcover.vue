@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <section id="book-intro">
-      <h2 class="title h1">デジタル絵本タイトル</h2>
+      <h2 class="title h1">あっちこっちぼっちどっち</h2>
       <p class="description">
         デジタル絵本の概要や説明を記述します。この絵本は素晴らしい内容で、子供から大人まで楽しめる作品です。クリックすると作品を始められます。
       </p>
@@ -117,7 +117,7 @@ section {
   transition: all 1s ease-in-out;
   transform-origin: center center;
   opacity: 1;
-  background: url("/images/dammy_bookcover.webp") no-repeat center center/cover;
+  background: url("@/assets/images/labyrinth/bookcover001.png") no-repeat center center/cover;
 }
 
 .poster-container.fullscreen {
