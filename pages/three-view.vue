@@ -35,20 +35,19 @@ const components = [
     props: {
       modelNo: 1,
       ballSize: 16,
-      ballPosition: { x: -10, y: 0, z: 0 },
-      wallPosition: { x: 1, y: 0.3, z: -0.1 },
+      ballPosition: { x: -7, y: 0, z: 0 },
+      wallPosition: { x: 1, y: 0.3, z: -0.1, scale: 1.035 },
       goalPosition: { x: 8, y: -0.5, z: 0 },
     },
     ref: null as any,
   },
-
   {
     component: Labyrinth,
     props: {
       modelNo: 2,
       ballSize: 12,
-      ballPosition: { x: -10, y: 0, z: 0 },
-      wallPosition: { x: 0.5, y: -0.2, z: -0.1 },
+      ballPosition: { x: -8, y: 0, z: 0 },
+      wallPosition: { x: 0.8, y: -0.3, z: -0.1, scale: 1.08 },
       goalPosition: { x: 8, y: -0.5, z: 0 },
     },
     ref: null as any,
@@ -57,9 +56,9 @@ const components = [
     component: Labyrinth,
     props: {
       modelNo: 3,
-      ballSize: 0.5,
+      ballSize: 5,
       ballPosition: { x: -7, y: 0, z: 0 },
-      wallPosition: { x: 0.2, y: 0.2, z: -0.1 },
+      wallPosition: { x: -0.1, y: 0.4, z: -0.1, scale: 1.03 },
       goalPosition: { x: 8, y: -0.5, z: 0 },
     },
     ref: null as any,

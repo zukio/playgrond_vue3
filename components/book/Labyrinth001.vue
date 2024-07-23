@@ -55,14 +55,14 @@ const props = withDefaults(
     modelNo: number;
     ballSize: number;
     ballPosition: { x: number; y: number; z: number };
-    wallPosition: { x: number; y: number; z: number };
+    wallPosition: { x: number; y: number; z: number; scale: number };
     goalPosition: { x: number; y: number; z: number };
   }>(),
   {
     modelNo: 1,
     ballSize: 16,
     ballPosition: () => ({ x: -10, y: 0, z: 0 }),
-    wallPosition: () => ({ x: 1, y: 0.3, z: -0.1 }),
+    wallPosition: () => ({ x: 1, y: 0.3, z: -0.1, scale: 1 }),
     goalPosition: () => ({ x: 8, y: -0.5, z: 0 }),
   }
 );
@@ -283,7 +283,7 @@ const addImageToScene = (imagePath: string) => {
     if (modelBoundingBox.value) {
       // モデル全体のバウンディングボックスを取得
       const size = modelBoundingBox.value.getSize(new Vector3());
-      const scale = 1;
+      const scale = props.wallPosition.scale;
       plane.scale.set(size.x * scale, size.y * scale, 1);
     }
     // plane.position.set(1.8, 0.3, -0.1); // モデルの背後に配置
@@ -479,8 +479,8 @@ const checkGoal = () => {
         ball.position.y < modelBoundingBox.value.min.y ||
         ball.position.y > modelBoundingBox.value.max.y
       ) {
-        goalLost.value = true;
-        cancelAnimationFrame(animationFrameId!);
+        // goalLost.value = true;
+        // cancelAnimationFrame(animationFrameId!);
       }
     }
   }
