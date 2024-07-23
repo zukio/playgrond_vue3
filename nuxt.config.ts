@@ -24,6 +24,7 @@ export default defineNuxtConfig({
     "@/assets/css/main.css",
   ],
   vite: {
+    assetsInclude: ["**/*.glb"],
     css: {
       preprocessorOptions: {
         scss: {

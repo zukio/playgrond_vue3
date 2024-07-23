@@ -37,21 +37,53 @@ import { defaultOrientationSign, handleOrientation } from "@/utils/orientation";
 import Permission from "@/components/permission/DeviceOrientation.vue";
 import type { Rotation } from "@/types";
 import Modal from "@/components/book/Layer_Labyrinth001.vue";
-import illustPath001 from "@/assets/images/labyrinth/unevencircle002.png";
-import modelImagePath from "@/assets/images/DigitalBook_maze_01_0708.png";
-import ballImagePath from "@/assets/images/labyrinth/unevencircle001.png";
+import modelImagePath001 from "@/assets/images/labyrinth/stage001.png";
+import modelImagePath002 from "@/assets/images/labyrinth/stage002.png";
+import modelImagePath003 from "@/assets/images/labyrinth/stage003.png";
+import ballImagePath001 from "@/assets/images/labyrinth/unevencircle001.png";
+import ballImagePath002 from "@/assets/images/labyrinth/unevencircle002.png";
+import ballImagePath003 from "@/assets/images/labyrinth/unevencircle003.png";
+const config = useRuntimeConfig();
+const modelPath001 = `${config.public.baseUrl}models/labyrinth/stage001.glb`;
+const modelPath002 = `${config.public.baseUrl}models/labyrinth/stage002.glb`;
+const modelPath003 = `${config.public.baseUrl}models/labyrinth/stage003.glb`;
 
 // -----------------------------------------------
 // data
-const props = defineProps<{
-  modelPath: string;
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelNo: number;
+    ballSize: number;
+    ballPosition: { x: number; y: number; z: number };
+    wallPosition: { x: number; y: number; z: number };
+    goalPosition: { x: number; y: number; z: number };
+  }>(),
+  {
+    modelNo: 1,
+    ballSize: 16,
+    ballPosition: () => ({ x: -10, y: 0, z: 0 }),
+    wallPosition: () => ({ x: 1, y: 0.3, z: -0.1 }),
+    goalPosition: () => ({ x: 8, y: -0.5, z: 0 }),
+  }
+);
 
 // Emitsの定義
 const emit = defineEmits(["customEvent"]);
-
+// カルーセルの現在のインデックスを取得
 const currentIndex = computed(() => {
   return useUser().readingState.currentIndex;
+});
+const modelPath = computed(() => {
+  const modelPathes = [modelPath001, modelPath002, modelPath003];
+  return modelPathes[props.modelNo - 1];
+});
+const modelImagePath = computed(() => {
+  const modelImagePaths = [modelImagePath001, modelImagePath002, modelImagePath003];
+  return modelImagePaths[props.modelNo - 1];
+});
+const ballImagePath = computed(() => {
+  const ballImagePaths = [ballImagePath001, ballImagePath002, ballImagePath003];
+  return ballImagePaths[props.modelNo - 1];
 });
 
 const continuation = (userChoice: boolean) => {
@@ -117,7 +149,7 @@ const initScene = async () => {
   // モデル（ステージ）を読み込み
   model.value = await loadLabyrinthAsync();
   // モデル（ステージ）に重ねる画像を読み込み
-  addImageToScene(modelImagePath);
+  addImageToScene(modelImagePath.value);
   // モデル（ステージ）サイズに合わせてカメラを初期設定
   setupCamera();
   if (useOrbit) {
@@ -147,8 +179,8 @@ const setLeapedCameraPosition = (mergin: Vector2 = new Vector2(0, 0)): { min: Ve
   );
   scalefactor = Math.abs(halfFrustum.y / modelBoundingBox.value.max.y);
   const maxBound = new Vector2(
-    modelBoundingBox.value.max.x * scalefactor - halfFrustum.x - mergin.y,
-    modelBoundingBox.value.max.y * scalefactor - halfFrustum.y - mergin.y
+    modelBoundingBox.value.max.x * scalefactor + halfFrustum.x + mergin.x,
+    modelBoundingBox.value.max.y * scalefactor + halfFrustum.y + mergin.y
   );
   return { min: minBound, max: maxBound };
 };
@@ -190,11 +222,11 @@ const loadLabyrinthAsync = () => {
   return new Promise<GLTF | null>((resolve) => {
     const loader = new GLTFLoader();
     loader
-      .loadAsync(props.modelPath)
+      .loadAsync(modelPath.value)
       .then((gltf: GLTF) => {
         labyrinth = gltf.scene;
         if (scene && labyrinth) {
-          const scalefactor = 5.4;
+          const scalefactor = 2;
           labyrinth.scale.set(scalefactor, scalefactor, scalefactor);
           labyrinth.position.set(0, 0, 0); // 中心に配置
           labyrinth.rotation.x = 0; // 水平に配置
@@ -254,15 +286,16 @@ const addImageToScene = (imagePath: string) => {
       const scale = 1;
       plane.scale.set(size.x * scale, size.y * scale, 1);
     }
-    plane.position.set(0.2, -0.1, -0.1); // モデルの背後に配置
+    // plane.position.set(1.8, 0.3, -0.1); // モデルの背後に配置
+    plane.position.set(props.wallPosition.x, props.wallPosition.y, props.wallPosition.z); // モデルの背後に配置
 
     scene.add(plane);
   });
-  textureLoader.load(ballImagePath, (texture: any) => {
+  textureLoader.load(ballImagePath.value, (texture: any) => {
     texture.encoding = SRGBColorSpace;
     const geometry = new PlaneGeometry(1, 1); // 画像の平面ジオメトリ
     const material = new MeshStandardMaterial({ map: texture, transparent: true });
-    const scale = 1.5;
+    const scale = props.ballSize > 5 ? props.ballSize / 10 : 1;
     ballImage = new Mesh(geometry, material);
     ballImage.scale.set(scale, scale, scale); // 必要に応じてスケールを調整
     ballImage.position.set(0, 0, 0); // 初期位置を設定
@@ -275,19 +308,20 @@ const setupBall = () => {
     return console.log("先にカメラを初期化してください");
   }
   // ボールをカメラの画額内に配置
-  const ballPosition = new Vector3(-7, 0, 0);
+  // const ballPosition = new Vector3(-10, 0, 0);
+  const ballPos = new Vector3(props.ballPosition.x, props.ballPosition.y, props.ballPosition.z);
   const leapPosition = setLeapedCameraPosition(new Vector2(3, 0));
-  const newX = leapPosition ? Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ballPosition.x)) : 0;
-  const newY = leapPosition ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPosition.y)) : 0;
-  //createBall(newX, newY, 0) // 画面サイズによって変な位置に
-  createBall(-7, 0, 0); // 画面サイズによっては見切れる
+  const newX = leapPosition ? Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ballPos.x)) : 0;
+  const newY = leapPosition ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPos.y)) : 0;
+  createBall(ballPos.x, ballPos.y, 0); // 画面サイズによって変な位置に
+  //createBall(-10, 0, 0); // 画面サイズによっては見切れる
   // ボールを捉えるようカメラの初期位置を調整
   provider.camera.position.set(newX, newY, 50);
   provider.camera.lookAt(newX, newY, 0);
 };
 
 const createBall = (posX: number, posY: number, posZ: number) => {
-  const ballGeometry = new SphereGeometry(0.5, 16, 16);
+  const ballGeometry = new SphereGeometry(0.5, props.ballSize, props.ballSize);
   const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 });
   ball = new Mesh(ballGeometry, ballMaterial);
   ball.scale.set(1, 1, 1);
@@ -302,7 +336,7 @@ const createBall = (posX: number, posY: number, posZ: number) => {
     shape: shape,
     position: new CANNON.Vec3(ball.position.x, ball.position.y, ball.position.z),
     linearDamping: 0.1, // 強めの減衰設定
-    angularDamping: 0.3, // 回転の減衰設定
+    angularDamping: 0.5, // 回転の減衰設定
   });
   // ボールとコライダーの間で衝突の反発係数（リスティチューション）を設定し、衝突後にボールが跳ね返るようにします。
   ballBody.material = new CANNON.Material();
@@ -429,11 +463,11 @@ const updateCameraPosition = () => {
 // ゴールに到達したかどうかのチェック
 const checkGoal = () => {
   const goalThreshold = 2; // ゴールとボールの距離のしきい値
-  const goalPosition = new Vector3(8, -0.5, 0); // ゴールの位置
+  // const goalPos = new Vector3(8, -0.5, 0); // ゴールの位置
 
   if (!goalReached.value) {
     // ゴールに十分近づいた
-    if (ball.position.distanceTo(goalPosition) < goalThreshold) {
+    if (ball.position.distanceTo(props.goalPosition) < goalThreshold) {
       goalReached.value = true;
       cancelAnimationFrame(animationFrameId!);
     }
