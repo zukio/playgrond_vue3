@@ -42,6 +42,16 @@ const handleCustomEvent = (eventData: any) => {
   console.log("Custom event received in parent:", currentIndex.value, eventData);
   // ここでイベントデータを処理します
   switch (eventData.type) {
+    case "next":
+      if (currentIndex.value < components.length - 1) {
+        carouselRef.value.moveNext();
+      }
+      break;
+    case "prev":
+      if (currentIndex.value > 0) {
+        carouselRef.value.movePrev();
+      }
+      break;
     default:
       break;
   }

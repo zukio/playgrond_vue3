@@ -314,7 +314,7 @@ const setupBall = () => {
   const newX = leapPosition ? Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ballPos.x)) : 0;
   const newY = leapPosition ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPos.y)) : 0;
   createBall(ballPos.x, ballPos.y, 0); // 画面サイズによって変な位置に
-  //createBall(-10, 0, 0); // 画面サイズによっては見切れる
+  //createBall(newX, newY, 0); // 画面サイズによっては見切れる
   // ボールを捉えるようカメラの初期位置を調整
   provider.camera.position.set(newX, newY, 50);
   provider.camera.lookAt(newX, newY, 0);
@@ -479,8 +479,8 @@ const checkGoal = () => {
         ball.position.y < modelBoundingBox.value.min.y ||
         ball.position.y > modelBoundingBox.value.max.y
       ) {
-        // goalLost.value = true;
-        // cancelAnimationFrame(animationFrameId!);
+        goalLost.value = true;
+        cancelAnimationFrame(animationFrameId!);
       }
     }
   }
@@ -489,9 +489,9 @@ const checkGoal = () => {
 const showFanfare = () => {
   goalReached.value = false;
   goalLost.value = false;
-
+  const currentIndex = useUser().readingState.currentIndex;
   // 自動で次のページに遷移
-  useUser().setCurrentIndex(currentIndex.value + 1);
+  useUser().setCurrentIndex(currentIndex + 1);
   // emit("customEvent", { type: "next" });
 };
 
