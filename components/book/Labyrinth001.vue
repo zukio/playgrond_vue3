@@ -40,9 +40,9 @@ import Modal from "@/components/book/Layer_Labyrinth001.vue";
 import modelImagePath001 from "@/assets/images/labyrinth/stage001.png";
 import modelImagePath002 from "@/assets/images/labyrinth/stage002.png";
 import modelImagePath003 from "@/assets/images/labyrinth/stage003.png";
-import ballImagePath001 from "@/assets/images/labyrinth/unevencircle001.png";
+import ballImagePath001 from "@/assets/images/labyrinth/unevencircle003.png";
 import ballImagePath002 from "@/assets/images/labyrinth/unevencircle002.png";
-import ballImagePath003 from "@/assets/images/labyrinth/unevencircle003.png";
+import ballImagePath003 from "@/assets/images/labyrinth/unevencircle001.png";
 const config = useRuntimeConfig();
 const modelPath001 = `${config.public.baseUrl}models/labyrinth/stage001.glb`;
 const modelPath002 = `${config.public.baseUrl}models/labyrinth/stage002.glb`;
@@ -489,6 +489,7 @@ const checkGoal = () => {
 const showFanfare = () => {
   goalReached.value = false;
   goalLost.value = false;
+  // 現在のページ（computedなので遷移中に値が変わらないように移す）
   const currentIndex = useUser().readingState.currentIndex;
   // 自動で次のページに遷移
   useUser().setCurrentIndex(currentIndex + 1);

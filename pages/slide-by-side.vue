@@ -11,6 +11,7 @@
 // ===============================================
 import Carousel from "@/components/carousels/SlideBySide.vue";
 import Page1 from "@/components/book/Read.vue";
+import Page3 from "@/components/book/Read003.vue";
 import CanvasView from "@/components/samples/canvas-view.vue";
 import ThreeView from "@/components/samples/three-view.vue"; // Page1とPage2は同じコンポーネントと仮定
 
@@ -31,6 +32,7 @@ const components = [
   { component: ThreeView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 1 } },
   { component: ThreeView, props: { contentNo: 2 } },
+  { component: Page3, props: { pageIndex: 3 } },
   { component: CanvasView, props: { contentNo: 1 } },
 ];
 const currentIndex = computed(() => {
@@ -51,6 +53,9 @@ const handleCustomEvent = (eventData: any) => {
       if (currentIndex.value > 0) {
         carouselRef.value.movePrev();
       }
+      break;
+    case "close":
+      sendMessageToParent();
       break;
     default:
       break;
