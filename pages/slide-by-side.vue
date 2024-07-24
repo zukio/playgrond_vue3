@@ -11,6 +11,7 @@
 // ===============================================
 import Carousel from "@/components/carousels/SlideBySide.vue";
 import Page1 from "@/components/book/Read.vue";
+import Page2 from "@/components/book/Read002.vue";
 import Page3 from "@/components/book/Read003.vue";
 import CanvasView from "@/components/samples/canvas-view.vue";
 import ThreeView from "@/components/samples/three-view.vue"; // Page1とPage2は同じコンポーネントと仮定
@@ -27,7 +28,7 @@ onBeforeUnmount(() => {
 const carouselRef: any = ref(null);
 const components = [
   { component: Page1, props: { pageIndex: 0 } },
-  { component: Page1, props: { pageIndex: 1 } },
+  { component: Page2, props: { pageIndex: 1 } },
   { component: CanvasView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 1 } },

@@ -131,30 +131,30 @@ const {
 } = useSwipeDetection(pageContainer, handleSwipe);
 
 onMounted(() => {
-  console.log("Mounted: Carousel(slide)");
   if (pageContainer.value) {
     pageContainer.value.addEventListener("mousedown", handleMouseDown);
     pageContainer.value.addEventListener("mousemove", handleMouseMove);
-    pageContainer.value.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mouseup", handleMouseUp);
     pageContainer.value.addEventListener("mouseleave", handleMouseLeave);
     pageContainer.value.addEventListener("touchstart", handleTouchStart);
     pageContainer.value.addEventListener("touchmove", handleTouchMove);
     pageContainer.value.addEventListener("touchend", handleTouchEnd);
+
     // Reminder
     localSetInterval();
   }
 });
 
 onBeforeUnmount(() => {
-  console.log("Unmount: Carousel(slide)");
   if (pageContainer.value) {
     pageContainer.value.removeEventListener("mousedown", handleMouseDown);
     pageContainer.value.removeEventListener("mousemove", handleMouseMove);
-    pageContainer.value.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("mouseup", handleMouseUp);
     pageContainer.value.removeEventListener("mouseleave", handleMouseLeave);
     pageContainer.value.removeEventListener("touchstart", handleTouchStart);
     pageContainer.value.removeEventListener("touchmove", handleTouchMove);
     pageContainer.value.removeEventListener("touchend", handleTouchEnd);
+
     // Reminder
     localClearInterval();
   }

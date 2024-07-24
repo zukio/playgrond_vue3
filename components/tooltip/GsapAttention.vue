@@ -57,13 +57,13 @@ onBeforeUnmount(() => {
   font-size: 2rem;
   margin: 0;
   padding: 0;
-  touch-action: none;
-  user-select: none;
+  //touch-action: none;
+  //user-select: none;
   &.left {
-    left: 30px;
+    left: 50px;
   }
   &.right {
-    right: 30px;
+    right: 50px;
   }
 }
 </style>

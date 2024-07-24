@@ -4,22 +4,28 @@
     class="boxes-container"
     ref="main"
   >
-    <div class="boad boad01">
-      <div class="textline">
+    <div class="boad boad02 row">
+      <div class="textline col-xl">
         <p v-for="(script, index) in scripts" :key="script" :class="{ h1: index == 0 }">
           {{ script }}
         </p>
       </div>
-      <div class="graphics">
-        <TooltipMultiple title="ぼっちだよ" placement="top" :ref="setTooltipRef(0)">
-          <img
-            src="@/assets/images/labyrinth/unevencircle001.gif"
-            alt="sample"
-            class="diggle"
-            id="charactor001"
-            @click="toggleTimeline"
-          />
-        </TooltipMultiple>
+      <div class="graphics" @click="toggleTimeline">
+        <div id="charactor001">
+          <TooltipMultiple title="ぼっちだよ" placement="bottom" :ref="setTooltipRef(0)">
+            <img src="@/assets/images/labyrinth/unevencircle001.gif" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div>
+        <div id="charactor002">
+          <TooltipMultiple title="こっちがまっち" placement="bottom" :ref="setTooltipRef(1)">
+            <img src="@/assets/images/labyrinth/unevencircle002.gif" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div>
+        <div id="charactor003">
+          <TooltipMultiple title="こっちがぱっち" placement="bottom" :ref="setTooltipRef(2)">
+            <img src="@/assets/images/labyrinth/unevencircle003.gif" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div>
       </div>
     </div>
   </section>
@@ -35,7 +41,7 @@ const props = defineProps<{
   pageIndex: number;
 }>();
 
-const scripts = ["はじめまして", "ぼっちだよ！"];
+const scripts = ["ぱっちと\nまっちと\nいつもいっしょ", "いったい いつから いっしょに いるんだろう？"];
 // -----------------------------------------------
 // Tooltip
 const tooltipRefs = ref<Array<any>>([]); // Array to hold references to tooltip components
@@ -70,7 +76,12 @@ const setAnimation = () => {
   gsapCtx = gsap.context((self) => {
     const boxes: HTMLElement[] = gsap.utils.toArray(".diggle");
     if (boxes.length > 0) {
-      gsapCtxTL = gsap.timeline().to(boxes[0], { x: 100, rotation: 360 }).reverse();
+      gsapCtxTL = gsap
+        .timeline()
+        .to(boxes[0], { x: 100, y: -130, rotation: 360 })
+        .to(boxes[1], { x: -100, y: 100, rotation: -360 }, "<")
+        .to(boxes[2], { x: -166 }, "<")
+        .reverse();
     }
   }, main.value); // <- Scope!
 };
@@ -89,7 +100,9 @@ const onSlideHidden = () => {
 // -----------------------------------------------
 // LifeCycle
 onMounted(() => {
-  setAnimation();
+  nextTick(() => {
+    setAnimation();
+  });
 });
 
 onUnmounted(() => {
@@ -122,22 +135,44 @@ defineExpose({
   padding: 0;
   color: black;
 
-  &.boad01 {
+  &.boad02 {
     .textline {
       position: absolute;
-      left: 10%;
-      top: 20%;
-      text-align: left;
+      right: 5%;
+      bottom: 10%;
+      text-align: right;
       white-space: pre-wrap;
-      // transform: translateY(-50%);
     }
     .graphics {
       position: absolute;
-      right: 15%;
-      bottom: 5%;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      // align-items: center;
+      // left: 3%;
+      top: 7%;
       #charactor001 {
-        width: 40svh;
-        height: 40svh;
+        margin-top: 10svh;
+        img {
+          width: 25svh;
+          max-width: calc(1.25 * 25svw);
+          height: auto;
+        }
+      }
+      #charactor002 {
+        img {
+          width: 33svh;
+          max-width: calc(1.25 * 33svw);
+          height: auto;
+        }
+      }
+      #charactor003 {
+        margin-right: 10svh;
+        img {
+          width: 40svh;
+          max-width: 50svw;
+          height: auto;
+        }
       }
     }
   }
