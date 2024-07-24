@@ -312,13 +312,39 @@ const setupBall = () => {
   const ballPos = new Vector3(props.ballPosition.x, props.ballPosition.y, props.ballPosition.z);
   const leapPosition = setLeapedCameraPosition(new Vector2(3, 0));
   const newX = leapPosition ? Math.max(leapPosition.min.x, Math.min(leapPosition.max.x, ballPos.x)) : 0;
-  const newY = leapPosition ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPos.y)) : 0;
+  //  Y軸固定につきコメントアウト
+  // const newY = leapPosition ? Math.max(leapPosition.min.y, Math.min(leapPosition.max.y, ballPos.y)) : 0;
   createBall(ballPos.x, ballPos.y, 0); // 画面サイズによって変な位置に
   //createBall(newX, newY, 0); // 画面サイズによっては見切れる
-  // ボールを捉えるようカメラの初期位置を調整
-  provider.camera.position.set(newX, newY, 50);
-  provider.camera.lookAt(newX, newY, 0);
+  // ボールを捉えるようカメラの初期位置を調整 // Y軸固定につきコメントアウト
+  //provider.camera.position.set(newX, newY, 50);
+  provider.camera.position.set(newX, 0, 50);
+  provider.camera.lookAt(ballPos.x, 0, 0);
 };
+
+/*const createBall = (posX: number, posY: number, posZ: number) => {
+  const ballGeometry = new SphereGeometry(0.5, props.ballSize, props.ballSize);
+  const ballMaterial = new MeshPhongMaterial({ color: 0xff0000 });
+  ball = new Mesh(ballGeometry, ballMaterial);
+  ball.scale.set(1, 1, 1);
+  ball.position.set(posX, posY, posZ); // ボールを迷路の中に配置
+  ball.visible = isDebug; // 3Dボールを非表示に設定
+  scene.add(ball);
+
+  // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
+  const shape = new CANNON.Sphere(0.5);
+  ballBody = new CANNON.Body({
+    mass: 9.8, // ボールの質量を小さくする
+    shape: shape,
+    position: new CANNON.Vec3(ball.position.x, ball.position.y, ball.position.z),
+    linearDamping: 0.3, // 強めの減衰設定
+    angularDamping: 0.9, // 回転の減衰設定
+  });
+  // ボールとコライダーの間で衝突の反発係数（リスティチューション）を設定し、衝突後にボールが跳ね返るようにします。
+  ballBody.material = new CANNON.Material();
+  ballBody.material.restitution = 0.7; // 反発係数を設定
+  world.addBody(ballBody);
+};*/
 
 const createBall = (posX: number, posY: number, posZ: number) => {
   const ballGeometry = new SphereGeometry(0.5, props.ballSize, props.ballSize);
@@ -332,15 +358,24 @@ const createBall = (posX: number, posY: number, posZ: number) => {
   // ボールの質量を調整することで、物理エンジンがボールの動きをより正確にシミュレートできるようにします。
   const shape = new CANNON.Sphere(0.5);
   ballBody = new CANNON.Body({
-    mass: 1, // ボールの質量を小さくする
+    mass: 1, // 質量を1に設定
     shape: shape,
     position: new CANNON.Vec3(ball.position.x, ball.position.y, ball.position.z),
-    linearDamping: 0.1, // 強めの減衰設定
-    angularDamping: 0.5, // 回転の減衰設定
+    linearDamping: 0.5, // 線形減衰を増加
+    angularDamping: 0.99, // 角度（回転）減衰を大幅に増加
   });
+
+  // 慣性モーメントを手動で設定
+  const radius = 10; // ボールの半径
+  const I = (2 / 5) * ballBody.mass * radius * radius;
+  ballBody.inertia.set(I, I, I);
+  ballBody.updateMassProperties();
+
   // ボールとコライダーの間で衝突の反発係数（リスティチューション）を設定し、衝突後にボールが跳ね返るようにします。
   ballBody.material = new CANNON.Material();
-  ballBody.material.restitution = 0.7; // 反発係数を設定
+  ballBody.material.friction = 0.5; // 摩擦係数を設定
+  ballBody.material.restitution = 0.2; // 反発係数を低めに設定
+
   world.addBody(ballBody);
 };
 
@@ -353,8 +388,8 @@ const updatePhysics = () => {
   // 3Dボールの上に2D画像を重ねる
   if (ballImage) {
     ballImage.position.set(ballBody.position.x, ballBody.position.y, 3);
-    // ballImage.quaternion.copy(ballBody.quaternion)
-    // ballImage.rotation.set(0, 0, ball.rotation.z)
+    ballImage.quaternion.copy(ballBody.quaternion);
+    ballImage.rotation.set(0, 0, ball.rotation.z);
   }
 
   // デバイスの傾きを力に変換
@@ -427,38 +462,37 @@ const updateCameraPosition = () => {
 
   // ボールの位置を取得
   // const ballPosition = ball.position.clone()
-  // ボールの位置に基づいてカメラを更新
   const ballPosition = ballBody.position;
 
-  // カメラの新しい位置を計算
+  // ボールの位置に基づいてカメラを更新
   let newX = ballPosition.x;
-  let newY = ballPosition.y;
+  // let newY = ballPosition.y;// Y軸固定につきコメントアウト;
 
   // 現在のカメラ位置を取得
   const currentX = provider.camera.position.x;
-  const currentY = provider.camera.position.y;
+  // const currentY = provider.camera.position.y;// Y軸固定につきコメントアウト;
 
   // カメラの可動範囲内にボールがあるか判定
   const inBoxX = minBound.x < ballPosition.x && ballPosition.x < maxBound.x;
-  const inBoxY = minBound.y < ballPosition.y && ballPosition.y < maxBound.y;
+  // const inBoxY = minBound.y < ballPosition.y && ballPosition.y < maxBound.y;// Y軸固定につきコメントアウト;
 
   // ボールがバウンディングボックス内にある場合のみカメラの位置を更新
-  if (inBoxX || inBoxY) {
-    if (inBoxX) {
-      newX = Math.max(minBound.x, Math.min(maxBound.x, newX));
-    } else {
-      newX = currentX;
-    }
-    if (inBoxY) {
-      newY = Math.max(minBound.y, Math.min(maxBound.y, newY));
-    } else {
-      newY = currentY;
-    }
-    provider.camera.position.set(newX, newY, provider.camera.position.z);
-    if (inBoxX && inBoxY) {
-      provider.camera.lookAt(ballPosition.x, ballPosition.y, ballPosition.z);
-    }
+  // if (inBoxX || inBoxY) {// Y軸固定につきコメントアウト;
+  if (inBoxX) {
+    newX = Math.max(minBound.x, Math.min(maxBound.x, newX));
+  } else {
+    newX = currentX;
   }
+  provider.camera.lookAt(ballPosition.x, 0, ballPosition.z);
+
+  //if (inBoxY) {// Y軸固定につきコメントアウト;
+  //  newY = Math.max(minBound.y, Math.min(maxBound.y, newY));
+  //} else {
+  //  newY = currentY;
+  //}
+  //provider.camera.position.set(newX, newY, provider.camera.position.z); Y軸固定につきコメントアウト
+  provider.camera.position.set(newX, provider.camera.position.y, provider.camera.position.z);
+  // }
 };
 // ゴールに到達したかどうかのチェック
 const checkGoal = () => {

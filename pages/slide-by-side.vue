@@ -34,7 +34,6 @@ const components = [
   { component: ThreeView, props: { contentNo: 1 } },
   { component: ThreeView, props: { contentNo: 2 } },
   { component: Page3, props: { pageIndex: 3 } },
-  { component: CanvasView, props: { contentNo: 1 } },
 ];
 const currentIndex = computed(() => {
   return useUser().readingState.currentIndex;
