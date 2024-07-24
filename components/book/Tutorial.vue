@@ -68,7 +68,7 @@ import { useConfetti } from "@/components/canvases/class/Confetti";
 import HighlightOverlay from "@/components/lock/Highlight.vue";
 import PermissionButton from "@/components/permission/DeviceOrientation.vue";
 import CompleteOverlay from "@/components/book/Layer_Labyrinth000.vue";
-import illustPath001 from "@/assets/images/labyrinth/unevencircle003.png";
+import illustPath001 from "@/assets/images/labyrinth/uevencircle003splite.png";
 import illustPath002 from "@/assets/images/utils/touch.png";
 import illustPath003 from "@/assets/images/utils/gyroscope.png";
 import illustPath004 from "@/assets/images/utils/key_arrow.png";
@@ -100,6 +100,10 @@ const imgRect = ref<{ left: number; top: number; right: number; bottom: number }
   bottom: 0,
 });
 let animationId: number | null = null;
+const currentSpliteFrame = ref(0);
+const FRAME_WIDTH = 630; // スプライトの1フレームの幅
+const FRAME_HEIGHT = 630; // スプライトの1フレームの高さ
+const FRAME_COUNT = 2; // アニメーションの総フレーム数
 // -----------------------------------------------
 // Tour
 const showOverlay = ref<boolean>(false);
@@ -299,7 +303,7 @@ const animate = () => {
   if (img) {
     const canvas = provider.canvas;
     const ctx = provider.context;
-    const imageSize = calculateImageSize(img.width, img.height);
+    const imageSize = calculateImageSize(img.width / FRAME_COUNT, img.height);
 
     let x: number = mouse.value.x;
     let y: number = mouse.value.y;
@@ -344,7 +348,21 @@ const animate = () => {
       };
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, imgRect.value.left, imgRect.value.top, imageSize.width, imageSize.height);
+      // ctx.drawImage(img, imgRect.value.left, imgRect.value.top, imageSize.width, imageSize.height);
+
+      ctx.drawImage(
+        img,
+        currentSpliteFrame.value * FRAME_WIDTH,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+        imgRect.value.left,
+        imgRect.value.top,
+        imageSize.width,
+        imageSize.height
+      );
+
+      currentSpliteFrame.value = (currentSpliteFrame.value + 1) % FRAME_COUNT;
     }
   }
   // 紙吹雪を更新して描画
@@ -362,6 +380,8 @@ const loadImage = () => {
   img = new Image();
   img.src = illustPath001;
 
+  currentSpliteFrame.value = 0;
+
   img.onload = function () {
     if (!img) return;
     const canvas = provider.canvas;
@@ -369,7 +389,7 @@ const loadImage = () => {
 
     const x = (canvas.width - img.width) / 2;
     const y = (canvas.height - img.height) / 2;
-    const imageSize = calculateImageSize(img.width, img.height);
+    const imageSize = calculateImageSize(img.width / FRAME_COUNT, img.height);
     // 初期化
     imgRect.value = {
       left: x,

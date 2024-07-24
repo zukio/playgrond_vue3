@@ -144,11 +144,12 @@ defineExpose({
 
 <style scoped>
 #permissionOverlay {
-  position: fixed;
+  position: absolute;
   bottom: 30px;
   right: 0;
   z-index: 1000;
   width: 100%;
+  max-width: 100svw;
   /*height: 100%;*/
   display: flex;
   justify-content: center;

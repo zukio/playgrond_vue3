@@ -99,7 +99,7 @@ const setAnimation = () => {
     if (boxes.length > 0) {
       gsapCtxTL = gsap
         .timeline()
-        .to(boxes[0], { x: 100, rotation: 360 })
+        .to(boxes[0], { x: 100, y: -130, rotation: 360 })
         .to(boxes[1], { x: -100, y: 100, rotation: -360 }, "<")
         .to(boxes[2], { x: -166 }, "<")
         .reverse();
@@ -111,6 +111,7 @@ const setAnimation = () => {
 const onSlideVisible = () => {
   isActive.value = true;
   setAnimation();
+  toggleTimeline();
 };
 const onSlideHidden = () => {
   hideAllTooltips();

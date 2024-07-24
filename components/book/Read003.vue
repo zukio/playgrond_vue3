@@ -45,7 +45,7 @@ const props = defineProps<{
 // Emitsの定義
 const emit = defineEmits(["customEvent"]);
 
-const scripts = ["ぼっち！こっち、こっち！", "そうだ、さがしたから であえたんだ\nずっと いっしょにいようね"];
+const scripts = ["ぼっち！こっち、こっち！", "みつかるまで さがしたから であえたんだ\nずっと いっしょにいようね"];
 // -----------------------------------------------
 // Tooltip
 const tooltipRefs = ref<Array<any>>([]); // Array to hold references to tooltip components
