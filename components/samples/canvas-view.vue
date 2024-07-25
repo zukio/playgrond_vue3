@@ -15,7 +15,7 @@
 import { ref, computed, type CSSProperties } from "vue";
 import CanvasContainer from "@/components/canvases/CanvasContainer.vue";
 import Tutorial from "@/components/book/Tutorial.vue";
-import WelcomeAnim from "@/components/canvases/WelcomeAnim.vue";
+import LastScene from "@/components/book/Last.vue";
 
 const props = defineProps({
   contentNo: {
@@ -35,7 +35,7 @@ const backgroundColor = (index: number) => {
 const currentIndex = ref(0);
 const components = [
   { component: Tutorial, props: { pageIndex: 0 }, ref: null },
-  { component: WelcomeAnim, props: { pageIndex: 0 }, ref: null },
+  { component: LastScene, props: { pageIndex: 1 }, ref: null },
 ];
 const activeComponent: any = computed(() => {
   return components[currentIndex.value] || null;

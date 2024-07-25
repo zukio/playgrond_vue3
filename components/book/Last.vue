@@ -4,57 +4,33 @@
     ref="layerContainer"
     class="layer-on-canvas"
   >
-    <PermissionButton v-if="!permissionGranted.isChecked" @click="handlePermissionResponse" ref="permissionComponent" />
-    <div class="boad boad01" v-if="props.pageIndex == 0">
-      <div class="textline">
-        <p v-for="(script, index) in scripts[props.pageIndex ?? 0]" :key="script" :class="{ h1: index == 0 }">
+    <div class="boad boad01 row">
+      <div class="textline col-xl">
+        <p v-for="(script, index) in scripts" :key="script" :class="{ h1: index == 0 }">
           {{ script }}
         </p>
+        <button class="btn btn-dark btn-lg mt-3" @click="($event) => emit('customEvent', { type: 'close' })">
+          おしまい
+        </button>
+      </div>
+      <div class="graphics">
+        <!--div id="charactor001">
+          <TooltipMultiple title="ぼっちだよ" placement="bottom" :ref="setTooltipRef(0)">
+            <img src="@/assets/images/labyrinth/unevencircle001.gif" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div-->
+        <div id="charactor002">
+          <TooltipMultiple title="まっち" placement="bottom" :ref="setTooltipRef(1)">
+            <img :src="illustPath002" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div>
+        <div id="charactor003">
+          <TooltipMultiple title="ぱっち" placement="bottom" :ref="setTooltipRef(2)">
+            <img :src="illustPath003" alt="sample" class="diggle" />
+          </TooltipMultiple>
+        </div>
       </div>
     </div>
-    <HighlightOverlay
-      v-if="showOverlay"
-      :highlightRect="{
-        x: imgRect?.left || 0,
-        y: imgRect?.top || 0,
-        width: imgRect?.right - imgRect?.left || 0,
-        height: imgRect?.bottom - imgRect?.top || 0,
-      }"
-      :title="propsTiltle"
-      :description="propsDescription"
-      ref="highlightOverlay"
-    >
-      <div class="text-center">
-        <img v-if="tourIndex == 0" :src="illustPath002" ref="gyroscope" width="100" height="auto" />
-        <img
-          v-else-if="tourIndex == 1 && permissionGranted.available"
-          :src="illustPath003"
-          ref="touch"
-          width="100"
-          height="auto"
-        />
-        <img
-          v-else-if="tourIndex == 1 && !permissionGranted.available"
-          :src="illustPath004"
-          ref="keybord"
-          width="100"
-          height="auto"
-        />
-      </div>
-    </HighlightOverlay>
-    <CompleteOverlay
-      id="completeModal"
-      ref="completeModal"
-      title="じゅんびができた！"
-      description="まっちをさがしにいこう"
-      class="clamp-in-page"
-    >
-      <template #image>
-        <TooltipStatic class="position-relative" title="これがまっち" placement="bottom">
-          <img :src="illustPath005" width="200" height="auto" />
-        </TooltipStatic>
-      </template>
-    </CompleteOverlay>
   </div>
 </template>
 
@@ -65,14 +41,9 @@ import type { Rotation, Permission } from "@/types";
 import { debounce } from "@/utils/";
 import { handleOrientation, debugOrientation } from "@/utils/orientation"; // 改善されたユーティリティ関数をインポート
 import { useConfetti } from "@/components/canvases/class/Confetti";
-import HighlightOverlay from "@/components/lock/Highlight.vue";
-import PermissionButton from "@/components/permission/DeviceOrientation.vue";
-import CompleteOverlay from "@/components/book/Layer_Labyrinth000.vue";
-import illustPath001 from "@/assets/images/labyrinth/uevencircle003splite.png";
-import illustPath002 from "@/assets/images/utils/touch.png";
-import illustPath003 from "@/assets/images/utils/gyroscope.png";
-import illustPath004 from "@/assets/images/utils/key_arrow.png";
-import illustPath005 from "@/assets/images/labyrinth/unevencircle002.png";
+import illustPath001 from "@/assets/images/labyrinth/unevencircle001b.png";
+import illustPath002 from "@/assets/images/labyrinth/unevencircle002b.png";
+import illustPath003 from "@/assets/images/labyrinth/unevencircle003b.png";
 
 // -----------------------------------------------
 // data
@@ -90,11 +61,10 @@ const props = defineProps<{
 // Emitsの定義
 const emit = defineEmits(["customEvent"]);
 
-const scripts = [["さいしょは みんな はなれてたんだ", "ぱっち と まっち を さがしにいこう！"]];
+const scripts = ["ぼっち！こっち、こっち！", "みつかるまで さがしたから であえたんだ\nずっと いっしょにいようね"];
 
 const layerContainer = ref<HTMLElement | null>(null);
-const highlightOverlay = ref<any>(null);
-const completeModal = ref<any>(null);
+
 let img: HTMLImageElement | null = null;
 const imgRect = ref<{ left: number; top: number; right: number; bottom: number }>({
   left: 0,
@@ -106,74 +76,25 @@ let animationId: number | null = null;
 const currentSpliteFrame = ref(0);
 const FRAME_WIDTH = 630; // スプライトの1フレームの幅
 const FRAME_HEIGHT = 630; // スプライトの1フレームの高さ
-const FRAME_COUNT = 2; // アニメーションの総フレーム数
+const FRAME_COUNT = 1; // アニメーションの総フレーム数
 // -----------------------------------------------
-// Tour
-const showOverlay = ref<boolean>(false);
-const tryCount = ref<number>(0);
-//　const tryTimeoutId = ref<NodeJS.Timeout | null>(null);
-const tourIndex = ref<number>(-1);
-const tourSteps = [
-  {
-    popover: { title: "ぱっちをころがしてみよう", description: "かたむけてころがす" },
-  },
-];
-const propsTiltle = computed(() => {
-  const activeStep = tourIndex.value < tourSteps.length ? tourSteps[tourIndex.value] : null;
-  if (activeStep && activeStep.popover && activeStep.popover.title) {
-    return activeStep.popover.title;
-  }
-  return "";
-});
-const propsDescription = computed(() => {
-  const activeStep = tourIndex.value < tourSteps.length ? tourSteps[tourIndex.value] : null;
+// Tooltip
+const tooltipRefs = ref<Array<any>>([]); // Array to hold references to tooltip components
+const setTooltipRef = (index: number) => (el: any) => {
+  tooltipRefs.value[index] = el;
+};
 
-  if (activeStep && activeStep.popover && activeStep.popover.description) {
-    if (tourIndex.value == 0) {
-      return "キーボードをおしてみて！";
-    }
-    return activeStep.popover.description;
-  }
-  return "";
-});
+const showAllTooltips = () => {
+  tooltipRefs.value.forEach((tooltip) => {
+    tooltip.show();
+  });
+};
 
-const onTour = computed(() => {
-  return tourIndex.value >= 0;
-});
-
-function driveTour(stepNo: number = 0) {
-  if (stepNo < tourSteps.length) {
-    tourIndex.value = onTour.value ? stepNo : 0;
-    showOverlay.value = true;
-  } else if (stepNo == tourSteps.length) {
-    triggerConfetti();
-    completeModal.value?.show();
-  }
-}
-
-function hideTour() {
-  showOverlay.value = false;
-  // チュートリアル試行回数が不足（かつ制限時間以内）
-  if (tryCount.value < 3) {
-    tryCount.value += 1;
-    return;
-  }
-  // チュートリアル達成（試行回数、制限時間をリセット）
-  tryCount.value = 0;
-  // NextStep
-  tourIndex.value += 1;
-  driveTour(tourIndex.value);
-}
-
-function resetTour() {
-  tourIndex.value = -1;
-  showOverlay.value = false;
-  tryCount.value = 0;
-  completeModal.value?.hide();
-}
-
-const { initConfetti, setConfettiCanvas, triggerConfetti, updateAndDrawConfetti, isConfettiActive } = useConfetti();
-
+const hideAllTooltips = () => {
+  tooltipRefs.value.forEach((tooltip) => {
+    tooltip.hide();
+  });
+};
 // -----------------------------------------------
 // マウスドラッグ
 const mouse = ref({ x: 0, y: 0 });
@@ -183,7 +104,9 @@ const isDragging = ref<boolean>(false);
 const permissionGranted = computed((): Permission => {
   return useUser().isDeviceOrientationAvailable ?? { isChecked: false, available: false };
 });
-const permissionComponent = ref<any | null>(null);
+watch(permissionGranted, (permission) => {
+  handlePermissionResponse(permission.available);
+});
 const rotation = ref<Rotation>({ alpha: 0, beta: 90, gamma: 0, absolute: false });
 
 // -----------------------------------------------
@@ -191,6 +114,15 @@ const rotation = ref<Rotation>({ alpha: 0, beta: 90, gamma: 0, absolute: false }
 let world: CANNON.World | null = null;
 let body: CANNON.Body | null = null;
 let ground: CANNON.Body | null = null;
+
+const physicsPosition = computed(() => {
+  const canvasWidth = provider.canvas ? provider.canvas.width : window.innerWidth;
+  const canvasHeight = provider.canvas ? provider.canvas.height : window.innerHeight;
+  return {
+    x: (0 - canvasWidth / 2) / 50,
+    y: -1 * ((canvasHeight - canvasHeight / 2) / 50),
+  };
+});
 
 const setupPhysics = () => {
   // World setup
@@ -203,7 +135,8 @@ const setupPhysics = () => {
   ground = new CANNON.Body({ mass: 0, material: groundMaterial });
   ground.addShape(groundShape);
   // Groundの位置を設定
-  ground.position.set(0, -6, 0); // 高さ -5 に設定
+
+  ground.position.set(0, physicsPosition.value.y * 0.7, 0); // 高さ -5 に設定
   ground.quaternion.setFromEuler(-Math.PI / 2, 0, 0); // 水平に配置
   world.addBody(ground);
 
@@ -212,17 +145,22 @@ const setupPhysics = () => {
   const boxMaterial = new CANNON.Material();
   body = new CANNON.Body({ mass: 1, material: boxMaterial });
   body.addShape(boxShape);
-  body.position.set(0, 5, 0); // Start position
+
+  // Start position: off-screen to the left
+  body.position.set(physicsPosition.value.x * 0.5, -physicsPosition.value.y * 0.5, 0);
+
+  // Initial velocity to push the body into the screen
+  body.velocity.set(5, 0, 0);
+  body.angularVelocity.set(0, 0, -5);
+
   world.addBody(body);
 
   // 衝突イベントのリッスン
   body.addEventListener("collide", (event: any) => {
     if (!isActive) return;
     if (event.body === ground) {
-      // stopAnimation();
-      if (!onTour.value) {
-        driveTour(tourIndex.value);
-      }
+      body!.velocity.scale(0.8);
+      body!.angularVelocity.scale(0.8);
     }
   });
 };
@@ -251,13 +189,13 @@ const calculateImageSize = (sampleW: number, sampleH: number): { width: number; 
   // 画像の長い方を画面の短い方の長さの0.3倍にする
   if (sampleW > sampleH) {
     return {
-      width: minDimension * 0.3,
-      height: (minDimension * 0.3) / aspectRatio,
+      width: minDimension * 0.2,
+      height: (minDimension * 0.2) / aspectRatio,
     };
   } else {
     return {
-      width: minDimension * 0.3 * aspectRatio,
-      height: minDimension * 0.3,
+      width: minDimension * 0.2 * aspectRatio,
+      height: minDimension * 0.2,
     };
   }
 };
@@ -278,11 +216,17 @@ const keepInBounds = (
 
   return { x, y };
 };
+const { initConfetti, setConfettiCanvas, triggerConfetti, updateAndDrawConfetti, isConfettiActive } = useConfetti();
 
 // ----------------
 // Canvas Animation
 const startAnimation = () => {
   if (animationId === null) {
+    if (body) {
+      body.position.set(physicsPosition.value.x * 0.5, -physicsPosition.value.y * 0.5, 0);
+      body.velocity.set(5, 0, 0);
+      body.angularVelocity.set(0, 0, -5);
+    }
     animate();
   }
 };
@@ -300,70 +244,59 @@ const animate = () => {
     return;
   }
 
-  if (img) {
+  if (img && body) {
     const canvas = provider.canvas;
     const ctx = provider.context;
     const imageSize = calculateImageSize(img.width / FRAME_COUNT, img.height);
 
-    let x: number = mouse.value.x;
-    let y: number = mouse.value.y;
-
-    if (body) {
-      if (isDragging.value || !world) {
-        body.position.x = (mouse.value.x - canvas.width / 2) / 50; // Convert from pixels to physics units
-        body.position.y = (canvas.height - mouse.value.y - canvas.height / 2) / 50; // Convert and flip y-axis
-        body.velocity.set(0, 0, 0); // Reset velocity to prevent drifting
-        body.angularVelocity.set(0, 0, 0); // Reset angular velocity
-      } else {
-        // Physics step
-        world.step(1 / 60);
-
-        // Update image position from physics body
-        x = body.position.x * 50 + canvas.width / 2; // Convert from physics units to pixels
-        y = canvas.height - (body.position.y * 50 + canvas.height / 2); // Convert from physics units to pixels and flip y-axis
-
-        // 境界チェックを適用
-        const clampedPosition = keepInBounds(x, y, imageSize, canvas);
-
-        // 物体の位置が境界を超える場合、速度をゼロにリセット
-        if (x !== clampedPosition.x || world.gravity.x == 0) {
-          body.velocity.x = 0;
-          body.position.x = (clampedPosition.x - canvas.width / 2) / 50; // Update position to keep within bounds
-        }
-        if (y !== clampedPosition.y || world.gravity.y == 0) {
-          body.velocity.y = 0;
-          body.position.y = (canvas.height - clampedPosition.y - canvas.height / 2) / 50; // Update position to keep within bounds
-        }
-
-        x = clampedPosition.x;
-        y = clampedPosition.y;
-      }
+    // Physics step
+    if (world) {
+      world.step(1 / 60);
     }
-    if (x && y) {
-      imgRect.value = {
-        left: x - imageSize.width / 2,
-        top: y - imageSize.height / 2,
-        right: x + imageSize.width / 2,
-        bottom: y + imageSize.height / 2,
-      };
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // ctx.drawImage(img, imgRect.value.left, imgRect.value.top, imageSize.width, imageSize.height);
+    // Update image position from physics body
+    let x = body.position.x * 50 + canvas.width / 2; // Convert from physics units to pixels
+    let y = canvas.height - (body.position.y * 50 + canvas.height / 2); // Convert from physics units to pixels and flip y-axis
 
-      ctx.drawImage(
-        img,
-        currentSpliteFrame.value * FRAME_WIDTH,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        imgRect.value.left,
-        imgRect.value.top,
-        imageSize.width,
-        imageSize.height
-      );
+    // 境界チェックを適用
+    const clampedPosition = keepInBounds(x, y, imageSize, canvas);
 
-      currentSpliteFrame.value = (currentSpliteFrame.value + 1) % FRAME_COUNT;
+    // Update body position if it's outside bounds
+    if (x !== clampedPosition.x || y !== clampedPosition.y) {
+      body.position.x = (clampedPosition.x - canvas.width / 2) / 50;
+      body.position.y = (canvas.height - clampedPosition.y - canvas.height / 2) / 50;
+      body.velocity.set(0, 0, 0);
+      body.angularVelocity.set(0, 0, 0); // Stop rotation when hitting bounds
     }
+
+    x = clampedPosition.x;
+    y = clampedPosition.y;
+
+    imgRect.value = {
+      left: x - imageSize.width / 2,
+      top: y - imageSize.height / 2,
+      right: x + imageSize.width / 2,
+      bottom: y + imageSize.height / 2,
+    };
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Save the current context state
+    ctx.save();
+
+    ctx.drawImage(
+      img,
+      currentSpliteFrame.value * FRAME_WIDTH,
+      0,
+      FRAME_WIDTH,
+      FRAME_HEIGHT,
+      imgRect.value.left,
+      imgRect.value.top,
+      imageSize.width,
+      imageSize.height
+    );
+    // Restore the context to its original state
+    ctx.restore();
+    currentSpliteFrame.value = (currentSpliteFrame.value + 1) % FRAME_COUNT;
   }
   // 紙吹雪を更新して描画
   updateAndDrawConfetti(provider.context);
@@ -387,7 +320,7 @@ const loadImage = () => {
     const canvas = provider.canvas;
     const ctx = provider.context;
 
-    const x = (canvas.width - img.width) / 2;
+    const x = 0;
     const y = (canvas.height - img.height) / 2;
     const imageSize = calculateImageSize(img.width / FRAME_COUNT, img.height);
     // 初期化
@@ -464,10 +397,6 @@ const onMouseDown = (evt: MouseEvent | TouchEvent) => {
   if (x >= imgRect.value.left && x <= imgRect.value.right && y >= imgRect.value.top && y <= imgRect.value.bottom) {
     isDragging.value = true;
     startAnimation();
-    // チュートリアル（タッチ・マウスで動かす）を達成
-    if (onTour.value && tourIndex.value == 0) {
-      hideTour();
-    }
   }
 };
 const onMouseUp = () => {
@@ -514,8 +443,6 @@ const localHandleOrientation = (event: DeviceOrientationEvent) => {
   if (!isActive.value) return;
   handleOrientation(event, rotation);
   updateGravity();
-  // チュートリアル（ジャイロで動かす）を達成
-  if (onTour.value && tourIndex.value == 1) hideTour();
 };
 
 const localFallbackOrientation = (event: KeyboardEvent) => {
@@ -524,8 +451,6 @@ const localFallbackOrientation = (event: KeyboardEvent) => {
   // ヘルパー関数はデバッグ用のフォールバックでプレイ用とは異なる
   debugOrientation(event, 90, rotation);
   updateGravity();
-  // チュートリアル（キーボードで動かす）を達成
-  if (onTour.value && tourIndex.value == 1) hideTour();
   // デバッグ用出力
   // console.log("Fallback Orientation:", rotation.value.alpha, rotation.value.beta, rotation.value.gamma);
 };
@@ -538,17 +463,6 @@ const handlePermissionResponse = (isDeviceOrientationAvailable: boolean) => {
   }
 };
 
-async function checkOrientationAvailability() {
-  if (permissionComponent.value) {
-    try {
-      const isAvailable = await permissionComponent.value.checkDeviceOrientationAvailability();
-      handlePermissionResponse(isAvailable);
-    } catch (error) {
-      console.error("Error checking orientation availability:", error);
-      handlePermissionResponse(false); // フォールバックを設定
-    }
-  }
-}
 // -----------------------------------------------
 // Page Visibility
 const onSlideVisible = () => {
@@ -558,7 +472,6 @@ const onSlideVisible = () => {
 };
 const onSlideHidden = () => {
   stopAnimation();
-  resetTour();
   isActive.value = false;
 };
 const activeSelf = (activate: boolean) => {
@@ -570,7 +483,6 @@ const activeSelf = (activate: boolean) => {
 // -----------------------------------------------
 // Lifecycle
 onMounted(async () => {
-  await checkOrientationAvailability();
   window.addEventListener("resize", debouncedOnResize);
 });
 
@@ -619,16 +531,38 @@ h2.center {
   &.boad01 {
     .textline {
       position: absolute;
-      left: 10%;
       top: 20%;
-      text-align: left;
+      text-align: center;
       white-space: pre-wrap;
     }
     .graphics {
       position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 5svw;
       bottom: 5%;
+      display: flex;
+      justify-content: end;
+      flex-wrap: wrap;
+      #charactor001 {
+        width: 40svh;
+        height: 40svh;
+        animation: rotate 2s linear infinite; // 2秒間で1回転、無限に繰り返し
+      }
+      #charactor002 {
+        img {
+          width: 20svh;
+          max-width: calc(1.25 * 20svw);
+          height: auto;
+          animation: rotate 3s ease-in-out infinite; // 3秒間で1回転、イーズイン・アウト、無限に繰り返し
+        }
+      }
+      #charactor003 {
+        img {
+          width: 26svh;
+          max-width: calc(1.35 * 20svw);
+          height: auto;
+          animation: rotate 4s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite; // 4秒間で1回転、カスタムイージング、無限に繰り返し
+        }
+      }
     }
   }
   p {

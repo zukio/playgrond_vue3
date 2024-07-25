@@ -2,9 +2,7 @@
   <div class="container">
     <section id="book-intro">
       <h2 class="title h1">あっちこっちぼっちどっち</h2>
-      <p class="description">
-        デジタル絵本の概要や説明を記述します。この絵本は素晴らしい内容で、子供から大人まで楽しめる作品です。クリックすると作品を始められます。
-      </p>
+      <p class="description">Acchi-Cocchi-Bocchi-Docchi</p>
     </section>
     <section id="contents">
       <div

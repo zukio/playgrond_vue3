@@ -32,8 +32,7 @@ const components = [
   { component: CanvasView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 0 } },
   { component: ThreeView, props: { contentNo: 1 } },
-  { component: ThreeView, props: { contentNo: 2 } },
-  { component: Page3, props: { pageIndex: 3 } },
+  { component: CanvasView, props: { contentNo: 1 } },
 ];
 const currentIndex = computed(() => {
   return useUser().readingState.currentIndex;
@@ -55,6 +54,7 @@ const handleCustomEvent = (eventData: any) => {
       }
       break;
     case "close":
+      console.log("close");
       sendMessageToParent();
       break;
     default:
